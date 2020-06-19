@@ -188,7 +188,7 @@ export default {
 
     getAllExistData() {
       axios
-        .get("http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/getByReform", {
+        .get("http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/byReform", {
           params: {
             tz: this.empId,
             mosadId: 2,
