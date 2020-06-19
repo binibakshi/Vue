@@ -1,0 +1,547 @@
+<template>
+  <div class="wrapper" v-show="Object.keys(this.tz).length >= 9">
+    <h1 class="center">{{ _reformDiscription }}</h1>
+    <!-- <select v-model="reformType">
+      <option value=""></option>
+      <option
+        v-for="(reform, index) in _sortReformTypes"
+        :key="index"
+        v-bind:value="reform.reformId"
+      >
+        <span> {{ reform.name }} </span>
+      </option>
+    </select> -->
+    <div v-show="reformType != 0">
+      <div class="first02">
+        <table class="table" id="t01">
+          <thead>
+            <tr>
+              <th></th>
+              <th>סוג</th>
+              <th>קוד פיצול</th>
+              <th>תיאור קוד פיצול</th>
+              <th>שעות</th>
+              <th>אחוז משרה</th>
+              <th>א'</th>
+              <th>ב'</th>
+              <th>ג'</th>
+              <th>ד'</th>
+              <th>ה'</th>
+              <th>ו'</th>
+              <th>סך הכל</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, index) in _sortMainTable" :key="index">
+              <td>
+                <a
+                  v-if="row.type == 'frontal' && index != 0"
+                  @click="removeRow(index)"
+                  >הסר</a
+                >
+              </td>
+              <td>
+                {{ convertReformDescription(row.type) }}
+              </td>
+              <td>
+                <select
+                  v-model="row.code"
+                  @change="setPrivateAndPauseCodes(row.code)"
+                >
+                  <option value=""></option>
+                  <option
+                    v-for="(code, index) in codeDescriptions"
+                    :key="index"
+                    v-bind:value="code.code"
+                  >
+                    <span> {{ code.code }} </span>
+                  </option>
+                </select>
+              </td>
+              <td class="test">{{ currCodeDescription(row.code) }}</td>
+              <td>
+                <input
+                  type="number"
+                  v-model="row.hours"
+                  :disabled="row.code <= 0 || row.type != 'frontal'"
+                />
+              </td>
+              <td class="test">{{ currOptionjobPercent(row.hours) }}%</td>
+              <td v-for="(cell, index2) in row.week" :key="index2">
+                <input
+                  type="number"
+                  v-model="row.week[index2]"
+                  :disabled="row.hours <= 0"
+                />
+              </td>
+              <td
+                :style="{
+                  color: validRowsHours(row) == false ? 'red' : 'inherit',
+                }"
+              >
+                {{ rowSum(row.week) }}
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>סך</td>
+              <td>--</td>
+              <td>--</td>
+              <td>{{ hoursAmount() }}</td>
+              <td>{{ currOptionjobPercent(hoursAmount()) }}%</td>
+              <td v-for="(day, index) in parseInt(6)" :key="index">
+                {{ dayAmount(day - 1) }}
+              </td>
+              <td
+                :style="{
+                  color: validTotalHours() == false ? 'red' : 'inherit',
+                }"
+              >
+                {{ tableSum() }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <v-row>
+          <v-btn class="myBtn" color="success" @click="addNewRow()">הוסף</v-btn>
+          <v-btn class="myBtn" color="info" @click="calcAllCodes()">חשב</v-btn>
+          <v-btn class="myBtn" color="info" @click="saveHours()"
+            >שמור שעות</v-btn
+          >
+          <v-spacer></v-spacer>
+          <h4>סך שעות : {{ hoursAmount() }}</h4>
+        </v-row>
+        <v-row>
+          <v-spacer></v-spacer>
+
+          <h4>סך אחוז משרה : {{ hoursAmount() }}</h4>
+        </v-row>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+
+export default {
+  name: "weeklyHours",
+  props: ["tz", "reformType"],
+
+  data() {
+    return {
+      newHours: [
+        { type: "frontal", hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+        // { type: "pause", hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+        // { type: "private", hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+      ],
+      tableToSave: [],
+      empOptions: [],
+      reformTypes: [],
+      jobPercent: 0,
+      frontalHours: 0,
+      employeeInfo: {},
+      codeDescriptions: [],
+      hoursCodes: [],
+      existHours: [],
+    };
+  },
+  created() {
+    this.getHoursCodes();
+    this.getCodeDescriptions();
+    this.getReformTypes();
+    // this.getExistHours();
+  },
+  methods: {
+    getpauseAndPrivateHours() {
+      axios
+        .get("http://localhost:9191/calcHours/byId", {
+          params: {
+            tz: this.tz,
+            reformType: this.reformType,
+            frontalHours: this.frontalHours,
+          },
+        })
+        .then((response) => {
+          this.newHours.find((el) => el.type == "pause").hours =
+            response.data.pauseHours;
+          this.newHours.find((el) => el.type == "private").hours =
+            response.data.privateHours;
+          this.jobPercent = response.data.jobPercent;
+        })
+        .catch((error) => console.log(error));
+    },
+    getHoursCodes() {
+      axios
+        .get("http://localhost:9191/convertHours/all")
+        .then((response) => {
+          this.hoursCodes = response.data;
+        })
+        .catch((error) => console.log(error));
+    },
+    getCodeDescriptions() {
+      axios
+        .get("http://localhost:9191/convertHours/byReform", {
+          params: {
+            reformType: this.reformType,
+          },
+        })
+        .then((response) => {
+          this.codeDescriptions = response.data;
+        })
+        .catch((error) => console.log(error));
+    },
+    getReformTypes() {
+      axios
+        .get("http://localhost:9191/reformTypes/relevant")
+        .then((response) => {
+          this.reformTypes = response.data;
+        })
+        .catch((error) => console.log(error));
+    },
+    getEmployeeOptions() {
+      axios
+        .get("http://localhost:9191/calcHours/options", {
+          params: {
+            reformType: this.reformType,
+            tz: this.tz,
+          },
+        })
+        .then((response) => {
+          this.empOptions = response.data;
+        })
+        .catch((error) => console.log(error));
+    },
+    getAllExistData() {
+      axios
+        .get("http://localhost:9191/teacherEmploymentDetails/getByReform", {
+          params: {
+            tz: this.empId,
+            mosadId: 2,
+            reformType: this.reformType,
+          },
+        })
+        .then((response) => {
+          this.existHours = response.data;
+        })
+        .catch((error) => console.log(error));
+    },
+    setNewHoursForSave() {
+      this.tableToSave = [];
+      this.newHours.forEach((element) => {
+        element.week.forEach((day, index) => {
+          if (day > 0) {
+            this.tableToSave.push({
+              tz: this.tz,
+              mosadId: 2,
+              empCode: element.code,
+              day: index,
+              hours: day,
+            });
+          }
+        });
+      });
+    },
+    setPrivateAndPauseCodes(code) {
+      console.log(code);
+      // OFEK HADASH
+      if (code == 5466 || code == 5495) {
+        this.newHours.push({
+          type: "pause",
+          hours: 0,
+          code: 5468,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+        this.newHours.push({
+          type: "private",
+          hours: 0,
+          code: 5467,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+
+        // OFEK HADASH replacement hours
+      } else if (code == 3566) {
+        console.log("test");
+        this.newHours.push({
+          type: "pause",
+          hours: 0,
+          code: 3567,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+        this.newHours.push({
+          type: "private",
+          hours: 0,
+          code: 3568,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+        // OZ LETMURA
+      } else if (code == 9600) {
+        this.newHours.push({
+          type: "pause",
+          hours: 0,
+          code: 9601,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+        this.newHours.push({
+          type: "private",
+          hours: 0,
+          code: 9602,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+        // OZ LETMURA replacement hours
+      } else if (code == 3900) {
+        this.newHours.push({
+          type: "pause",
+          hours: 0,
+          code: 3901,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+        this.newHours.push({
+          type: "private",
+          hours: 0,
+          code: 3902,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+      }
+      // else {
+      //   this.newHours.find((el) => el.type == "pause").code = "";
+      //   this.newHours.find((el) => el.type == "private").code = "";
+      // }
+    },
+    removeRow(index) {
+      if (index === 0) {
+        return;
+      }
+      if (this.newHours[index].type != "frontal") {
+        return;
+      }
+      this.newHours.splice(index, index);
+    },
+    addNewRow() {
+      this.newHours.push({
+        type: "frontal",
+        hours: 0,
+        code: "",
+        week: [0, 0, 0, 0, 0, 0],
+      });
+    },
+    calcAllCodes() {
+      this.getEmployeeOptions();
+      this.frontalHours = 0;
+
+      this.newHours.forEach((el) => {
+        if (el.type == "frontal") {
+          if (!this.isNumber(el.hours)) {
+            el.hours = 0;
+          }
+          this.frontalHours += parseInt(el.hours);
+        }
+      });
+      this.getpauseAndPrivateHours();
+    },
+    isNumber(n) {
+      return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+    },
+    currCodeDescription(index) {
+      if (index != undefined && index > 0) {
+        if (this.codeDescriptions.find((e) => e.code == index) === undefined) {
+          return "";
+        }
+        return this.codeDescriptions.find((e) => e.code == index)
+          .codeDescription;
+      }
+      return "";
+    },
+    currOptionjobPercent(index) {
+      if (index != undefined && index > 0) {
+        if (
+          this.empOptions.find((e) => e.frontalHours == index) === undefined
+        ) {
+          return 0;
+        }
+        return this.empOptions.find((e) => e.frontalHours == index).jobPercent;
+      }
+      return "";
+    },
+    saveHours() {
+      var isSaved = false;
+      this.setNewHoursForSave();
+      if (this.tableToSave.length <= 0) {
+        console.log("no data");
+        return;
+      }
+
+      axios({
+        url: "http://localhost:9191/teacherEmploymentDetails/saveAll",
+        method: "post",
+        data: this.tableToSave,
+      })
+        .then((response) => {
+          console.log(response.data);
+          isSaved = true;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+      return isSaved;
+    },
+    convertReformDescription(reform) {
+      if (reform == "private") {
+        return "פרטני";
+      } else if (reform == "pause") {
+        return "שהייה";
+      } else {
+        return "פרונטלי";
+      }
+    },
+
+    validRowsHours(row) {
+      if (row.hours != undefined && row.hours != this.rowSum(row.week)) {
+        return false;
+      }
+      return true;
+    },
+    validTotalHours() {
+      if (this.hoursAmount() != this.tableSum()) {
+        return false;
+      }
+      return true;
+    },
+    rowSum(weekArray) {
+      return weekArray.reduce((acc, item) => parseInt(acc) + parseInt(item), 0);
+    },
+    tableSum() {
+      return this.newHours.reduce(
+        (acc, item) => parseInt(acc) + this.rowSum(item.week),
+        0
+      );
+    },
+    hoursAmount() {
+      return this.newHours.reduce(
+        (acc, item) => parseInt(acc) + parseInt(item.hours),
+        0
+      );
+    },
+    dayAmount(day) {
+      return this.newHours.reduce(
+        (acc, item) => parseInt(acc) + parseInt(item.week[day]),
+        0
+      );
+    },
+  },
+  computed: {
+    _privateAmount() {
+      var amount = 0;
+      if (this.weeklyHours == undefined) {
+        return 0;
+      } else {
+        for (let index = 0; index < this.weeklyHours.length; index++) {
+          amount += this.weeklyHours[index].privateHours;
+        }
+        return amount;
+      }
+    },
+    _pauseAmount() {
+      var amount = 0;
+      if (this.weeklyHours == undefined) {
+        return 0;
+      } else {
+        for (let index = 0; index < this.weeklyHours.length; index++) {
+          amount += this.weeklyHours[index].pauseHours;
+        }
+        return amount;
+      }
+    },
+    _sortReformTypes() {
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      return this.reformTypes.sort((a, b) => a.maxJobPercent - b.maxJobPercent);
+    },
+    _sortMainTable() {
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      return this.newHours.sort((a, b) => a.type.localeCompare(b.type));
+    },
+    _reformDiscription() {
+      var name = this.reformTypes.find((el) => el.reformId == this.reformType);
+      if (name != undefined) {
+        return name.name;
+      }
+      return "";
+    },
+  },
+};
+</script>
+
+<style scoped>
+.wrapper {
+  width: 1200px;
+  /* border: 1px solid black; */
+  overflow: hidden; /* will contain if #first is longer than #second */
+  margin-right: 2%;
+  margin-bottom: 2%;
+  /* max-width: 95%; */
+}
+/* .first02 {
+  width: 600px;
+  float: right; 
+  margin: 5px;
+} */
+.second02 {
+  margin: 5px;
+  overflow: hidden; /* if you don't want #second to wrap below #first */
+}
+table,
+tr,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  font-weight: bold;
+}
+tbody {
+  display: table-row-group;
+  vertical-align: inherit;
+  border-block: inherit;
+}
+thead {
+  display: table-header-group;
+  vertical-align: inherit;
+  border-color: inherit;
+}
+input {
+  /* border: 1px solid; */
+  max-width: 50px;
+}
+table#t01 td:nth-child() {
+  background-color: #eee;
+}
+.test {
+  background-color: #fafad2;
+}
+#myInput {
+  border: 1px solid black;
+}
+option,
+select {
+  border: 1px solid black;
+}
+input:disabled {
+  background-color: #eff0f1;
+}
+.myBtn {
+  padding: 1px;
+  margin: 1px;
+}
+table {
+  max-width: 98%;
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+}
+
+/* input.disable-input {
+  background-color: gray;
+} */
+</style>
