@@ -215,7 +215,7 @@ export default {
     getExistData() {
       axios
         .get(
-          "http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/getByReform",
+          "http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/byReform",
           {
             params: {
               tz: this.tz,

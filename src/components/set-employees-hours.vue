@@ -155,7 +155,7 @@ export default {
       axios
         .get("http://134.122.120.245:8080/ots-app/employees/byId", {
           params: {
-            id: this.empId,
+            tz: this.empId,
           },
         })
         .then((response) => {
