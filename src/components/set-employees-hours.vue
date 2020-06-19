@@ -94,7 +94,9 @@ export default {
       ozLetmuraData: [],
     };
   },
-  created() {},
+  created() {
+
+  },
   computed: {
     _totalHours() {
       if (this.existHours.length > 0) {
@@ -161,7 +163,7 @@ export default {
         .then((response) => {
           this.employeeInfo = response.data;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => this.displayErrorMessage(error));
       this.getAllExistHours();
       this.getAllExistData();
     },
@@ -175,7 +177,7 @@ export default {
         .then((response) => {
           this.existHours = response.data;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => this.displayErrorMessage(error));
     },
     removeRow(index) {
       this.weeklyHoursComponents.splice(index, index);
@@ -198,8 +200,15 @@ export default {
         .then((response) => {
           this.ozLetmuraData = response.data;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => this.displayErrorMessage(error));
     },
+  displayErrorMessage(error){
+    if (error.response.data.errorMessage == undefined) {
+      console.log(error)
+    } else {
+      alert(error.response.data.errorMessage)
+    }
+  }
   },
 };
 </script>

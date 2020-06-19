@@ -189,7 +189,7 @@ export default {
         .then((response) => {
           this.codeDescription = response.data;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => this.displayErrorMessage(error));
     },
     getReformTypes() {
       axios
@@ -197,7 +197,7 @@ export default {
         .then((response) => {
           this.reformTypes = response.data;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => this.displayErrorMessage(error));
     },
     getEmployeeOptions() {
       axios
@@ -210,7 +210,7 @@ export default {
         .then((response) => {
           this.empOptions = response.data;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => this.displayErrorMessage(error));
     },
     getExistData() {
       axios
@@ -230,7 +230,7 @@ export default {
             this.setExistHours();
           }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => this.displayErrorMessage(error));
     },
     setNewHoursForSave() {
       this.tableToSave = [];
@@ -371,7 +371,7 @@ export default {
         console.log("no data");
         return;
       }
-
+      console.log(this.tableToSave)
       axios({
         url:
           "http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/saveAll",
@@ -382,8 +382,8 @@ export default {
           console.log(response.data);
           isSaved = true;
         })
-        .catch((e) => {
-          console.log(e);
+        .catch((error) => {
+          this.displayErrorMessage(error)
         });
       return isSaved;
     },
@@ -429,6 +429,13 @@ export default {
         0
       );
     },
+      displayErrorMessage(error){
+    if (error.response.data.errorMessage == undefined) {
+      console.log(error)
+    } else {
+      alert(error.response.data.errorMessage)
+    }
+  }
   },
   computed: {
     _reformDiscription() {
