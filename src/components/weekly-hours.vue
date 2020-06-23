@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" v-show="Object.keys(this.tz).length >= 9">
+  <div class="wrapper" v-show="Object.keys(this.empId).length >= 9">
     <h1 class="center">{{ _reformDiscription }}</h1>
     <div v-show="reformType != 0">
       <div class="first02">
@@ -136,7 +136,7 @@ const PRIVATE = 2;
 const PAUSE = 3;
 export default {
   name: "weeklyHours",
-  props: ["tz", "reformType"],
+  props: ["empId", "reformType"],
 
   data() {
     return {
@@ -204,7 +204,7 @@ export default {
         .get("http://134.122.120.245:8080/ots-app/calcHours/options", {
           params: {
             reformType: this.reformType,
-            tz: this.tz,
+            empId: this.empId,
           },
         })
         .then((response) => {
@@ -218,7 +218,7 @@ export default {
           "http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/byReform",
           {
             params: {
-              tz: this.tz,
+              empId: this.empId,
               mosadId: 2,
               reformType: this.reformType,
             },
@@ -237,7 +237,7 @@ export default {
       this.newHours.forEach((element) => {
         element.week.forEach((day, index) => {
           this.tableToSave.push({
-            tz: this.tz,
+            empId: this.empId,
             mosadId: 2,
             empCode: element.code,
             day: index,

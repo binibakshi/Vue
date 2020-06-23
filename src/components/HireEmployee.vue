@@ -116,7 +116,7 @@ export default {
     insertRecord() {
       var isSaved = false;
       axios
-        .post(`http://134.122.120.245:8080/ots-app/employees/new`, {
+        .post(`http://134.122.120.245:8080/ots-app/employees/save`, {
           id: this.empInfo.id,
           firstName: this.empInfo.firstName,
           lastName: this.empInfo.lastName,

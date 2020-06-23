@@ -68,10 +68,10 @@
 
     <v-card class="divider" v-if="Object.keys(this.employeeInfo).length > 0">
       <v-card class="right">
-        <weeklyHours :tz="empId" :reformType="2"> </weeklyHours>
+        <weeklyHours :empId="empId" :reformType="2"> </weeklyHours>
       </v-card>
       <v-card class="left">
-        <weeklyHours :tz="empId" :reformType="5"> </weeklyHours>
+        <weeklyHours :empId="empId" :reformType="5"> </weeklyHours>
       </v-card>
     </v-card>
   </v-card>
@@ -157,7 +157,7 @@ export default {
       axios
         .get("http://134.122.120.245:8080/ots-app/employees/byId", {
           params: {
-            tz: this.empId,
+            empId: this.empId,
           },
         })
         .then((response) => {
@@ -171,7 +171,7 @@ export default {
       axios
         .get("http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/weekSum", {
           params: {
-            tz: this.empId,
+            empId: this.empId,
           },
         })
         .then((response) => {
@@ -184,7 +184,7 @@ export default {
     },
     addNewRow() {
       this.weeklyHoursComponents.push({
-        tz: this.empId,
+        empId: this.empId,
       });
     },
 
@@ -192,7 +192,7 @@ export default {
       axios
         .get("http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/byReform", {
           params: {
-            tz: this.empId,
+            empId: this.empId,
             mosadId: 2,
             reformType: 5,
           },
