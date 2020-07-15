@@ -95,7 +95,7 @@ export default {
   methods: {
     getAllMossadot() {
       axios
-        .get("http://localhost:9191/mossadot/all")
+        .get("http://134.122.120.245:8080/ots-app/mossadot/all")
         .then(response => {
           this.mossadot = response.data;
         })
@@ -103,7 +103,7 @@ export default {
     },
     getmossadTypes() {
       axios
-        .get("http://localhost:9191/mossadType/all")
+        .get("http://134.122.120.245:8080/ots-app/mossadType/all")
         .then(response => {
           this.mossadTypes = response.data;
         })
@@ -119,7 +119,7 @@ export default {
     saveMossadInfo() {
       let isSaved = false;
       axios({
-        url: "http://localhost:9191/mossadot/save",
+        url: "http://134.122.120.245:8080/ots-app/mossadot/save",
         method: "post",
         data: this.mossadInfo
       })
