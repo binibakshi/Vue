@@ -2,7 +2,6 @@
 /* eslint-disable vue/no-unused-components */
 <template>
     <v-card>
-    <!-- <employeesTable/> -->
     <setEmployeesHours/>
     </v-card>
 </template>

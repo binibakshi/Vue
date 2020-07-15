@@ -1,6 +1,6 @@
 <template>
-  <v-app>
-    <myToolBar/>
+  <v-app class="rtl">
+    <myNavBar/>
     <v-content>
       <router-view></router-view>
     </v-content>
@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import myToolBar from "./components/my-navbar.vue";
+import myNavBar from "./components/my-navbar.vue";
 export default {
   name: "App",
   components: {
-    myToolBar,
+    myNavBar,
   },
   data: () => ({
     //

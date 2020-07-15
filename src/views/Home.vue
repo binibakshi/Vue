@@ -1,12 +1,17 @@
 <template>
   <div>
-    <h1>אהלן</h1>
+    <h1 >אהלן</h1>
     <p>זה יהיה דף הבית</p>
     <p>ביינתים ...</p>
 
     <form enctype="multipart/form-data">
       <input type="file" @change="onFileChange" />
     </form>
+    <select>
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+</select>
   </div>
 </template>
 
@@ -73,6 +78,7 @@ export default {
 </script>
 
 <style scoped>
+
 input {
   border: 1px solid;
 }

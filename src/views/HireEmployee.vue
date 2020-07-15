@@ -1,15 +1,17 @@
 <template>
-  <div class="about">
+  <div>
     <HireEmployee/>
   </div>
 </template>
 
 <script>
-import HireEmployee from '../components/HireEmployee.vue';
+import HireEmployee from '../components/hire-employee.vue';
 export default {
-  name: 'About',
+  name: 'HireEmp',
   components: {
     HireEmployee,
   }
 }
 </script>
+<style scoped>
+</style>
