@@ -173,6 +173,7 @@ export default {
       ).hours = this.empOptions.find(
         (el) => el.frontalHours == frontalHours
       ).pauseHours;
+
       this.newHours.find(
         (el) => el.type == this.privateConst
       ).hours = this.empOptions.find(
@@ -219,7 +220,7 @@ export default {
           {
             params: {
               empId: this.empId,
-              mosadId: 2,
+              mossadId: 13,
               reformType: this.reformType,
             },
           }

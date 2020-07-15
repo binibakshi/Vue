@@ -1,15 +1,29 @@
 <template>
   <v-card class="wrapper">
-    <v-card-title>
-      פרטי עובד
-    </v-card-title>
+    <v-card-title>פרטי עובד</v-card-title>
 
     <div class="first">
-      <v-col cols="12" md="5">
-        <v-text-field v-model="empId" label="תעודת זהות" required>
-        </v-text-field>
-        <v-btn @click="getmployeeInfo()" type="submit">חפש</v-btn>
-      </v-col>
+      <v-row>
+        <v-col cols="12" md="8">
+          <!-- <v-text-field v-model="empId" label="תעודת זהות" required>
+          </v-text-field>-->
+          <v-card-text>
+            <v-autocomplete
+              v-model="empId"
+              :items="tzArray"
+              :search-input.sync="search"
+              color="white"
+              hide-no-data
+              hide-selected
+              item-text="empId"
+              item-value="empId"
+              label="תעודת זהות"
+              placeholder="חפש"
+            ></v-autocomplete>
+          </v-card-text>
+          <v-btn @click="getmployeeInfo()" type="submit">חפש</v-btn>
+        </v-col>
+      </v-row>
     </div>
 
     <div class="mainBody" v-if="Object.keys(this.employeeInfo).length > 0">
@@ -58,9 +72,7 @@
         </thead>
         <tbody>
           <td></td>
-          <td v-for="(day, index) in existHours" :key="index">
-            {{ day }}
-          </td>
+          <td v-for="(day, index) in existHours" :key="index">{{ day }}</td>
           <td>{{ _totalHours }}</td>
         </tbody>
       </table>
@@ -68,10 +80,10 @@
 
     <v-card class="divider" v-if="Object.keys(this.employeeInfo).length > 0">
       <v-card class="right">
-        <weeklyHours :empId="empId" :reformType="2"> </weeklyHours>
+        <weeklyHours :empId="empId" :reformType="2"></weeklyHours>
       </v-card>
       <v-card class="left">
-        <weeklyHours :empId="empId" :reformType="5"> </weeklyHours>
+        <weeklyHours :empId="empId" :reformType="5"></weeklyHours>
       </v-card>
     </v-card>
   </v-card>
@@ -83,19 +95,22 @@ import weeklyHours from "./weekly-hours.vue";
 export default {
   name: "setEmployeesHours",
   components: {
-    weeklyHours,
+    weeklyHours
   },
   data() {
     return {
+      search: null,
+      isLoading: false,
       empId: "",
+      tzArray: [],
       employeeInfo: {},
       existHours: [],
       weeklyHoursComponents: [],
-      ozLetmuraData: [],
+      ozLetmuraData: []
     };
   },
   created() {
-
+    this.getAllTz();
   },
   computed: {
     _totalHours() {
@@ -150,66 +165,80 @@ export default {
       } else {
         return 2;
       }
-    },
+    }
   },
   methods: {
+    getAllTz() {
+      axios
+        .get("http://134.122.120.245:8080/ots-app/employees/all")
+        .then(response => {
+          this.tzArray = response.data;
+        })
+        .catch(error => this.displayErrorMessage(error));
+    },
     getmployeeInfo() {
       axios
         .get("http://134.122.120.245:8080/ots-app/employees/byId", {
           params: {
-            empId: this.empId,
-          },
+            empId: this.empId
+          }
         })
-        .then((response) => {
+        .then(response => {
           this.employeeInfo = response.data;
         })
-        .catch((error) => this.displayErrorMessage(error));
+        .catch(error => this.displayErrorMessage(error));
       this.getAllExistHours();
       this.getAllExistData();
     },
     getAllExistHours() {
       axios
-        .get("http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/weekSum", {
-          params: {
-            empId: this.empId,
-          },
-        })
-        .then((response) => {
+        .get(
+          "http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/weekSum",
+          {
+            params: {
+              empId: this.empId
+            }
+          }
+        )
+        .then(response => {
           this.existHours = response.data;
         })
-        .catch((error) => this.displayErrorMessage(error));
+        .catch(error => this.displayErrorMessage(error));
     },
     removeRow(index) {
       this.weeklyHoursComponents.splice(index, index);
     },
     addNewRow() {
       this.weeklyHoursComponents.push({
-        empId: this.empId,
+        empId: this.empId
       });
     },
 
     getAllExistData() {
       axios
-        .get("http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/byReform", {
-          params: {
-            empId: this.empId,
-            mosadId: 2,
-            reformType: 5,
-          },
-        })
-        .then((response) => {
+        .get(
+          "http://134.122.120.245:8080/ots-app/teacherEmploymentDetails/byReform",
+          {
+            params: {
+              empId: this.empId,
+              mosadId: 2,
+              reformType: 5
+            }
+          }
+        )
+        .then(response => {
           this.ozLetmuraData = response.data;
         })
-        .catch((error) => this.displayErrorMessage(error));
+        .catch(error => this.displayErrorMessage(error));
     },
-  displayErrorMessage(error){
-    if (error.response.data.errorMessage == undefined) {
-      console.log(error)
-    } else {
-      alert(error.response.data.errorMessage)
+    displayErrorMessage(error) {
+      if (error.response.data.errorMessage == undefined) {
+        console.log(error);
+      } else {
+        alert(error.response.data.errorMessage);
+      }
     }
   }
-  },
 };
 </script>
 
