@@ -3,7 +3,7 @@
     <v-card-title primary-title>ניהול מוסדות</v-card-title>
 
     <v-row>
-      <v-col cols="12" md="2">
+      <v-col cols="12" md="3">
         <v-autocomplete
           v-model="mossadInfo"
           :items="mossadot"
@@ -17,122 +17,100 @@
           return-object
         ></v-autocomplete>
       </v-col>
+      <v-col cols="12" md="2" v-if="mossadInfo.mossadId != undefined">
+        <h4 class="centerize">קוד מוסד - {{mossadInfo.mossadId}}</h4>
+      </v-col>
+      <v-btn color="success" class="centerize" @click="createMossad()">צור מוסד</v-btn>
+      <v-btn color="success" class="centerize" @click="onexport()">ייצא לאקסל</v-btn>
     </v-row>
-
-    <v-form class="test" v-if="Object.keys(this.mossadInfo).length > 0">
-      <v-row>
-        <v-btn fab small @click="isEditing = !isEditing" class="moveLeft">
-          <v-icon v-if="isEditing">mdi-close</v-icon>
-          <v-icon v-else>mdi-pencil</v-icon>
-        </v-btn>
-        <v-col cols="12">
-          <p>מוסד - {{ mossadInfo.mossadName }}</p>
-        </v-col>
-      </v-row>
-      <v-row>
-         <v-col cols="12" md="3">
-          <v-text-field
-            v-model="mossadInfo.currHours"
-            :disabled="true"
-            color="white"
-            label="שעות במוסד"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" md="3">
-          <v-text-field
-            v-model="mossadInfo.maxHours"
-            :disabled="!isEditing"
-            color="indigo accent-1"
-            label="מספר שעות מקסימלי"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" md="3">
-          <v-select
-            :items="mossadTypes"
-            v-model="mossadInfo.mossadType"
-            item-text="typeName"
-            item-value="typeId"
-            label="סוג  מוסד"
-          ></v-select>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="!isEditing"
-          color="success"
-          @click="saveMossadInfo()"
-          class="moveRight"
-        >שמור</v-btn>
-      </v-row>
-    </v-form>
+    <mosssadDetails v-if="mossadInfo != null" :mossadInfo="mossadInfo" />
+    <createMossad v-if="isNew == true && mossadInfo.mossadId == undefined" />
   </v-card>
 </template>
 
 <script>
 import axios from "axios";
+import XLSX from "xlsx";
+import mosssadDetails from "./mossad-details";
+import createMossad from "./create-mossad";
 
 export default {
   name: "mosssadotMenagement",
+  components: {
+    mosssadDetails,
+    createMossad,
+  },
 
   data() {
     return {
-      isEditing: null,
-      test: 0,
-      isSaved: false,
+      isNew: false,
       mossadInfo: {},
       mossadot: [],
-      mossadTypes: []
     };
   },
   created() {
     this.getAllMossadot();
-    this.getmossadTypes();
   },
   computed: {
     _mossadotName() {
-      return this.mossadot.map(el => el.mossadName);
-    }
+      return this.mossadot.map((el) => el.mossadName);
+    },
   },
   methods: {
     getAllMossadot() {
+      axios.defaults.headers["Authorization"] =
+        "Bearer" + this.$store.state.token;
+
       axios
-        .get("http://134.122.120.245:8080/ots-app/mossadot/all")
-        .then(response => {
+        .get("/mossadot/all")
+        .then((response) => {
           this.mossadot = response.data;
         })
-        .catch(error => this.displayErrorMessage(error));
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
-    getmossadTypes() {
-      axios
-        .get("http://134.122.120.245:8080/ots-app/mossadType/all")
-        .then(response => {
-          this.mossadTypes = response.data;
-        })
-        .catch(error => this.displayErrorMessage(error));
+    createMossad() {
+      this.isNew = true;
+      this.mossadInfo = {};
     },
-    displayErrorMessage(error) {
-      if (error.response.data.errorMessage == undefined) {
-        console.log(error);
-      } else {
-        alert(error.response.data.errorMessage);
-      }
+    onexport() {
+      // On Click Excel download button
+      var temp = this.mossadot;
+      temp.unshift({
+        mossadId: "קוד מוסד",
+        mossadName: "שם מוסד",
+        mossadType: "סוג מוסד",
+        maxHours: "מקסימום שעות",
+        currHours: "שעות בפועל",
+      });
+      // export json to Worksheet of Excel
+      // only array possible
+      var mossadotWs = XLSX.utils.json_to_sheet(temp, {
+        skipHeader: true,
+        Views: [{ RTL: true }],
+      });
+      // A workbook is the name given to an Excel file
+      var wb = XLSX.utils.book_new(); // make Workbook of Excel'
+
+      // add Worksheet to Workbook
+      // Workbook contains one or more worksheets
+      XLSX.utils.book_append_sheet(wb, mossadotWs, "מוסדות"); // sheetAName is name of Worksheet
+      this.set_right_to_left(wb);
+
+      // export Excel file
+      XLSX.writeFile(wb, "מוסדות.xlsx"); // name of the file is 'book.xlsx'
     },
-    saveMossadInfo() {
-      let isSaved = false;
-      axios({
-        url: "http://134.122.120.245:8080/ots-app/mossadot/save",
-        method: "post",
-        data: this.mossadInfo
-      })
-        .then(() => {
-          alert("הנתונים נשמרו בהצלחה")
-          isSaved = true;
-        })
-        .catch(error => {
-          this.displayErrorMessage(error);
-        });
-      return isSaved;
-    }
-  }
+
+    set_right_to_left(wb /*:Workbook*/) {
+      if (!wb.Workbook) wb.Workbook = {};
+      if (!wb.Workbook.Views) wb.Workbook.Views = [];
+      if (!wb.Workbook.Views[0]) wb.Workbook.Views[0] = {};
+      wb.Workbook.Views[0].RTL = true;
+    },
+  },
 };
 </script>
 
@@ -144,17 +122,9 @@ p {
 }
 .wrapper {
   background-color: #ffffe6;
-}
-.test {
-  max-width: 50%;
-  margin: 5px;
-  padding: 5px;
-  border: 1px solid black;
-}
-.moveLeft {
-  margin-right: 15px;
-}
-.moveRight {
-  margin-left: 15px;
+  margin-right: 150px;
+  margin-top: 50px;
+  max-width: 60%;
+  margin-bottom: 5%;
 }
 </style>

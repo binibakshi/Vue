@@ -1,43 +1,70 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import store from "../store/store";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
-  const routes = [
+const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: "/login",
+    name: "login",
+    // route level code-splitting
+    // this generates a separate chunk (HireEmployee.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "login" */ "../auth/ots-login.vue"),
   },
   {
-    path: '/HireEmp',
-    name: 'HireEmp',
+    path: "/HireEmp",
+    name: "HireEmp",
     // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
+    // this generates a separate chunk (HireEmployee.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/HireEmployee.vue')
+    component: () =>
+      import(
+        /* webpackChunkName: "HireEmployee" */ "../views/HireEmployee.vue"
+      ),
   },
   {
-    path: '/empInfo',
-    name: 'employeeInfo',
+    path: "/empInfo",
+    name: "employeeInfo",
     // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
+    // this generates a separate chunk (EmployeeInfo.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/EmployeeInfo.vue')
-  }, 
-  {
-    path: '/mossadot',
-    name: 'mossadot',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Mossadot.vue')
+    component: () =>
+      import(
+        /* webpackChunkName: "EmployeeInfo" */ "../views/EmployeeInfo.vue"
+      ),
   },
-]
+  {
+    path: "/mossadot",
+    name: "mossadot",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "Mossadot" */ "../views/Mossadot.vue"),
+  },
+  {
+    path: "/ImportData",
+    name: "ImportData",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "ImportData" */ "../views/ImportData.vue"),
+  },
+];
 
 const router = new VueRouter({
-  routes
-})
+  routes,
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  // eslint-disable-next-line no-debugger
+  debugger
+  if (to.name !== "login" && !store.getters.loggedIn) next({ name: "login" });
+  else next();
+});
+
+export default router;

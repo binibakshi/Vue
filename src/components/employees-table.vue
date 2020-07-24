@@ -52,7 +52,7 @@ export default {
   methods: {
     fetchData() {
       axios
-        .get("http://134.122.120.245:8080/ots-app/employees/all")
+        .get("/employees/all")
         .then(response => {
           this.employees = response.data;
         })
