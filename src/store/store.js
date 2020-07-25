@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import axios from "axios";
 
 Vue.use(Vuex);
-axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
+axios.defaults.baseURL = "http://134.122.120.245:8443/ots-app";
 // axios.defaults.baseURL = "http://localhost:9191";
 // axios.defaults.headers.Authorization =
 //   "Bearer " +
@@ -30,6 +30,7 @@ export const store = new Vuex.Store({
   actions: {
     retrieveToken(context, credentials) {
       return new Promise((resolve, reject) => {
+        
         axios
           .post("/authenticate", {
             username: credentials.username,
@@ -39,7 +40,7 @@ export const store = new Vuex.Store({
             const token = response.data.jwt;
             localStorage.setItem("access_token", token);
             context.commit("retrieveToken", token);
-            axios.defaults.headers.Authorization = "Bearer " + token;
+            // axios.defaults.headers.Authorization = "Bearer " + token;
             resolve(response);
           })
           .catch((error) => {

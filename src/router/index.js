@@ -61,8 +61,6 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  // eslint-disable-next-line no-debugger
-  debugger
   if (to.name !== "login" && !store.getters.loggedIn) next({ name: "login" });
   else next();
 });
