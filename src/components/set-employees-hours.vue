@@ -172,9 +172,11 @@ export default {
         .then((response) => {
           this.tzArray = response.data;
         })
-        .catch((error) => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
     },
     getEmployeeInfo() {
       console.log(this.employeeInfo.empId);
@@ -188,9 +190,11 @@ export default {
           this.employeeInfo = response.data;
           console.log(response.data);
         })
-        .catch((error) => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
 
       this.getAllExistHours();
       this.getAllExistData();
@@ -205,9 +209,11 @@ export default {
         .then((response) => {
           this.existHours = response.data;
         })
-        .catch((error) => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
     },
     removeRow(index) {
       this.weeklyHoursComponents.splice(index, index);
@@ -229,9 +235,11 @@ export default {
         .then((response) => {
           this.ozLetmuraData = response.data;
         })
-        .catch((error) => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
     },
     navigateToHirepage() {
       this.$router.push("/HireEmp");
