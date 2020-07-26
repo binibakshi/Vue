@@ -101,6 +101,7 @@ import axios from "axios";
 const FRONTAL = 1;
 const PRIVATE = 2;
 const PAUSE = 3;
+
 export default {
   name: "weeklyHours",
   props: ["empId", "reformType"],
@@ -111,11 +112,9 @@ export default {
       tableToSave: [],
       empOptions: [],
       reformTypes: [],
-      jobPercent: 0,
-      frontalHours: 0,
       codeDescription: [],
       existHours: [],
-      frontalConst: FRONTAL
+      frontalConst: FRONTAL,
     };
   },
   created() {
@@ -128,153 +127,169 @@ export default {
   methods: {
     getPauseAndPrivateHours() {
       var totalFrontalHours = this.newHours
-        .filter(el => el.type == FRONTAL)
+        .filter((el) => el.type == FRONTAL)
         .reduce((sum, record) => sum + parseInt(record.hours), 0);
 
-      this.newHours.find(el => el.type == PAUSE).hours = this.empOptions.find(
-        el => el.frontalHours == totalFrontalHours
+      this.newHours.find((el) => el.type == PAUSE).hours = this.empOptions.find(
+        (el) => el.frontalHours == totalFrontalHours
       ).pauseHours;
 
-      this.newHours.find(el => el.type == PRIVATE).hours = this.empOptions.find(
-        el => el.frontalHours == totalFrontalHours
+      this.newHours.find(
+        (el) => el.type == PRIVATE
+      ).hours = this.empOptions.find(
+        (el) => el.frontalHours == totalFrontalHours
       ).privateHours;
     },
     getCodeDescription() {
       axios
         .get("/convertHours/byReform", {
           params: {
-            reformType: this.reformType
-          }
+            reformType: this.reformType,
+          },
         })
-        .then(response => {
+        .then((response) => {
           this.codeDescription = response.data;
         })
-        .catch(error => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
     },
     getReformTypes() {
       axios
         .get("/reformTypes/relevant")
-        .then(response => {
+        .then((response) => {
           this.reformTypes = response.data;
         })
-        .catch(error => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
     },
     getEmployeeOptions() {
       axios
         .get("/calcHours/options", {
           params: {
             reformType: this.reformType,
-            empId: this.empId
-          }
+            empId: this.empId,
+          },
         })
-        .then(response => {
+        .then((response) => {
           this.empOptions = response.data;
         })
-        .catch(error => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
     },
     async getExistData() {
       axios
-        .get(
-          "/teacherEmploymentDetails/byReform",
-          {
-            params: {
-              empId: this.empId,
-              mosadId: 13,
-              reformType: this.reformType
-            }
-          }
-        )
-        .then(response => {
+        .get("/teacherEmploymentDetails/byReform", {
+          params: {
+            empId: this.empId,
+            mosadId: 13,
+            reformType: this.reformType,
+          },
+        })
+        .then((response) => {
           this.existHours = response.data;
           if (this.existHours != null) {
             this.setExistHours();
           }
         })
-        .catch(error => this.$store.dispatch("displayErrorMessage", {
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
             error,
-          }));
+          })
+        );
     },
     setNewHoursForSave() {
       this.tableToSave = [];
-      this.newHours.forEach(element => {
+      this.newHours.forEach((element) => {
         element.week.forEach((day, index) => {
           this.tableToSave.push({
             empId: this.empId,
             mosadId: 13,
             empCode: element.code,
             day: index,
-            hours: day
+            hours: day,
           });
         });
       });
     },
     setPrivateAndPauseCodes(code) {
       // OFEK HADASH
-      if (code == 5466 || code == 5495) {
-        this.newHours.find(el => el.type == PAUSE).code = 5468;
-        this.newHours.find(el => el.type == PRIVATE).code = 5467;
+      if (code == 5466 || code == 5474) {
+        this.newHours.find((el) => el.type == PAUSE).code = 5468;
+        this.newHours.find((el) => el.type == PRIVATE).code = 5467;
 
         // OFEK HADASH replacement hours
       } else if (code == 3566) {
-        this.newHours.find(el => el.type == PRIVATE).code = 3567;
-        this.newHours.find(el => el.type == PAUSE).code = 3568;
+        this.newHours.find((el) => el.type == PRIVATE).code = 3567;
+        this.newHours.find((el) => el.type == PAUSE).code = 3568;
         // OZ LETMURA
-      } else if (code == 9600) {
-        this.newHours.find(el => el.type == PRIVATE).code = 9601;
-        this.newHours.find(el => el.type == PAUSE).code = 9602;
+      } else if (
+        code == 9600 ||
+        code == 9617 ||
+        code == 9619 ||
+        code == 9620 ||
+        code == 9624 ||
+        code == 9626 ||
+        code == 9631 ||
+        code == 9670 ||
+        code == 9675
+      ) {
+        this.newHours.find((el) => el.type == PRIVATE).code = 9601;
+        this.newHours.find((el) => el.type == PAUSE).code = 9602;
         // OZ LETMURA replacement hours
-      } else if (code == 3900) {
-        this.newHours.find(el => el.type == PRIVATE).code = 3901;
-        this.newHours.find(el => el.type == PAUSE).code = 3902;
+      } else if (code == 3900 || code == 3917 || code == 3971) {
+        this.newHours.find((el) => el.type == PRIVATE).code = 3901;
+        this.newHours.find((el) => el.type == PAUSE).code = 3902;
       } else {
-        this.newHours.find(el => el.type == PRIVATE).code = "";
-        this.newHours.find(el => el.type == PAUSE).code = "";
+        this.newHours.find((el) => el.type == PRIVATE).code = "";
+        this.newHours.find((el) => el.type == PAUSE).code = "";
       }
     },
     setExistHours() {
       let tempHourType;
       let newRow = {};
 
-      this.existHours.forEach(el => {
-        tempHourType = this.codeDescription.find(e => e.code == el.empCode)
+      this.existHours.forEach((el) => {
+        tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
         // check if first insert and if need to create new row(for frontal only)
         if (
           tempHourType == FRONTAL &&
-          this.newHours.find(e => e.type == tempHourType).code != ""
+          this.newHours.find((e) => e.type == tempHourType).code != ""
         ) {
           // after first insert check whether create new row or add to existing one
-          if (this.newHours.find(e => e.code == el.empCode) == undefined) {
+          if (this.newHours.find((e) => e.code == el.empCode) == undefined) {
             newRow = {
               type: FRONTAL,
               hours: el.hours,
               code: el.empCode,
-              week: [0, 0, 0, 0, 0, 0]
+              week: [0, 0, 0, 0, 0, 0],
             };
             newRow.week[el.day] = el.hours;
             this.newHours.push(newRow);
           } else {
-            this.newHours.find(e => e.code == el.empCode).hours += el.hours;
+            this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
           }
         } else {
-          this.newHours.find(e => e.type == tempHourType).week[el.day] =
+          this.newHours.find((e) => e.type == tempHourType).week[el.day] =
             el.hours;
-          this.newHours.find(e => e.type == tempHourType).hours += el.hours;
-          this.newHours.find(e => e.type == tempHourType).code = el.empCode;
+          this.newHours.find((e) => e.type == tempHourType).hours += el.hours;
+          this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
         }
       });
       this.setPrivateAndPauseCodes(
-        this.newHours.find(el => el.type == FRONTAL).code
+        this.newHours.find((el) => el.type == FRONTAL).code
       );
       this.sortTable();
     },
-
     removeRow(index) {
       if (index === 0) {
         return;
@@ -282,7 +297,7 @@ export default {
       if (this.newHours[index].type != FRONTAL) {
         return;
       }
-      this.newHours.splice(index, index);
+      this.newHours.splice(index, 1);
       this.getPauseAndPrivateHours();
     },
     addNewRow() {
@@ -290,21 +305,9 @@ export default {
         type: FRONTAL,
         hours: 0,
         code: "",
-        week: [0, 0, 0, 0, 0, 0]
+        week: [0, 0, 0, 0, 0, 0],
       });
       this.sortTable();
-    },
-    calcAllCodes() {
-      this.frontalHours = 0;
-
-      this.newHours.forEach(el => {
-        if (el.type == FRONTAL) {
-          if (!this.isNumber(el.hours)) {
-            el.hours = 0;
-          }
-          this.frontalHours += parseInt(el.hours);
-        }
-      });
     },
     sortTable() {
       this.newHours.sort((a, b) => a.type - b.type);
@@ -314,27 +317,28 @@ export default {
     },
     currCodeDescription(index) {
       if (index != undefined && index > 0) {
-        if (this.codeDescription.find(e => e.code == index) === undefined) {
+        if (this.codeDescription.find((e) => e.code == index) === undefined) {
           return "";
         }
-        return this.codeDescription.find(e => e.code == index).codeDescription;
+        return this.codeDescription.find((e) => e.code == index)
+          .codeDescription;
       }
       return "";
     },
     getAllFrontalHours() {
       return this.newHours
-        .filter(el => el.type == FRONTAL)
+        .filter((el) => el.type == FRONTAL)
         .reduce((sum, record) => sum + parseInt(record.hours), 0);
     },
     currOptionjobPercent(frontalHours) {
       if (frontalHours != undefined && frontalHours > 0) {
         if (
-          this.empOptions.find(e => e.frontalHours == frontalHours) ===
+          this.empOptions.find((e) => e.frontalHours == frontalHours) ===
           undefined
         ) {
           return 0;
         }
-        return this.empOptions.find(e => e.frontalHours == frontalHours)
+        return this.empOptions.find((e) => e.frontalHours == frontalHours)
           .jobPercent;
       }
       return 0;
@@ -343,7 +347,7 @@ export default {
       var isSaved = false;
       //check all data before let user to save
       let isValid = true;
-      this.newHours.forEach(row => {
+      this.newHours.forEach((row) => {
         if (this.validRowsHours(row) == false) {
           isValid = false;
           return;
@@ -359,16 +363,15 @@ export default {
         return;
       }
       axios({
-        url:
-          "/teacherEmploymentDetails/saveAll",
+        url: "/teacherEmploymentDetails/saveAll",
         method: "post",
-        data: this.tableToSave
+        data: this.tableToSave,
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
           isSaved = true;
         })
-        .catch(error => {
+        .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
             error,
           });
@@ -407,7 +410,7 @@ export default {
     },
     hoursAmount() {
       return this.newHours
-        .filter(el => this.isNumber(el.hours))
+        .filter((el) => this.isNumber(el.hours))
         .reduce((acc, item) => parseInt(acc) + parseInt(item.hours), 0);
     },
     dayAmount(day) {
@@ -422,18 +425,18 @@ export default {
         this.newHours = [
           { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
           { type: PRIVATE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
-          { type: PAUSE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] }
+          { type: PAUSE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
         ];
       } else {
         this.newHours = [
-          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] }
+          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
         ];
       }
     },
   },
   computed: {
     _reformDiscription() {
-      var name = this.reformTypes.find(el => el.reformId == this.reformType);
+      var name = this.reformTypes.find((el) => el.reformId == this.reformType);
       if (name != undefined) {
         return name.name;
       }
@@ -442,25 +445,26 @@ export default {
     },
     _filteredCodes() {
       return this.codeDescription.filter(
-        el =>
-          el.hourType == FRONTAL && !this.newHours.find(i => i.code == el.code)
+        (el) =>
+          el.hourType == FRONTAL &&
+          !this.newHours.find((i) => i.code == el.code)
       );
-    }
+    },
   },
   watch: {
-    empId: function(val) {
+    empId: function (val) {
       this.empId = val;
       this.initilizer();
       this.getExistData();
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
 #test {
-  max-width: 100px ;
-  max-height: 25px ;
+  max-width: 100px;
+  max-height: 25px;
   padding-top: 0;
 }
 .wrapper {
