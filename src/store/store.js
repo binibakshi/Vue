@@ -5,7 +5,7 @@ import axios from "axios";
 Vue.use(Vuex);
 // axios.defaults.baseURL = "http://localhost:9191";
 axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
-axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
 export const store = new Vuex.Store({
   state: {
@@ -28,7 +28,6 @@ export const store = new Vuex.Store({
   actions: {
     retrieveToken(context, credentials) {
       return new Promise((resolve, reject) => {
-        
         axios
           .post("/authenticate", {
             username: credentials.username,
@@ -71,13 +70,16 @@ export const store = new Vuex.Store({
       }
     },
     displayErrorMessage(context, error) {
+      // eslint-disable-next-line no-debugger
+      debugger;
       if (
-        error.response == undefined ||
-        error.response.data.errorMessage == undefined
+        error.error == undefined ||
+        error.error.response == undefined ||
+        error.error.response.data.errorMessage == undefined
       ) {
         console.log(error);
       } else {
-        alert(error.response.data.errorMessage);
+        alert(error.error.response.data.errorMessage);
       }
     },
   },
