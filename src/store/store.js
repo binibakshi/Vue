@@ -4,7 +4,8 @@ import axios from "axios";
 
 Vue.use(Vuex);
 // axios.defaults.baseURL = "https://134.122.120.245:8443/ots-app";
-axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
+// axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
+axios.defaults.baseURL = "http://localhost:9191";
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 // axios.defaults.headers.Authorization =
 //   "Bearer " +

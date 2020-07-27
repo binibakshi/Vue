@@ -190,7 +190,7 @@ export default {
         .get("/teacherEmploymentDetails/byReform", {
           params: {
             empId: this.empId,
-            mosadId: 13,
+            mossadId: 13,
             reformType: this.reformType,
           },
         })
@@ -212,7 +212,7 @@ export default {
         element.week.forEach((day, index) => {
           this.tableToSave.push({
             empId: this.empId,
-            mosadId: 13,
+            mossadId: 13,
             empCode: element.code,
             day: index,
             hours: day,
@@ -277,6 +277,8 @@ export default {
             this.newHours.push(newRow);
           } else {
             this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
+            this.newHours.find((e) => e.code == el.empCode).week[el.day] +=
+              el.hours;
           }
         } else {
           this.newHours.find((e) => e.type == tempHourType).week[el.day] =

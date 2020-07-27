@@ -9,7 +9,6 @@
             <v-autocomplete
               v-model="empId"
               :items="tzArray"
-              :loading="isLoading"
               color="indigo lighten-5"
               hide-selected
               :item-text="item => item.firstName +' '+ item.lastName + ' - ' + item.empId"
@@ -98,13 +97,11 @@ export default {
   data() {
     return {
       search: null,
-      isLoading: false,
       empId: "",
       tzArray: [],
       employeeInfo: {},
       existHours: [],
       weeklyHoursComponents: [],
-      ozLetmuraData: [],
     };
   },
   created() {
@@ -179,7 +176,6 @@ export default {
         );
     },
     getEmployeeInfo() {
-      console.log(this.employeeInfo.empId);
       axios
         .get("/employees/byId", {
           params: {
@@ -188,7 +184,6 @@ export default {
         })
         .then((response) => {
           this.employeeInfo = response.data;
-          console.log(response.data);
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -197,7 +192,6 @@ export default {
         );
 
       this.getAllExistHours();
-      this.getAllExistData();
     },
     getAllExistHours() {
       axios
@@ -222,24 +216,6 @@ export default {
       this.weeklyHoursComponents.push({
         empId: this.empId,
       });
-    },
-    getAllExistData() {
-      axios
-        .get("/teacherEmploymentDetails/byReform", {
-          params: {
-            empId: this.empId,
-            mosadId: 2,
-            reformType: 5,
-          },
-        })
-        .then((response) => {
-          this.ozLetmuraData = response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
     },
     navigateToHirepage() {
       this.$router.push("/HireEmp");
