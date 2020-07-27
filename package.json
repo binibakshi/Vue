@@ -2,10 +2,7 @@
   "name": "ots-hr",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/binibakshi/Vue.git",
   "scripts": {
-    "clean-source": "rimraf README.md src webroot package.json",
-    "deploy": "gh-pages-deploy -- 'A commit for deploy :)'",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
