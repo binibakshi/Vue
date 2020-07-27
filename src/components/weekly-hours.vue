@@ -347,6 +347,7 @@ export default {
     },
     saveHours() {
       var isSaved = false;
+      
       //check all data before let user to save
       let isValid = true;
       this.newHours.forEach((row) => {
