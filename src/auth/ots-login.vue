@@ -40,8 +40,6 @@ export default {
   },
   methods: {
     login() {
-      // eslint-disable-next-line no-debugger
-      debugger
       this.$store
         .dispatch("retrieveToken", {
           username: this.username,
@@ -56,8 +54,21 @@ export default {
             })
             .then((response) => {
               this.$store.state.mossadId = response.data;
+              this.$store.state.logginAuth = response.data;
+              localStorage.setItem("mossadId", response.data);
+              axios
+                .get("mossadot/byId", {
+                  params: {
+                    mossadId: this.$store.state.logginAuth,
+                  },
+                })
+                .then((response) => {
+                  this.$store.state.mossadInfo = response.data;
+                  this.$store.commit("setMossadInfo", response.data);
+                })
+                .catch((error) => console.log(error));
+              this.$router.push({ name: "empInfo" });
             });
-          this.$router.push({ name: "ImportData" });
         })
         .catch(() => alert("שגיאה בפרטי התחברות"));
     },
@@ -66,7 +77,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
+<style scoped>
 * {
   box-sizing: border-box;
 }

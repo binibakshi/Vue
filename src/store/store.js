@@ -10,11 +10,25 @@ axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 export const store = new Vuex.Store({
   state: {
     token: localStorage.getItem("access_token") || null,
-    mossadId: null,
+    mossadId: localStorage.getItem("mossadId") || null,
+    logginAuth: localStorage.getItem("mossadId") || null,
+    username: localStorage.getItem("username") || null,
+    mossadInfo: {
+      mossadNme: "",
+      mossadId: "",
+      currHours: "",
+      maxHours: "",
+    },
   },
   getters: {
     loggedIn(state) {
       return state.token !== null;
+    },
+    mossadInfo(state) {
+      return state.mossadInfo;
+    },
+    mossadId(state) {
+      return state.mossadId;
     },
   },
   mutations: {
@@ -23,6 +37,9 @@ export const store = new Vuex.Store({
     },
     destroyToken(state) {
       state.token = null;
+    },
+    setMossadInfo(state, mossadInfo) {
+      state.mossadInfo = mossadInfo;
     },
   },
   actions: {
@@ -36,6 +53,8 @@ export const store = new Vuex.Store({
           .then((response) => {
             const token = response.data.jwt;
             localStorage.setItem("access_token", token);
+            localStorage.setItem("username", credentials.username);
+            context.state.username = credentials.username;
             context.commit("retrieveToken", token);
             // axios.defaults.headers.Authorization = "Bearer " + token;
             resolve(response);
@@ -47,31 +66,36 @@ export const store = new Vuex.Store({
       });
     },
     destroyToken(context) {
-      axios.defaults.headers.common["Authorization"] =
-        "Bearer " + context.state.token;
+      // axios.defaults.headers.common["Authorization"] =
+      //   "Bearer " + context.state.token;
 
       if (context.getters.loggedIn) {
-        return new Promise((resolve, reject) => {
-          axios
-            .post("/logout")
-            .then((response) => {
-              localStorage.removeItem("access_token");
-              context.commit("destroyToken");
-              resolve(response);
-              // console.log(response);
-              // context.commit('addTodo', response.data)
-            })
-            .catch((error) => {
-              localStorage.removeItem("access_token");
-              context.commit("destroyToken");
-              reject(error);
-            });
-        });
+        context.state.mossadId = null;
+        context.state.logginAuth = null;
+        context.state.mossadInfo = null;
+        context.state.username = null;
+        context.state.token = null;
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("username");
+        context.commit("destroyToken");
+
+        // return new Promise((resolve, reject) => {
+        //   axios
+        //     .post("/logout")
+        //     .then((response) => {
+        //       localStorage.removeItem("access_token");
+        //       context.commit("destroyToken");
+        //       resolve(response);
+        //     })
+        //     .catch((error) => {
+        //       localStorage.removeItem("access_token");
+        //       context.commit("destroyToken");
+        //       reject(error);
+        //     });
+        // });
       }
     },
     displayErrorMessage(context, error) {
-      // eslint-disable-next-line no-debugger
-      debugger;
       if (
         error.error == undefined ||
         error.error.response == undefined ||
@@ -81,6 +105,19 @@ export const store = new Vuex.Store({
       } else {
         alert(error.error.response.data.errorMessage);
       }
+    },
+    getMossadInfo(context) {
+      axios
+        .get("mossadot/byId", {
+          params: {
+            mossadId: context.state.logginAuth,
+          },
+        })
+        .then((response) => {
+          context.state.mossadInfo = response.data;
+          context.commit("setMossadInfo", response.data);
+        })
+        .catch((error) => console.log(error));
     },
   },
 });

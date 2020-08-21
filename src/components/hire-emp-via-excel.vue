@@ -1,48 +1,58 @@
 <template>
-  <v-card>
-    <v-card-title>קליטת עובדים Excel</v-card-title>
-    <v-row class="giveSomeSpace">
-      <v-btn class="btn" color="info" @click="downloadDemoFile()">הורד מבנה קובץ Excel</v-btn>
+  <v-card class="wrapper">
+    <v-card>
+      <v-card-title>אקסלים לקליטה</v-card-title>
+      <v-row class="giveSomeSpace">
+        <v-btn class="btn" color="success" @click="downloadDemoFile()">מבנה קובץ לקליטת פרטי עובדים</v-btn>
 
-      <v-btn class="btn" color="info" @click="getAllEmployees()">ייצוא עובדים לExcel</v-btn>
-    </v-row>
+        <v-btn class="btn" color="success" @click="getAllEmployees()">ייצוא עובדים לExcel</v-btn>
+      </v-row>
 
-    <v-row class="giveSomeSpace">
-      <input type="file" id="file" ref="file" @change="filesChange" />
-      <v-btn v-if="employeesTable != null" id="btn" color="primary" dark @click="saveAll()">שמור הכל</v-btn>
-    </v-row>
+      <v-row class="giveSomeSpace">
+        <input type="file" id="file" ref="file" @change="filesChange" />
+        <v-btn
+          v-if="employeesTable != null"
+          id="btn"
+          color="primary"
+          dark
+          @click="saveAll()"
+        >שמור הכל</v-btn>
+      </v-row>
 
-    <div v-if="employeesTable != null">
-      <v-data-table
-        dense
-        id="myTable"
-        :headers="headers"
-        :items="employeesTable"
-        :items-per-page="50"
-        class="elevation-1"
-      ></v-data-table>
-    </div>
+      <div v-if="employeesTable != null">
+        <v-data-table
+          dense
+          id="myTable"
+          :headers="headers"
+          :items="employeesTable"
+          :items-per-page="50"
+          class="elevation-1"
+        ></v-data-table>
+      </div>
+    </v-card>
+    <WeeklyHoursExcel/>
   </v-card>
 </template>
 
 <script>
-/* eslint-disable no-debugger */
-// import axios from "axios";
 import XLSX from "xlsx";
 import axios from "axios";
+import WeeklyHoursExcel from './weekly-hours-excel'
 
 export default {
   name: "HireEmpsvieExcel",
+   components: {
+    WeeklyHoursExcel,
+  },
   data() {
     return {
       file: null,
       headers: [
-        { text: "עובד", value: "empId" },
-        { text: "שם פרטי", value: "firstName" },
+        { text: "תעודת זהות", value: "empId" },
         { text: "שם משפחה", value: "lastName" },
+        { text: "שם פרטי", value: "firstName" },
         { text: "תאריך לידה", value: "birthDate" },
         { text: "מורה אם", value: "mother" },
-        { text: "שעות גיל", value: "ageHours" },
       ],
       employeesTable: null,
       paintInRed: false,
@@ -55,7 +65,6 @@ export default {
       let allEmployees = await axios
         .get("/employees/all")
         .then((response) => {
-          // allEmployees = response.data;
           return response.data;
         })
         .catch((error) =>
@@ -75,23 +84,25 @@ export default {
           ageHours: this.getageHours(el.birthDate),
         });
       });
-      this.downloadFile(this.dataToExport);
+      this.downloadFile(
+        this.dataToExport,
+        this.getEmployeesHeaders(),
+        "עובדים.xlsx",
+        "מבנה קליטת עובדים"
+      );
     },
     downloadDemoFile() {
       var emptyForDemo = [];
-      this.downloadFile(emptyForDemo);
+      this.downloadFile(
+        emptyForDemo,
+        this.getEmployeesHeaders(),
+        "עובדים.xlsx",
+        "מבנה קליטת עובדים"
+      );
     },
-    downloadFile(dataToExport) {
+    downloadFile(dataToExport, headers, excelName, sheetName) {
       var temp = dataToExport;
-      temp.unshift({
-        empId: "עובד",
-        firstName: "שם פרטי",
-        lastName: "שם משפחה",
-        birthDate: "תאריך לידה",
-        gender: "מין",
-        mother: "משרת אם",
-        ageHours: "שעות גיל",
-      });
+      temp.unshift(headers);
       var EmployeesWs = XLSX.utils.json_to_sheet(temp, {
         skipHeader: true,
         Views: [{ RTL: true }],
@@ -99,17 +110,28 @@ export default {
 
       // A workbook is the name given to an Excel file
       var wb = XLSX.utils.book_new(); // make Workbook of Excel'
-      XLSX.utils.book_append_sheet(wb, EmployeesWs, "מבנה קליטת עובדים");
+      XLSX.utils.book_append_sheet(wb, EmployeesWs, sheetName);
       this.set_right_to_left(wb);
 
       // export Excel file
-      XLSX.writeFile(wb, "עובדים.xlsx");
+      XLSX.writeFile(wb, excelName);
     },
     set_right_to_left(wb /*:Workbook*/) {
       if (!wb.Workbook) wb.Workbook = {};
       if (!wb.Workbook.Views) wb.Workbook.Views = [];
       if (!wb.Workbook.Views[0]) wb.Workbook.Views[0] = {};
       wb.Workbook.Views[0].RTL = true;
+    },
+    getEmployeesHeaders() {
+      var headers = {
+        empId: "תעודת זהות",
+        lastName: "שם משפחה",
+        firstName: "שם פרטי",
+        birthDate: "תאריך לידה",
+        gender: "מין",
+        mother: "משרת אם"
+      };
+      return headers;
     },
     filesChange(e) {
       var files = e.target.files,
@@ -124,12 +146,12 @@ export default {
         workbook.Sheets[sheetName].A1.h = "empId";
         workbook.Sheets[sheetName].A1.v = "empId";
         workbook.Sheets[sheetName].A1.w = "empId";
-        workbook.Sheets[sheetName].B1.h = "firstName";
-        workbook.Sheets[sheetName].B1.v = "firstName";
-        workbook.Sheets[sheetName].B1.w = "firstName";
-        workbook.Sheets[sheetName].C1.h = "lastName";
-        workbook.Sheets[sheetName].C1.v = "lastName";
-        workbook.Sheets[sheetName].C1.w = "lastName";
+        workbook.Sheets[sheetName].B1.h = "lastName";
+        workbook.Sheets[sheetName].B1.v = "lastName";
+        workbook.Sheets[sheetName].B1.w = "lastName";
+        workbook.Sheets[sheetName].C1.h = "firstName";
+        workbook.Sheets[sheetName].C1.v = "firstName";
+        workbook.Sheets[sheetName].C1.w = "firstName";
         workbook.Sheets[sheetName].D1.h = "birthDate";
         workbook.Sheets[sheetName].D1.v = "birthDate";
         workbook.Sheets[sheetName].D1.w = "birthDate";

@@ -1,5 +1,5 @@
 <template>
-  <v-form class="test" v-if="Object.keys(this.mossadInfo).length > 0">
+  <v-form id="mossadCardForm" v-if="Object.keys(this.mossadInfo).length > 0">
     <v-row>
       <v-btn fab small @click="isEditing = !isEditing" class="moveLeft">
         <v-icon v-if="isEditing">mdi-close</v-icon>
@@ -126,7 +126,7 @@ p {
   text-decoration: underline;
   font-weight: bold;
 }
-.test {
+#mossadCardForm {
   max-width: 80%;
   margin: 5px;
   padding: 5px;

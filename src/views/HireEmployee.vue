@@ -1,17 +1,27 @@
 <template>
   <div>
-    <HireEmployee/>
+    <h1>עובדים</h1>
+    <HireEmployee id="myTable" class="center"/>
   </div>
 </template>
 
 <script>
-import HireEmployee from '../components/hire-employee.vue';
+import HireEmployee from "../components/hire-employee.vue";
 export default {
-  name: 'HireEmp',
+  name: "HireEmp",
   components: {
     HireEmployee,
-  }
-}
+  },
+};
 </script>
 <style scoped>
+h1 {
+  text-align: center;
+  justify-content: center;
+  /* font-weight: bold; */
+  text-decoration: underline;
+}
+#myTable {
+  max-width: 60%;
+}
 </style>

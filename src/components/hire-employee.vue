@@ -1,58 +1,94 @@
 <template>
-  <v-card>
-    <!-- <v-form v-model="validForm" autocomplete="off"> -->
-    <v-card-title>קליטת עובד</v-card-title>
-    <v-row>
-      <v-col cols="12" md="2">
-        <v-text-field v-model="empInfo.id" label="תעודת זהות" required></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" md="2">
-        <v-text-field v-model="empInfo.firstName" :rules="nameRules" label="שם פרטי" required></v-text-field>
-      </v-col>
-      <v-col cols="12" md="2">
-        <v-text-field v-model="empInfo.lastName" :rules="nameRules" label="שם משפחה" required></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" md="2">
-        <p>מין</p>
-        <v-radio-group v-model="empInfo.gender" :mandatory="false">
-          <v-radio label="זכר" value="M"></v-radio>
-          <v-radio label="נקבה" value="F"></v-radio>
-        </v-radio-group>
-      </v-col>
-      <v-col cols="12" md="2">
-        <p>משרת אם</p>
-        <v-radio-group v-model="empInfo.mother" :mandatory="false">
-          <v-radio label="כן" value="true"></v-radio>
-          <v-radio label="לא" value="false"></v-radio>
-        </v-radio-group>
-      </v-col>
-      <v-col cols="12" md="3">
-        <label for="birthDate">תאריך לידה</label>
-        <input type="date" name="birthDate" v-model="empInfo.birthDate" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-btn type="submit" :disabled="!validForm" class="mr-4" @click="validate">אישור טופס</v-btn>
-      <v-btn class="myBtn" color="red" @click="deleteEmployer()">מחק עובד</v-btn>
-    </v-row>
-    <!-- </v-form> -->
-    <div class="text-center">
-      <v-dialog v-model="dialog" width="500">
-        <v-card>
-          <v-card-text>העובד נשמר בהצלחה</v-card-text>
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="dialog = false">OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </div>
-  </v-card>
+  <div>
+    <v-data-table
+      id="employeeTable"
+      :headers="headers"
+      :items="employeesData"
+      :search="search"
+      :footer-props="{'items-per-page-options':[20, 50, 100, -1]}"
+      class="elevation-1"
+    >
+      <template v-slot:top>
+        <v-toolbar flat color="white">
+          <v-toolbar-title>
+            <v-card-title>
+              <v-text-field
+                v-model="search"
+                label="Search"
+                placeholder="חפש"
+                single-line
+                autocomplete="off"
+                hide-details
+              ></v-text-field>
+            </v-card-title>
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-dialog v-model="dialog" max-width="50%">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">צור משתמש</v-btn>
+            </template>
+            <v-card id="myform" class="center wrapper">
+              <h1>פרטי עובד</h1>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" md="3">
+                      <v-text-field v-model="editedEmployee.empId" label="תעודת זהות"></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        v-model="editedEmployee.firstName"
+                        :rules="nameRules"
+                        label="שם פרטי"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        v-model="editedEmployee.lastName"
+                        :rules="nameRules"
+                        label="שם משפחה"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12" md="2">
+                      <p>מין</p>
+                      <v-radio-group v-model="editedEmployee.gender" :mandatory="false">
+                        <v-radio label="זכר" value="M"></v-radio>
+                        <v-radio label="נקבה" value="F"></v-radio>
+                      </v-radio-group>
+                    </v-col>
+                    <v-col cols="12" md="2">
+                      <p>משרת אם</p>
+                      <v-radio-group v-model="editedEmployee.mother" :mandatory="false">
+                        <v-radio label="כן" value="true"></v-radio>
+                        <v-radio label="לא" value="false"></v-radio>
+                      </v-radio-group>
+                    </v-col>
+                    <v-col cols="12" md="3">
+                      <label for="birthDate">תאריך לידה</label>
+                      <input type="date" name="birthDate" v-model="editedEmployee.birthDate" />
+                    </v-col>
+                  </v-row>
+                  <v-btn color="info" @click="saveEmployer()">שמור עובד</v-btn>
+                  <v-btn color="red" @click="close()">סגור</v-btn>
+                </v-container>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+      </template>
+      <template v-slot:item.birthDate="{ item }">{{FormatDate2(item.birthDate)}}</template>
+      <template v-slot:item.ageHours="{ item }">{{getAgeHours(item.birthDate)}}</template>
+      <template v-slot:item.mother="{ item }">{{formatMother(item.mother)}}</template>
+      <template v-slot:item.actions="{ item }">
+        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon small @click="deleteEmployer(item)">mdi-delete</v-icon>
+      </template>
+    </v-data-table>
+  </div>
 </template>
 
 <script>
@@ -62,72 +98,240 @@ export default {
   name: "HireEmployee",
   data() {
     return {
-      file: null,
+      employeesData: [],
       dialog: false,
       validForm: true,
+      createNew: false,
+      editedIndex: -1,
+      search: "",
       idRules: [
-        v => !!v || "שדה חובה",
-        v => v.length == 9 || "בתעודת זהות נדרש 9 ספרות"
+        (v) => !!v || "שדה חובה",
+        (v) => v.length == 9 || "בתעודת זהות נדרש 9 ספרות",
       ],
-      nameRules: [v => !!v || "שדה חובה"],
-      gender: "",
-      empInfo: {
-        id: "",
+      nameRules: [(v) => !!v || "שדה חובה"],
+      rules: {
+        required: (value) => !!value || "שדה חובה",
+      },
+      empId: null,
+      headers: [
+        { text: "תעודת זהות", value: "empId" },
+        { text: "שם משפחה", value: "lastName" },
+        { text: "שם פרטי", value: "firstName" },
+        { text: "גיל", value: "birthDate" },
+        { text: "מורה אם", value: "mother" },
+        { text: "שעות גיל", value: "ageHours" },
+        { text: "פעולות", value: "actions", sortable: false },
+      ],
+      editedEmployee: {
+        empId: "",
         firstName: "",
         lastName: "",
         birthDate: "",
-        gender: "",
-        mother: false
-      }
+        mother: "",
+        ageHours: "",
+      },
+      defaultEmployee: {
+        empId: "",
+        lastName: "",
+        userName: "",
+        birthDate: "",
+        mother: "",
+        ageHours: "",
+      },
     };
   },
+  created() {
+    this.getAllTz();
+  },
   methods: {
-    validate() {
-      if (this.saveEmployer()) {
-        this.dialog = true;
+    FormatDate(iDate) {
+      var inputDate = new Date(iDate);
+      var formattedDate;
+      var year = inputDate.getFullYear();
+      var month = 0;
+      var day = 0;
+
+      month += inputDate.getMonth() + 1;
+      if (month < 10) {
+        month = "0" + month;
       }
+      if (inputDate.getDate() < 10) {
+        day = "0";
+      }
+      day += inputDate.getDate();
+      formattedDate = year + "-" + month + "-" + day;
+      return formattedDate;
+    },
+    FormatDate2(iDate) {
+      // var inputDate = new Date(iDate);
+      // var formattedDate;
+      // var year = inputDate.getFullYear();
+      // var month = 0;
+      // var day = 0;
+
+      // month += inputDate.getMonth() + 1;
+      // if (month < 10) {
+      //   month = "0" + month;
+      // }
+      // if (inputDate.getDate() < 10) {
+      //   day = "0";
+      // }
+      // day += inputDate.getDate();
+      // formattedDate = day + "/" + month + "/" + year;
+
+      // return formattedDate;
+
+      var currDate = new Date();
+      var newdate = new Date(iDate);
+      var tempYears = currDate.getFullYear() - newdate.getFullYear();
+      if (currDate.getUTCMonth() < newdate.getUTCMonth()) {
+        tempYears -= 1;
+      }
+
+      var tempMonth = currDate.getUTCMonth() - newdate.getUTCMonth();
+
+      if (tempMonth < 0) {
+        tempMonth = 12 + tempMonth;
+      }
+      if (tempMonth < 10) {
+        tempMonth = "0" + tempMonth;
+      }
+      return tempYears + "." + tempMonth;
+    },
+    formatMother(mother) {
+      if (mother) {
+        return "כן";
+      }
+      return "לא";
+    },
+    setEmployeeInfo(employee) {
+      this.editedEmployee = employee;
+      this.editedEmployee.mother = "" + this.editedEmployee.mother + "";
+      this.editedEmployee.birthDate = this.FormatDate(
+        new Date(this.editedEmployee.birthDate)
+      );
     },
     saveEmployer() {
-      var isSaved = false;
+      const index = this.editedIndex;
+      if (
+        this.editedEmployee.empId == null ||
+        this.editedEmployee.firstName == null ||
+        this.editedEmployee.lastName == null ||
+        this.editedEmployee.birthDate == null ||
+        this.editedEmployee.gender == null ||
+        this.editedEmployee.mother == null
+      ) {
+        alert("נא להזין את כל השדות");
+        return;
+      }
       axios
         .post(`/employees/save`, {
-          empId: this.empInfo.id,
-          firstName: this.empInfo.firstName,
-          lastName: this.empInfo.lastName,
-          birthDate: this.empInfo.birthDate,
-          begda: new Date(),
-          gender: this.empInfo.gender,
-          mother: this.empInfo.mother
+          empId: this.editedEmployee.empId,
+          firstName: this.editedEmployee.firstName,
+          lastName: this.editedEmployee.lastName,
+          birthDate: this.editedEmployee.birthDate,
+          gender: this.editedEmployee.gender,
+          mother: this.editedEmployee.mother,
         })
-        .then(() => {
-          isSaved = true;
+        .then((response) => {
+          alert("פרטי העובד נשמרו בהצלחה");
+          if (index > -1) {
+            Object.assign(this.employeesData[index], response.data);
+          } else {
+            this.employeesData.push(response.data);
+          }
         })
-        .catch(e => {
-          console.log(e);
-        });
-      return isSaved;
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+      this.close();
     },
-    deleteEmployer() {
+    getAllTz() {
+      axios
+        .get("/employees/all")
+        .then((response) => {
+          this.employeesData = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    deleteEmployer(employee) {
+      const index = this.employeesData.indexOf(employee);
+      if (!confirm("האם אתה בטוח שברצונך למחוק עובד זה?")) {
+        return;
+      }
       axios
         .delete("/employees/byId", {
           params: {
-            empId: this.empInfo.id
-          }
+            empId: employee.empId,
+          },
         })
         .then(() => {
           alert("העובד נמחק בהצלחה");
+          this.employeesData.splice(index, 1);
         })
-        .catch(e => {
-          console.log(e);
-          alert("המערכת לא הצליחה למחוק את העובד");
-        });
-    }
-  }
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    editItem(item) {
+      this.editedIndex = this.employeesData.indexOf(item);
+      this.setEmployeeInfo(item);
+      this.dialog = true;
+    },
+    getAgeHours(date) {
+      var birthDate = new Date(date);
+      var currDate = new Date();
+      var age = currDate.getFullYear() - birthDate.getFullYear();
+      if (age < 50) {
+        return 0;
+      } else if (age > 55) {
+        return 4;
+      } else {
+        return 2;
+      }
+    },
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.editedEmployee = Object.assign({}, this.defaultUser);
+        this.editedIndex = -1;
+      });
+    },
+  },
 };
 </script>
 
 <style scoped>
+.wrapper {
+  padding: 3%;
+}
 input {
   border: 1px solid;
+}
+.header {
+  justify-content: center;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+#searchEmployee {
+  max-width: 400px;
+}
+#employeeTable {
+  margin-bottom: 3%;
+}
+#myform {
+  background-color: #ffffe6;
+}
+.v-card > *:first-child:not(.v-btn):not(.v-chip) {
+  background-color: initial;
 }
 </style>

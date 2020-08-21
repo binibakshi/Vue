@@ -1,7 +1,6 @@
 <template>
   <v-card class="wrapper" background-color="#ffffe6">
     <v-card-title primary-title>ניהול מוסדות</v-card-title>
-
     <v-row>
       <v-col cols="12" md="3">
         <v-autocomplete
@@ -58,10 +57,7 @@ export default {
   },
   methods: {
     getAllMossadot() {
-      axios.defaults.headers["Authorization"] =
-        "Bearer" + this.$store.state.token;
-
-      axios
+     axios
         .get("/mossadot/all")
         .then((response) => {
           this.mossadot = response.data;

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import Vue from "vue";
 import VueRouter from "vue-router";
 import store from "../store/store";
@@ -5,6 +6,17 @@ import store from "../store/store";
 Vue.use(VueRouter);
 
 const routes = [
+  {
+    path: "/",
+    name: "empInfo",
+    // route level code-splitting
+    // this generates a separate chunk (HireEmployee.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(
+        /* webpackChunkName: "default-page" */ "../views/EmployeeInfo.vue"
+      ),
+  },
   {
     path: "/login",
     name: "login",
@@ -53,6 +65,24 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "ImportData" */ "../views/ImportData.vue"),
+  },
+  {
+    path: "/auth",
+    name: "auth",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "ImportData" */ "../views/AuthMenagment.vue"),
+  },
+  {
+    path: "/calcHours",
+    name: "calcHours",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "ImportData" */ "../views/calcHours.vue"),
   },
 ];
 

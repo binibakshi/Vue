@@ -1,11 +1,9 @@
 <template>
-  <div class="wrapper" v-show="Object.keys(this.empId).length > 0">
-    <h1 class="center">{{ _reformDiscription }}</h1>
-    <div v-show="reformType != 0">
-      <div class="first02">
-        <br />
-        <br />
-        <table class="table" id="t01">
+  <div class="wrapper" v-if="empId != null">
+    <h1 id="centerize">{{ _reformDiscription }}</h1>
+    <div class="wrapper" v-show="reformType != 0">
+      <div>
+        <table id="t01">
           <thead>
             <tr>
               <th></th>
@@ -20,7 +18,7 @@
               <th>ד'</th>
               <th>ה'</th>
               <th>ו'</th>
-              <th>סך הכל</th>
+              <th>הפרש</th>
             </tr>
           </thead>
           <tbody>
@@ -29,25 +27,27 @@
                 <a v-if="row.type == frontalConst && index != 0" @click="removeRow(index)">הסר</a>
               </td>
               <td>{{ convertReformDescription(row.type) }}</td>
-              <td id="test">
+              <td id="autocomlete">
                 <v-autocomplete
                   v-if="row.type == frontalConst"
                   v-model="row.code"
                   :items="_filteredCodes"
                   hide-no-data
                   hide-selected
-                  :item-text="item => item.code +'-'+ item.codeDescription"
+                  :item-text="item => item.code + '-' + item.codeDescription"
                   item-value="code"
                   @change="setPrivateAndPauseCodes(row.code)"
-                >row.code</v-autocomplete>
-                <p>{{ row.code }}</p>
-              </td>
+                ></v-autocomplete>
 
+                <p>{{row.code }}</p>
+              </td>
               <td class="frontalStyle">{{ currCodeDescription(row.code) }}</td>
               <td>
                 <input
                   id="hours"
                   type="number"
+                  placeholder="0.00"
+                  min="0"
                   v-model="row.hours"
                   :disabled="row.code <= 0 || row.type != frontalConst"
                   @input="getPauseAndPrivateHours()"
@@ -55,13 +55,19 @@
               </td>
               <td class="frontalStyle"></td>
               <td v-for="(cell, index2) in row.week" :key="index2">
-                <input type="number" v-model="row.week[index2]" :disabled="row.hours <= 0" />
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  min="0"
+                  v-model="row.week[index2]"
+                  :disabled="row.hours <= 0"
+                />
               </td>
               <td
                 :style="{
                   color: validRowsHours(row) == false ? 'red' : 'inherit',
                 }"
-              >{{ rowSum(row.week) }}</td>
+              >{{ leftHours(row) }}</td>
             </tr>
             <tr class="summaryRow">
               <td></td>
@@ -75,21 +81,13 @@
                 :style="{
                   color: validTotalHours() == false ? 'red' : 'inherit',
                 }"
-              >{{ tableSum() }}</td>
+              >{{ leftTableHours() }}</td>
             </tr>
           </tbody>
         </table>
-        <v-row>
-          <v-btn class="myBtn" color="success" @click="addNewRow()">הוסף</v-btn>
-          <v-btn class="myBtn" color="info" @click="saveHours()">שמור שעות</v-btn>
-          <v-btn class="myBtn" color="red" @click="initilizer()">נקה</v-btn>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="2">
-            <p>סך שעות : {{ hoursAmount() }}</p>
-            <p>סך אחוז משרה : {{ currOptionjobPercent(getAllFrontalHours()) }}%</p>
-          </v-col>
-        </v-row>
+        <v-btn class="myBtn" color="success" @click="addNewRow()">הוסף שורה</v-btn>
+        <v-btn class="myBtn" color="info" @click="saveHours()">שמור שעות</v-btn>
+        <v-btn class="myBtn" color="red" @click="cleanWeeklyData()">נקה</v-btn>
       </div>
     </div>
   </div>
@@ -97,6 +95,7 @@
 
 <script>
 import axios from "axios";
+import { bus } from "../main";
 
 const FRONTAL = 1;
 const PRIVATE = 2;
@@ -126,9 +125,14 @@ export default {
   },
   methods: {
     getPauseAndPrivateHours() {
-      var totalFrontalHours = this.newHours
-        .filter((el) => el.type == FRONTAL)
-        .reduce((sum, record) => sum + parseInt(record.hours), 0);
+      if (this.reformType != 2 && this.reformType != 5) {
+        return;
+      }
+      var totalFrontalHours = Math.round(
+        this.newHours
+          .filter((el) => el.type == FRONTAL)
+          .reduce((sum, record) => sum + parseInt(record.hours), 0)
+      );
 
       this.newHours.find((el) => el.type == PAUSE).hours = this.empOptions.find(
         (el) => el.frontalHours == totalFrontalHours
@@ -221,36 +225,18 @@ export default {
       });
     },
     setPrivateAndPauseCodes(code) {
-      // OFEK HADASH
-      if (code == 5466 || code == 5474) {
-        this.newHours.find((el) => el.type == PAUSE).code = 5468;
-        this.newHours.find((el) => el.type == PRIVATE).code = 5467;
-
-        // OFEK HADASH replacement hours
-      } else if (code == 3566) {
-        this.newHours.find((el) => el.type == PRIVATE).code = 3567;
-        this.newHours.find((el) => el.type == PAUSE).code = 3568;
-        // OZ LETMURA
-      } else if (
-        code == 9600 ||
-        code == 9617 ||
-        code == 9619 ||
-        code == 9620 ||
-        code == 9624 ||
-        code == 9626 ||
-        code == 9631 ||
-        code == 9670 ||
-        code == 9675
-      ) {
+      if ((this.reformType != 2 && this.reformType != 5) || code == "") {
+        return;
+      }
+      // OZ LETMURA
+      if (this.reformType == 5) {
         this.newHours.find((el) => el.type == PRIVATE).code = 9601;
         this.newHours.find((el) => el.type == PAUSE).code = 9602;
-        // OZ LETMURA replacement hours
-      } else if (code == 3900 || code == 3917 || code == 3971) {
-        this.newHours.find((el) => el.type == PRIVATE).code = 3901;
-        this.newHours.find((el) => el.type == PAUSE).code = 3902;
-      } else {
-        this.newHours.find((el) => el.type == PRIVATE).code = "";
-        this.newHours.find((el) => el.type == PAUSE).code = "";
+      }
+      // OFEK HADASH
+      else if (this.reformType == 2) {
+        this.newHours.find((el) => el.type == PAUSE).code = 5468;
+        this.newHours.find((el) => el.type == PRIVATE).code = 5467;
       }
     },
     setExistHours() {
@@ -346,8 +332,6 @@ export default {
       return 0;
     },
     saveHours() {
-      var isSaved = false;
-      
       //check all data before let user to save
       let isValid = true;
       this.newHours.forEach((row) => {
@@ -361,10 +345,6 @@ export default {
         return false;
       }
       this.setNewHoursForSave();
-      if (this.tableToSave.length <= 0) {
-        console.log("no data");
-        return;
-      }
       axios({
         url: "/teacherEmploymentDetails/saveAll",
         method: "post",
@@ -372,14 +352,13 @@ export default {
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
-          isSaved = true;
+          bus.$emit("changeWeeklyHours");
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
             error,
           });
         });
-      return isSaved;
     },
     convertReformDescription(reform) {
       if (reform == PRIVATE) {
@@ -391,23 +370,28 @@ export default {
       }
     },
     validRowsHours(row) {
-      if (row.hours != undefined && row.hours != this.rowSum(row.week)) {
+      if (row.hours != undefined && this.leftHours(row) != 0) {
         return false;
       }
       return true;
     },
     validTotalHours() {
-      if (this.hoursAmount() != this.tableSum()) {
+      if (0 != this.leftTableHours()) {
         return false;
       }
       return true;
     },
-    rowSum(weekArray) {
-      return weekArray.reduce((acc, item) => parseInt(acc) + parseInt(item), 0);
+    leftHours(row) {
+      var weekArray = row.week;
+      return (
+        parseInt(
+          weekArray.reduce((acc, item) => parseInt(acc) + parseInt(item), 0)
+        ) - row.hours
+      );
     },
-    tableSum() {
+    leftTableHours() {
       return this.newHours.reduce(
-        (acc, item) => parseInt(acc) + this.rowSum(item.week),
+        (acc, item) => parseInt(acc) + this.leftHours(item),
         0
       );
     },
@@ -436,6 +420,12 @@ export default {
         ];
       }
     },
+    cleanWeeklyData() {
+      this.newHours.forEach((el) => {
+        el.hours = 0;
+        el.week = [0, 0, 0, 0, 0, 0];
+      });
+    },
   },
   computed: {
     _reformDiscription() {
@@ -458,6 +448,15 @@ export default {
     empId: function (val) {
       this.empId = val;
       this.initilizer();
+      this.getCodeDescription();
+      this.getEmployeeOptions();
+      this.getExistData();
+    },
+    reformType: function (val) {
+      this.reformType = val;
+      this.initilizer();
+      this.getCodeDescription();
+      this.getEmployeeOptions();
       this.getExistData();
     },
   },
@@ -465,18 +464,17 @@ export default {
 </script>
 
 <style scoped>
-#test {
-  max-width: 100px;
+.wrapper {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 5%;
+}
+#autocomlete {
+  max-width: 150px;
   max-height: 25px;
   padding-top: 0;
 }
-.wrapper {
-  width: 1200px;
-  overflow: hidden; /* will contain if #first is longer than #second */
-  margin-right: 2%;
-  margin-bottom: 2%;
-  /* max-width: 95%; */
-}
+
 table,
 tr,
 th,
@@ -514,26 +512,36 @@ input:disabled {
 }
 .myBtn {
   padding: 1px;
-  margin: 1px;
+  margin: 5px;
+  /* margin-left: 10px; */
 }
 table {
   max-width: 98%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 p {
   font-weight: bold;
   text-decoration: underline;
 }
-
-.center {
-  margin: auto;
-  width: 50%;
+#centerize {
   padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .summaryRow {
   background: darkcyan;
   lighting-color: darkcyan;
 }
-/* input.disable-input {
-  background-color: gray;
-} */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 </style>

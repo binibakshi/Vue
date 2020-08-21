@@ -1,94 +1,116 @@
 <template>
-  <v-card class="wrapper">
-    <v-card-title>פרטי עובד</v-card-title>
-
-    <div class="first">
-      <v-row>
-        <v-col cols="12" md="8">
-          <v-card-text>
-            <v-autocomplete
-              v-model="empId"
-              :items="tzArray"
-              color="indigo lighten-5"
-              hide-selected
-              :item-text="item => item.firstName +' '+ item.lastName + ' - ' + item.empId"
-              item-value="empId"
-              label="תעודת זהות"
-              placeholder="חפש"
-              @change="getEmployeeInfo()"
-            ></v-autocomplete>
-          </v-card-text>
+  <v-card>
+    <div class="littleMargin">
+      <v-row id="mossadHoursDetails">
+        <v-col cols="12" md="2">
+          <p>מוסד - {{_mossadInfo.mossadName}}</p>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>שעות מאוישות - {{_mossadInfo.currHours}}</p>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>יתרת שעות - {{_mossadInfo.maxHours - _mossadInfo.currHours}}</p>
+        </v-col>
+        <v-col cols="12" md="3">
+          <p>כמות שעות מקסימלית - {{_mossadInfo.maxHours}}</p>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>אחוז איוש - {{ getTwoDigits(_mossadInfo.currHours /_mossadInfo.maxHours) }}%</p>
         </v-col>
       </v-row>
-    </div>
+      <v-row id="serchEmployee">
+        <v-col cols="12" md="8">
+          <v-autocomplete
+            v-model="empId"
+            :items="tzArray"
+            color="indigo lighten-5"
+            hide-selected
+            :item-text="item => item.firstName +' '+ item.lastName + ' - ' + item.empId"
+            item-value="empId"
+            label="תעודת זהות"
+            placeholder="חפש"
+            @change="getEmployeeInfo()"
+          ></v-autocomplete>
+        </v-col>
+      </v-row>
+      <v-row class="second" v-if="Object.keys(this.employeeInfo).length > 0">
+        <v-col cols="12" md="2">
+          <p>שם פרטי</p>
+          {{ employeeInfo.firstName }}
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>שם משפחה</p>
+          {{ employeeInfo.lastName }}
+        </v-col>
+        <v-col cols="12" md="1">
+          <p>גיל</p>
+          {{ formatDate }}
+        </v-col>
+        <v-col cols="12" md="1">
+          <p>מין</p>
+          {{ formatGender }}
+        </v-col>
+        <v-col cols="12" md="1">
+          <p>משרת אם</p>
+          {{ formatIsMother }}
+        </v-col>
+        <v-col cols="12" md="1">
+          <p>שעות גיל</p>
+          {{ ageHours }}
+        </v-col>
+        <v-col cols="12" md="4">
+          <table id="detailsTable" v-if="Object.keys(this.existHours).length > 0">
+            <thead>
+              <th></th>
+              <th>א</th>
+              <th>ב</th>
+              <th>ג</th>
+              <th>ד</th>
+              <th>ה</th>
+              <th>ו</th>
+              <th>סך שעות</th>
+              <th>אחוז משרה</th>
+            </thead>
+            <tbody>
+              <tr v-for="(row, index) in existHours" :key="index">
+                <td>{{getRowType(row.type)}}</td>
+                <td v-for="index in 6" :key="index">{{ row.week[index - 1] }}</td>
+                <td>{{ totalHours(row.week) }}</td>
+                <td>{{ row.week[6] }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </v-col>
+      </v-row>
 
-    <v-btn color="indigo accent-2" @click="navigateToHirepage()">צור עובד</v-btn>
-
-    <div class="mainBody" v-if="Object.keys(this.employeeInfo).length > 0">
-      <div class="second">
-        <v-row>
-          <v-col cols="12" md="2">
-            <p>שם פרטי</p>
-            {{ employeeInfo.firstName }}
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>שם משפחה</p>
-            {{ employeeInfo.lastName }}
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>גיל</p>
-            {{ formatDate }}
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>מין</p>
-            {{ formatGender }}
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>משרת אם</p>
-            {{ formatIsMother }}
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>שעות גיל</p>
-            {{ ageHours }}
-          </v-col>
-        </v-row>
-      </div>
-    </div>
-
-    <div v-if="Object.keys(this.existHours).length > 0">
-      <table class="center">
-        <thead>
-          <th>יום</th>
-          <th>א</th>
-          <th>ב</th>
-          <th>ג</th>
-          <th>ד</th>
-          <th>ה</th>
-          <th>ו</th>
-          <th>סיכום</th>
-        </thead>
-        <tbody>
-          <td></td>
-          <td v-for="(day, index) in existHours" :key="index">{{ day }}</td>
-          <td>{{ _totalHours }}</td>
-        </tbody>
-      </table>
-    </div>
-
-    <v-card v-if="Object.keys(this.employeeInfo).length > 0">
-      <v-card>
-        <weeklyHours :empId="empId" :reformType="2"></weeklyHours>
+      <v-row v-if="empId != null">
+        <v-col cols="12" md="2">
+          <v-select
+            v-model="reformId"
+            :items="reformTypes"
+            item-text="name"
+            item-value="reformId"
+            label="בחר רפורמה"
+            single-line
+          ></v-select>
+        </v-col>
+        <v-spacer></v-spacer>
+        <v-btn color="success" @click="exportEmployeeWeeklyHours()">ייצא איוש שעות לאקסל</v-btn>
+      </v-row>
+      <v-card v-if="employeeInfo != null && reformId != null">
+        <v-card class="center">
+          <weeklyHours :empId="empId" :reformType="reformId"></weeklyHours>
+        </v-card>
       </v-card>
-      <v-card>
-        <weeklyHours :empId="empId" :reformType="5"></weeklyHours>
-      </v-card>
-    </v-card>
+    </div>
   </v-card>
 </template>
 
 <script>
 import axios from "axios";
 import weeklyHours from "./weekly-hours.vue";
+import { bus } from "../main";
+
 export default {
   name: "setEmployeesHours",
   components: {
@@ -97,36 +119,48 @@ export default {
   data() {
     return {
       search: null,
-      empId: "",
+      reformId: null,
+      empId: null,
       tzArray: [],
       employeeInfo: {},
       existHours: [],
       weeklyHoursComponents: [],
+      reformTypes: [],
     };
   },
   created() {
     this.getAllTz();
+    this.getReformTypes();
+  },
+  mounted() {
+    bus.$on("changeWeeklyHours", () => {
+      this.getWeeklySum();
+    });
   },
   computed: {
-    _totalHours() {
-      if (this.existHours.length > 0) {
-        return this.existHours.reduce(
-          (acc, item) => parseInt(acc) + parseInt(item),
-          0
-        );
-      } else {
-        return 0;
+    _mossadInfo() {
+      if (this.$store.getters.mossadInfo == null) {
+        let temp = { mossadName: "" };
+        return temp;
       }
+      return this.$store.state.mossadInfo;
     },
     formatDate() {
-      if (this.employeeInfo.birthDate != undefined) {
-        // return this.convertDate(this.employeeInfo.birthDate);
-        var birthDate = new Date(this.employeeInfo.birthDate);
-        var currDate = new Date();
-        return currDate.getFullYear() - birthDate.getFullYear();
-      } else {
-        return undefined;
+      var currDate = new Date();
+      var birthDate = new Date(this.employeeInfo.birthDate);
+      var tempMonth = 0;
+      var tempYears = currDate.getFullYear() - birthDate.getFullYear();
+      if (currDate.getUTCMonth() < birthDate.getUTCMonth()) {
+        tempYears -= 1;
       }
+      tempMonth = currDate.getUTCMonth() - birthDate.getUTCMonth();
+      if (tempMonth < 0) {
+        tempMonth = tempMonth * -1;
+      }
+      if (tempMonth < 10) {
+        tempMonth = "0" + tempMonth;
+      }
+      return tempYears + "." + tempMonth;
     },
     formatGender() {
       if (this.employeeInfo.gender != undefined) {
@@ -163,6 +197,24 @@ export default {
     },
   },
   methods: {
+    totalHours(week) {
+      let sum = 0;
+
+      if (week != null) {
+        for (let index = 0; index < 6; index++) {
+          sum = sum + parseInt(week[index]);
+        }
+        return sum;
+      } else {
+        return 0;
+      }
+    },
+    getRowType(type) {
+      if (type === 1) {
+        return "במוסד";
+      }
+      return "בכל המוסדות";
+    },
     getAllTz() {
       axios
         .get("/employees/all")
@@ -191,17 +243,29 @@ export default {
           })
         );
 
-      this.getAllExistHours();
+      this.getWeeklySum();
     },
-    getAllExistHours() {
+    getWeeklySum() {
+      this.existHours = [];
       axios
-        .get("/teacherEmploymentDetails/weekSum", {
+        .get("/teacherEmploymentDetails/weekSumPerMossad", {
           params: {
             empId: this.empId,
+            mossadId: this.$store.state.logginAuth,
           },
         })
         .then((response) => {
-          this.existHours = response.data;
+          this.existHours.push({ type: 1, week: response.data });
+
+          axios
+            .get("/teacherEmploymentDetails/weekSum", {
+              params: {
+                empId: this.empId,
+              },
+            })
+            .then((response) => {
+              this.existHours.push({ type: 2, week: response.data });
+            });
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -209,51 +273,67 @@ export default {
           })
         );
     },
-    removeRow(index) {
-      this.weeklyHoursComponents.splice(index, index);
+    getReformTypes() {
+      axios
+        .get("/reformTypes/relevant")
+        .then((response) => {
+          this.reformTypes = response.data;
+          this.filterReformTypeByMossad();
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
-    addNewRow() {
-      this.weeklyHoursComponents.push({
-        empId: this.empId,
-      });
+    exportEmployeeWeeklyHours() {
+      bus.$emit("exportEmployeeWeeklyHours", this.empId);
     },
     navigateToHirepage() {
       this.$router.push("/HireEmp");
+    },
+    filterReformTypeByMossad() {
+      if (this.$store.state.mossadInfo.mossadType == 2) {
+        this.reformTypes = this.reformTypes.filter(
+          (el) =>
+            el.reformId == 1 ||
+            el.reformId == 5 ||
+            el.reformId == 7 ||
+            el.reformId == 2 ||
+            el.reformId == 8
+        );
+      } else if (this.$store.state.mossadInfo.mossadType == 1) {
+        this.reformTypes = this.reformTypes.filter(
+          (el) => el.reformId == 1 || el.reformId == 5 || el.reformId == 8
+        );
+      }
+      this.reformTypes.filter;
+    },
+    getTwoDigits(number) {
+      if (isNaN(number)) {
+        return "";
+      }
+      return parseFloat(number * 100).toFixed(2);
     },
   },
 };
 </script>
 
 <style scoped>
-.wrapper {
-  width: 100%;
-  /* border: 1px solid black; */
-  overflow: hidden; /* will contain if #first is longer than #second */
+p {
+  font-weight: bold;
 }
-.first {
-  width: 300px;
-  float: right; /* add this */
-  margin: 5px;
+.littleMargin {
+  margin-right: 3%;
+  margin-left: 3%;
 }
-.second {
-  margin: 5px;
-  overflow: hidden; /* if you don't want #second to wrap below #first */
+#serchEmployee {
+  max-width: 400px;
 }
-
 .divider {
   width: 98%;
   overflow: hidden;
   margin-top: 30px;
-}
-.left {
-  width: 49%;
-  float: left;
-  margin: 5px;
-}
-.right {
-  width: 49%;
-  float: right;
-  margin: 5px;
 }
 table,
 tr,
@@ -279,13 +359,15 @@ td,
 th {
   margin: 1px;
   padding: 1px;
-  width: 25px;
+  min-width: 25px;
+  max-width: 100px;
   text-align: center;
 }
-.center {
-  margin: auto;
-  width: 50%;
-  border: 1x solid burlywood;
-  padding: 10px;
+#detailsTable {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-left: 15%;
+  margin-right: auto;
 }
 </style>

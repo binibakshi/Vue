@@ -1,9 +1,9 @@
 /* eslint-disable vue/no-unused-components */
 /* eslint-disable vue/no-unused-components */
 <template>
-    <v-card>
+    <div>
     <setEmployeesHours/>
-    </v-card>
+    </div>
 </template>
 
 <script>

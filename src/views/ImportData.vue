@@ -1,16 +1,16 @@
 <template>
   <div>
-    <HireEmpsvieExcel />
+    <HireEmpsviaExcel />
   </div>
 </template>
 
 <script>
-import HireEmpsvieExcel from "../components/hire-emp-via-excel";
+import HireEmpsviaExcel from "../components/hire-emp-via-excel";
 
 export default {
   name: "ImportData",
   components: {
-    HireEmpsvieExcel
+    HireEmpsviaExcel
   }
 };
 

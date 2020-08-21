@@ -10,6 +10,8 @@ import 'popper.js'
 import { store } from './store/store';
 Vue.config.productionTip = false
 
+export const bus = new Vue()
+
 new Vue({
   router,
   store,
