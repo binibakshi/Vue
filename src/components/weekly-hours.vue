@@ -1,7 +1,7 @@
 <template>
-  <div class="wrapper" v-if="empId != null">
+  <div v-if="empId != null">
     <h1 id="centerize">{{ _reformDiscription }}</h1>
-    <div class="wrapper" v-show="reformType != 0">
+    <div v-show="reformType != 0">
       <div>
         <table id="t01">
           <thead>
@@ -46,7 +46,6 @@
                 <input
                   id="hours"
                   type="number"
-                  placeholder="0.00"
                   min="0"
                   v-model="row.hours"
                   :disabled="row.code <= 0 || row.type != frontalConst"
@@ -57,7 +56,6 @@
               <td v-for="(cell, index2) in row.week" :key="index2">
                 <input
                   type="number"
-                  placeholder="0.00"
                   min="0"
                   v-model="row.week[index2]"
                   :disabled="row.hours <= 0"
@@ -189,12 +187,12 @@ export default {
           })
         );
     },
-    async getExistData() {
+    getExistData() {
       axios
         .get("/teacherEmploymentDetails/byReform", {
           params: {
             empId: this.empId,
-            mossadId: 13,
+            mossadId: this.$store.state.logginAuth,
             reformType: this.reformType,
           },
         })
@@ -216,7 +214,7 @@ export default {
         element.week.forEach((day, index) => {
           this.tableToSave.push({
             empId: this.empId,
-            mossadId: 13,
+            mossadId: this.$store.state.logginAuth,
             empCode: element.code,
             day: index,
             hours: day,
@@ -464,11 +462,6 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 5%;
-}
 #autocomlete {
   max-width: 150px;
   max-height: 25px;

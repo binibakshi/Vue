@@ -7,44 +7,77 @@ export default {
   data() {
     return {
       localMossadId: null,
-      allEmpsInfo: null,
+      allEmpsInfo: [],
       codeDescription: [],
       empsHours: [],
       dataToExport: [],
     };
   },
+  created() {
+    this.getCodesDescription();
+  },
   methods: {
-    setWeeklyHoursAndExport() {
+    async createWeeklyHoursToMossad(mossadId) {
+      await this.getAllEmpInfo(mossadId);
+      await this.getAllEmpHours(mossadId);
+      this.setWeeklyHoursAndExport(mossadId);
+    },
+    async createWeeklyHoursToEmployee(empId, mossadId) {
+      await this.getEmpInfo(empId, mossadId);
+      await this.getEmpHours(empId, mossadId);
+      this.setWeeklyHoursAndExport(mossadId);
+    },
+    async setWeeklyHoursAndExport(mossadId) {
+      var mossadName = "";
+      await new Promise((resolve) => {
+        axios
+          .get("/mossadot/byId", {
+            params: {
+              mossadId: this.$store.state.logginAuth,
+            },
+          })
+          .then((response) => {
+            mossadName = response.data.mossadName;
+            resolve(response);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+
       this.allEmpsInfo.forEach((el) => {
         this.setExistHours(
           el,
-          this.empsHours.filter((e) => e.empId == el.empId)
+          this.empsHours.filter((e) => e.empId == el.empId),
+          mossadId,
+          mossadName
         );
       });
       this.downloadFile(
         this.dataToExport,
+
         this.getWeeklyHoursHeaders(),
         "מצבת שעות.xlsx",
         "מערכת שעות פרונטליות"
       );
     },
-    getEmpHours(empId) {
-      new Promise((resolve) => {
+    getEmpHours(empId, mossadId) {
+      return new Promise((resolve) => {
         axios
           .get("/teacherEmploymentDetails/byMossad", {
             params: {
               empId: empId,
-              mossadId: this.$store.state.logginAuth,
+              mossadId: mossadId,
             },
           })
           .then((response) => {
-            this.dataToExport = response.data;
+            this.empsHours = response.data;
             resolve(response);
           });
       });
     },
     getEmpInfo(empId) {
-      new Promise((resolve) => {
+      return new Promise((resolve) => {
         axios
           .get("/employees/byId", {
             params: {
@@ -52,17 +85,17 @@ export default {
             },
           })
           .then((response) => {
-            this.allEmpsInfo = response.data;
+            this.allEmpsInfo.push(response.data);
             resolve(response);
           });
       });
     },
-    getAllEmpInfo() {
+    getAllEmpInfo(mossadId) {
       return new Promise((resolve) => {
         axios
           .get("/employees/byMossad", {
             params: {
-              mossadId: this.localMossadId,
+              mossadId: mossadId,
             },
           })
           .then((response) => {
@@ -71,12 +104,12 @@ export default {
           });
       });
     },
-    getAllEmpHours() {
+    getAllEmpHours(mossadId) {
       return new Promise((resolve) => {
         axios
           .get("/teacherEmploymentDetails/allByMossad", {
             params: {
-              mossadId: this.localMossadId,
+              mossadId: mossadId,
             },
           })
           .then((response) => {
@@ -128,51 +161,45 @@ export default {
       if (!wb.Workbook.Views[0])
         (wb.Workbook.Views[0] = {}), (wb.Workbook.Views[0].RTL = true);
     },
-    setExistHours(empInfo, hoursToFormat) {
+    setExistHours(empInfo, hoursToFormat, mossadId, mossadName) {
       let tempHourType;
       let newRow = {};
       let hoursToDisplay = [];
-
       hoursToFormat.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
-        // collect only frontal hours
-        if (tempHourType == FRONTAL) {
-          // after first insert check whether create new row or add to existing one
-          if (hoursToDisplay.find((e) => e.code == el.empCode) == undefined) {
-            // create row template
-            (newRow = {
-              empId: empInfo.empId,
-              lastName: empInfo.lastName,
-              firstName: empInfo.firstName,
-              ageHours: this.getAgeHours(empInfo.birthDate),
-              isMother: this.getIsMother(empInfo.mother),
-              code: el.empCode,
-              codeDescription: this.getCodeDescription(el.empCode),
-              mossadId: this.$store.state.logginAuth + "100",
-              mossadName: this.$store.state.mossadInfo.mossadName,
-              Sunday: 0,
-              Monday: 0,
-              Tuesday: 0,
-              Wednesday: 0,
-              Thursday: 0,
-              Friday: 0,
-              totalHours: 0,
-              reformType: this.getReformType(el.empCode),
-              systemMessages: "",
-            }),
-              hoursToDisplay.push(newRow);
-          }
-          this.setHoursInDay(
-            hoursToDisplay.find((e) => e.code == el.empCode),
-            el.day,
-            el.hours
-          );
+        // after first insert check whether create new row or add to existing one
+        if (hoursToDisplay.find((e) => e.code == el.empCode) == undefined) {
+          // create row template
+          (newRow = {
+            empId: empInfo.empId,
+            lastName: empInfo.lastName,
+            firstName: empInfo.firstName,
+            ageHours: this.getAgeHours(empInfo.birthDate),
+            isMother: this.getIsMother(empInfo.mother),
+            code: el.empCode,
+            codeDescription: this.getCodeDescription(el.empCode),
+            mossadId: mossadId + "100", // TODO
+            mossadName: mossadName, // TODO
+            Sunday: 0,
+            Monday: 0,
+            Tuesday: 0,
+            Wednesday: 0,
+            Thursday: 0,
+            Friday: 0,
+            totalHours: 0,
+            reformType: this.getReformType(el.empCode),
+            systemMessages: "",
+          }),
+            hoursToDisplay.push(newRow);
         }
+        this.setHoursInDay(
+          hoursToDisplay.find((e) => e.code == el.empCode),
+          el.day,
+          el.hours
+        );
       });
-      // this.sortWeeklyhoursTable(hoursToDisplay);
       this.dataToExport.push.apply(this.dataToExport, hoursToDisplay);
-      // return hoursToDisplay;
     },
     sortWeeklyhoursTable(hoursToDisplay) {
       hoursToDisplay.sort((a, b) => a.empCode - b.empCode);
@@ -243,6 +270,7 @@ export default {
       return 1;
     },
     getAgeHours(getDate) {
+      // TODO
       if (getDate === undefined) {
         return null;
       }

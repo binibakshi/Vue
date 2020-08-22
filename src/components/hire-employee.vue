@@ -287,6 +287,7 @@ export default {
       this.dialog = true;
     },
     getAgeHours(date) {
+      // TODO
       var birthDate = new Date(date);
       var currDate = new Date();
       var age = currDate.getFullYear() - birthDate.getFullYear();

@@ -16,6 +16,14 @@ const routes = [
       import(
         /* webpackChunkName: "default-page" */ "../views/EmployeeInfo.vue"
       ),
+    beforeEnter(to, from, next) {
+      if (store.state.logginAuth == 999) {
+        alert("התחבר כמוסד כדי להכנס לדף זה");
+        next({ name: "auth" });
+      } else {
+        next();
+      }
+    },
   },
   {
     path: "/login",
@@ -47,6 +55,15 @@ const routes = [
       import(
         /* webpackChunkName: "EmployeeInfo" */ "../views/EmployeeInfo.vue"
       ),
+
+    beforeEnter(to, from, next) {
+      if (store.state.logginAuth == 999) {
+        alert("התחבר כמוסד כדי להכנס לדף זה");
+        next({ name: "auth" });
+      } else {
+        next();
+      }
+    },
   },
   {
     path: "/mossadot",

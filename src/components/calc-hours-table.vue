@@ -1,5 +1,5 @@
 <template>
-  <div> 
+  <div>
     <v-row class="center">
       <v-col cols="12" md="3">
         <v-autocomplete
@@ -7,7 +7,7 @@
           v-model="reformType"
           :items="reformTable"
           hide-selected
-          :item-text="item => item.reformId +' '+ item.name"
+          item-text="name"
           item-value="reformId"
           label="רפורמה"
           placeholder="בחר"
@@ -51,8 +51,9 @@
       :items-per-page="50"
       class="elevation-1 center"
     >
-    
-    <template v-slot:item.jobPercent="{ item }"><p>{{item.jobPercent}}</p></template>
+      <template v-slot:item.jobPercent="{ item }">
+        <p>{{item.jobPercent}}</p>
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -151,13 +152,13 @@ export default {
 #serchReform {
   max-width: 400px;
 }
-#myTable{
+#myTable {
   max-width: 80%;
 }
 .myMaxWindth {
   max-width: 250px;
 }
-p{
+p {
   font-weight: bold;
 }
 </style>

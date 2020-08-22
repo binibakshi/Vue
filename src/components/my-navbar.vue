@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-toolbar flat>
+    <v-toolbar flat v-if="_isLogged">
       <v-toolbar-items>
         <router-link to="/empInfo">
           <v-btn>איוש שעות</v-btn>
@@ -11,16 +11,16 @@
         <router-link to="/HireEmp">
           <v-btn>עובדים</v-btn>
         </router-link>
-        <router-link to="/mossadot">
+        <router-link v-if="isAdmin()" to="/mossadot">
           <v-btn>ניהול מוסדות</v-btn>
         </router-link>
         <router-link to>
           <v-btn>דוחות</v-btn>
         </router-link>
-        <router-link to="/ImportData">
+        <router-link v-if="isAdmin()" to="/ImportData">
           <v-btn>ניהול Excel</v-btn>
         </router-link>
-        <router-link to="/auth">
+        <router-link v-if="isAdmin()" to="/auth">
           <v-btn>הרשאות</v-btn>
         </router-link>
       </v-toolbar-items>
@@ -29,7 +29,8 @@
       <p>{{_username}}</p>
       <p v-if="_mossadId == 999">(מנהלה)</p>
       <p>{{_mossadName}}</p>
-      <v-btn v-if="_isLogged  == true" @click="logout()" color="#6666ff">התנתקות</v-btn>
+      <v-icon large @click="logout()" class="test" color="#6666ff">mdi-arrow-left-bold-circle</v-icon>
+      <!-- <v-btn v-if="_isLogged  == true" @click="logout()" color="#6666ff">התנתקות</v-btn> -->
     </v-toolbar>
     <v-row></v-row>
   </nav>
@@ -44,6 +45,9 @@ export default {
     return {
       mossadName: "",
     };
+  },
+  created() {
+    this.test();
   },
   mounted() {
     bus.$on("changeWeeklyHours", () => this.getMossadInfo());
@@ -69,6 +73,11 @@ export default {
     },
   },
   methods: {
+    test() {
+      if (this.$store.state.logginAuth != null) {
+        this.$store.dispatch("getMossadInfo");
+      }
+    },
     getMossadInfo() {
       axios
         .get("mossadot/byId", {
@@ -89,6 +98,12 @@ export default {
         this.$router.push({ name: "login" });
       });
     },
+    isAdmin() {
+      if (this.$store.state.mossadId == 999) {
+        return true;
+      }
+      return false;
+    },
   },
 };
 </script>
@@ -98,7 +113,8 @@ nav {
   padding: 1%;
   background-color: whitesmoke;
 }
-::v-deep .v-toolbar__content, .v-toolbar__extension {
+::v-deep .v-toolbar__content,
+.v-toolbar__extension {
   background-color: whitesmoke;
 }
 p {
@@ -106,4 +122,9 @@ p {
   margin-top: 15px;
   font-weight: bold;
 }
+
+/* .test:hover:before {
+  content: "התנתק";
+  font-size:medium;
+} */
 </style>

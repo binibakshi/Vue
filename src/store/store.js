@@ -24,6 +24,12 @@ export const store = new Vuex.Store({
     loggedIn(state) {
       return state.token !== null;
     },
+    isAdmin() {
+      if (this.state.mossadId == 999) {
+        return true;
+      }
+      return false;
+    },
     mossadInfo(state) {
       return state.mossadInfo;
     },

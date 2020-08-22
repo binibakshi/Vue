@@ -230,6 +230,7 @@ export default {
       return "לא";
     },
     getageHours(getDate) {
+      // TODO
       if (getDate === undefined) {
         return null;
       }

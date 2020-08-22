@@ -15,7 +15,7 @@
           <p>כמות שעות מקסימלית - {{_mossadInfo.maxHours}}</p>
         </v-col>
         <v-col cols="12" md="2">
-          <p>אחוז איוש - {{ getTwoDigits(_mossadInfo.currHours /_mossadInfo.maxHours) }}%</p>
+          <p>אחוז איוש - {{ getTwoDigits((_mossadInfo.currHours /_mossadInfo.maxHours) * 100) }}%</p>
         </v-col>
       </v-row>
       <v-row id="serchEmployee">
@@ -76,7 +76,7 @@
                 <td>{{getRowType(row.type)}}</td>
                 <td v-for="index in 6" :key="index">{{ row.week[index - 1] }}</td>
                 <td>{{ totalHours(row.week) }}</td>
-                <td>{{ row.week[6] }}%</td>
+                <td>{{ getTwoDigits(row.week[6]) }}%</td>
               </tr>
             </tbody>
           </table>
@@ -84,22 +84,23 @@
       </v-row>
 
       <v-row v-if="empId != null">
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="3">
           <v-select
-            v-model="reformId"
+            v-model="selectedReforms"
             :items="reformTypes"
             item-text="name"
             item-value="reformId"
             label="בחר רפורמה"
+            multiple
             single-line
           ></v-select>
         </v-col>
         <v-spacer></v-spacer>
         <v-btn color="success" @click="exportEmployeeWeeklyHours()">ייצא איוש שעות לאקסל</v-btn>
       </v-row>
-      <v-card v-if="employeeInfo != null && reformId != null">
-        <v-card class="center">
-          <weeklyHours :empId="empId" :reformType="reformId"></weeklyHours>
+      <v-card v-if="employeeInfo != null && selectedReforms != null">
+        <v-card class="center" v-for="(reform,index) in selectedReforms" :key="index">
+          <weeklyHours :empId="empId" :reformType="reform"></weeklyHours>
         </v-card>
       </v-card>
     </div>
@@ -109,6 +110,7 @@
 <script>
 import axios from "axios";
 import weeklyHours from "./weekly-hours.vue";
+import excelMixin from "../mixins/excelMixin";
 import { bus } from "../main";
 
 export default {
@@ -119,7 +121,7 @@ export default {
   data() {
     return {
       search: null,
-      reformId: null,
+      selectedReforms: null,
       empId: null,
       tzArray: [],
       employeeInfo: {},
@@ -180,6 +182,7 @@ export default {
       }
     },
     ageHours() {
+      // TODO
       if (this.employeeInfo.birthDate === undefined) {
         return null;
       }
@@ -287,7 +290,11 @@ export default {
         );
     },
     exportEmployeeWeeklyHours() {
-      bus.$emit("exportEmployeeWeeklyHours", this.empId);
+      // call function in the mixin
+      this.createWeeklyHoursToEmployee(
+        this.empId,
+        this.$store.state.logginAuth
+      );
     },
     navigateToHirepage() {
       this.$router.push("/HireEmp");
@@ -313,9 +320,10 @@ export default {
       if (isNaN(number)) {
         return "";
       }
-      return parseFloat(number * 100).toFixed(2);
+      return parseFloat(number).toFixed(2);
     },
   },
+  mixins: [excelMixin],
 };
 </script>
 
