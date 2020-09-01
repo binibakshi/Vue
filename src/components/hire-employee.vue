@@ -5,8 +5,9 @@
       :headers="headers"
       :items="employeesData"
       :search="search"
-      :footer-props="{'items-per-page-options':[20, 50, 100, -1]}"
-      class="elevation-1"
+      :footer-props="{'items-per-page-options':[20, 50, 100, -1],
+      'items-per-page-text':'מספר תוצאות  :'}"
+      class="elevation-3"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
@@ -81,7 +82,7 @@
         </v-toolbar>
       </template>
       <template v-slot:item.birthDate="{ item }">{{FormatDate2(item.birthDate)}}</template>
-      <template v-slot:item.ageHours="{ item }">{{getAgeHours(item.birthDate)}}</template>
+      <template v-slot:item.ageHours="{ item }">{{_getAgeHours(item.birthDate)}}</template>
       <template v-slot:item.mother="{ item }">{{formatMother(item.mother)}}</template>
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
@@ -163,24 +164,6 @@ export default {
       return formattedDate;
     },
     FormatDate2(iDate) {
-      // var inputDate = new Date(iDate);
-      // var formattedDate;
-      // var year = inputDate.getFullYear();
-      // var month = 0;
-      // var day = 0;
-
-      // month += inputDate.getMonth() + 1;
-      // if (month < 10) {
-      //   month = "0" + month;
-      // }
-      // if (inputDate.getDate() < 10) {
-      //   day = "0";
-      // }
-      // day += inputDate.getDate();
-      // formattedDate = day + "/" + month + "/" + year;
-
-      // return formattedDate;
-
       var currDate = new Date();
       var newdate = new Date(iDate);
       var tempYears = currDate.getFullYear() - newdate.getFullYear();
@@ -286,11 +269,19 @@ export default {
       this.setEmployeeInfo(item);
       this.dialog = true;
     },
-    getAgeHours(date) {
-      // TODO
+    _getAgeHours(date) {
       var birthDate = new Date(date);
-      var currDate = new Date();
-      var age = currDate.getFullYear() - birthDate.getFullYear();
+      var today = new Date();
+      var currSchoolYear = new Date(today.getFullYear(), 8, 1);
+
+      if (
+        today.getUTCMonth() > 8 ||
+        (today.getUTCMonth() == 8 && today.getUTCDay() > 1)
+      ) {
+        currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
+      }
+
+      var age = currSchoolYear.getFullYear() - birthDate.getFullYear();
       if (age < 50) {
         return 0;
       } else if (age > 55) {

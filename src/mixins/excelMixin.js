@@ -55,7 +55,6 @@ export default {
       });
       this.downloadFile(
         this.dataToExport,
-
         this.getWeeklyHoursHeaders(),
         "מצבת שעות.xlsx",
         "מערכת שעות פרונטליות"
@@ -270,14 +269,18 @@ export default {
       return 1;
     },
     getAgeHours(getDate) {
-      // TODO
-      if (getDate === undefined) {
-        return null;
-      }
       var birthDate = new Date(getDate);
-      var currDate = new Date();
+      var today = new Date();
+      var currSchoolYear = new Date(today.getFullYear(), 8, 1);
 
-      var age = currDate.getFullYear() - birthDate.getFullYear();
+      if (
+        today.getUTCMonth() > 8 ||
+        (today.getUTCMonth() == 8 && today.getUTCDay() > 1)
+      ) {
+        currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
+      }
+
+      var age = currSchoolYear.getFullYear() - birthDate.getFullYear();
       if (age < 50) {
         return 0;
       } else if (age > 55) {

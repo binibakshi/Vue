@@ -38,10 +38,9 @@
                   item-value="code"
                   @change="setPrivateAndPauseCodes(row.code)"
                 ></v-autocomplete>
-
                 <p>{{row.code }}</p>
               </td>
-              <td class="frontalStyle">{{ currCodeDescription(row.code) }}</td>
+              <td class="disableStyle">{{ currCodeDescription(row.code) }}</td>
               <td>
                 <input
                   id="hours"
@@ -52,14 +51,9 @@
                   @input="getPauseAndPrivateHours()"
                 />
               </td>
-              <td class="frontalStyle"></td>
+              <td class="disableStyle"></td>
               <td v-for="(cell, index2) in row.week" :key="index2">
-                <input
-                  type="number"
-                  min="0"
-                  v-model="row.week[index2]"
-                  :disabled="row.hours <= 0"
-                />
+                <input type="number" min="0" v-model="row.week[index2]" :disabled="row.hours <= 0" />
               </td>
               <td
                 :style="{
@@ -73,7 +67,7 @@
               <td>--</td>
               <td>--</td>
               <td>{{ hoursAmount() }}</td>
-              <td>{{ currOptionjobPercent(getAllFrontalHours()) }}%</td>
+              <td>{{ getTwoDigits(calcJobPercent()) }}%</td>
               <td v-for="(day, index) in parseInt(6)" :key="index">{{ dayAmount(day - 1) }}</td>
               <td
                 :style="{
@@ -101,7 +95,7 @@ const PAUSE = 3;
 
 export default {
   name: "weeklyHours",
-  props: ["empId", "reformType"],
+  props: ["empId", "reformType", "isMother", "ageHours"],
 
   data() {
     return {
@@ -129,8 +123,12 @@ export default {
       var totalFrontalHours = Math.round(
         this.newHours
           .filter((el) => el.type == FRONTAL)
-          .reduce((sum, record) => sum + parseInt(record.hours), 0)
+          .reduce((sum, record) => sum + parseFloat(record.hours), 0)
       );
+
+      if (totalFrontalHours <= 0) {
+        return;
+      }
 
       this.newHours.find((el) => el.type == PAUSE).hours = this.empOptions.find(
         (el) => el.frontalHours == totalFrontalHours
@@ -276,6 +274,38 @@ export default {
       );
       this.sortTable();
     },
+    calcJobPercent() {
+      // eslint-disable-next-line no-debugger
+      debugger;
+      if (this.hoursAmount() == 0) {
+        return 0;
+      }
+      if (this.reformType == 1 || this.reformType == 7) {
+        return this.getOlamYashanJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      } else if (this.reformType == 2) {
+        return this.getOfekHasashJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      } else if (this.reformType == 5) {
+        return this.getOzLetmuraJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      } else if (this.reformType == 8) {
+        return this.getMinhalaJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      }
+    },
     removeRow(index) {
       if (index === 0) {
         return;
@@ -301,6 +331,12 @@ export default {
     isNumber(n) {
       return !isNaN(parseFloat(n)) && !isNaN(n - 0);
     },
+    getTwoDigits(number) {
+      if (isNaN(number)) {
+        return 0;
+      }
+      return parseFloat(number).toFixed(2);
+    },
     currCodeDescription(index) {
       if (index != undefined && index > 0) {
         if (this.codeDescription.find((e) => e.code == index) === undefined) {
@@ -314,20 +350,7 @@ export default {
     getAllFrontalHours() {
       return this.newHours
         .filter((el) => el.type == FRONTAL)
-        .reduce((sum, record) => sum + parseInt(record.hours), 0);
-    },
-    currOptionjobPercent(frontalHours) {
-      if (frontalHours != undefined && frontalHours > 0) {
-        if (
-          this.empOptions.find((e) => e.frontalHours == frontalHours) ===
-          undefined
-        ) {
-          return 0;
-        }
-        return this.empOptions.find((e) => e.frontalHours == frontalHours)
-          .jobPercent;
-      }
-      return 0;
+        .reduce((sum, record) => sum + parseFloat(record.hours), 0);
     },
     saveHours() {
       //check all data before let user to save
@@ -382,25 +405,25 @@ export default {
     leftHours(row) {
       var weekArray = row.week;
       return (
-        parseInt(
-          weekArray.reduce((acc, item) => parseInt(acc) + parseInt(item), 0)
+        parseFloat(
+          weekArray.reduce((acc, item) => parseFloat(acc) + parseFloat(item), 0)
         ) - row.hours
       );
     },
     leftTableHours() {
       return this.newHours.reduce(
-        (acc, item) => parseInt(acc) + this.leftHours(item),
+        (acc, item) => parseFloat(acc) + this.leftHours(item),
         0
       );
     },
     hoursAmount() {
       return this.newHours
         .filter((el) => this.isNumber(el.hours))
-        .reduce((acc, item) => parseInt(acc) + parseInt(item.hours), 0);
+        .reduce((acc, item) => parseFloat(acc) + parseFloat(item.hours), 0);
     },
     dayAmount(day) {
       return this.newHours.reduce(
-        (acc, item) => parseInt(acc) + parseInt(item.week[day]),
+        (acc, item) => parseFloat(acc) + parseFloat(item.week[day]),
         0
       );
     },
@@ -424,6 +447,46 @@ export default {
         el.week = [0, 0, 0, 0, 0, 0];
       });
     },
+    getOlamYashanJobPercent(ageHours, isMother, frontalHours) {
+      var jobPercent = 0,
+        fullJobHours = 24;
+      fullJobHours -= ageHours;
+      jobPercent = (frontalHours / fullJobHours) * 100;
+      if (isMother) {
+        jobPercent = jobPercent * 1.1;
+      }
+      return jobPercent;
+    },
+    getOfekHasashJobPercent(ageHours, isMother, allHours) {
+      var jobPercent = 0,
+        fullJobHours = 36;
+      fullJobHours -= ageHours;
+      if (isMother) {
+        fullJobHours -= 2;
+      }
+      jobPercent = (allHours / fullJobHours) * 100;
+      return jobPercent;
+    },
+    getOzLetmuraJobPercent(ageHours, isMother, allHours) {
+      var jobPercent = 0,
+        fullJobHours = 40;
+      fullJobHours -= ageHours;
+      jobPercent = (allHours / fullJobHours) * 100;
+      if (isMother) {
+        if (allHours >= 31.5) {
+          jobPercent = jobPercent + 7;
+        } else {
+          jobPercent = jobPercent * 1.1;
+        }
+      }
+      return jobPercent;
+    },
+    getMinhalaJobPercent(ageHours, isMother, allHours) {
+      var jobPercent = 0,
+        fullJobHours = 20;
+      jobPercent = (allHours / fullJobHours) * 100;
+      return jobPercent;
+    },
   },
   computed: {
     _reformDiscription() {
@@ -437,7 +500,7 @@ export default {
     _filteredCodes() {
       return this.codeDescription.filter(
         (el) =>
-          el.hourType == FRONTAL &&
+          (el.hourType == FRONTAL || el.hourType == 0) &&
           !this.newHours.find((i) => i.code == el.code)
       );
     },
@@ -493,8 +556,8 @@ input {
 table#t01 td:nth-child() {
   background-color: #eee;
 }
-.frontalStyle {
-  background-color: #fafad2;
+.disableStyle {
+  background-color: #eff0f1;
 }
 option,
 select {

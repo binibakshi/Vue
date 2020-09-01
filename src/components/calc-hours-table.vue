@@ -40,31 +40,43 @@
           @change="filterTable()"
         ></v-autocomplete>
       </v-col>
+
+      <a href="https://tlush.edu.gov.il/calculators/" target="_blank">סימולטור שכר</a>
     </v-row>
 
     <v-data-table
       v-if="dataToTable.length > 0"
       dense
       id="myTable"
+      item
       :headers="headers"
       :items="dataToTable"
-      :items-per-page="50"
+      :footer-props="{ 
+      'items-per-page-options':[20, 50, 100, -1],
+      'items-per-page-text':'מספר תוצאות  :'}"
       class="elevation-1 center"
     >
       <template v-slot:item.jobPercent="{ item }">
         <p>{{item.jobPercent}}</p>
       </template>
     </v-data-table>
+    <v-btn
+      v-if="dataToTable.length > 0"
+      color="success"
+      @click="exportCalcHoursToExcel()"
+    >ייצוא לאקסל</v-btn>
   </div>
 </template>
 
 <script>
+import XLSX from "xlsx";
 import axios from "axios";
 export default {
   name: "calcHoursTable",
   data() {
     return {
       headers: [],
+      excelHeaders: [],
       reformType: "",
       ageHours: "",
       isMother: "",
@@ -91,6 +103,14 @@ export default {
         { text: "שעות פרטניות", value: "privateHours" },
         { text: "אחוז משרה", value: "jobPercent" },
       ];
+      this.excelHeaders = {
+        ageHours: "שעות גיל",
+        mother: "משרת אם",
+        frontalHours: "שעות פרונטליות",
+        pauseHours: "שעות שהייה",
+        privateHours: "שעות פרטניות",
+        jobPercent: "אחוז משרה",
+      };
       this.ageHoursTable = [
         { text: "הכל", value: "" },
         { text: "0", value: "0" },
@@ -98,7 +118,7 @@ export default {
         { text: "4", value: "4" },
       ];
       this.isMotherTable = [
-        { text: "הכל", value: "" },
+        { text: "הכל", value: null },
         { text: "כן", value: true },
         { text: "לא", value: false },
       ];
@@ -118,15 +138,15 @@ export default {
         this.empCodesTable = response.data;
       });
     },
-
     filterTable() {
       this.dataToTable = [];
       this.empCodesTable.forEach((el) => {
         if (
           (el.reformType == this.reformType || this.reformType == null) &&
-          (el.mother == this.isMother || this.isMother == "") &&
+          (el.mother == this.isMother || this.isMother == null) &&
           (el.ageHours == this.ageHours || this.ageHours == "")
         ) {
+          console.log(el.mother);
           this.dataToTable.push({
             ageHours: el.ageHours,
             mother: this.formatMotherType(el.mother),
@@ -143,6 +163,46 @@ export default {
         return "כן";
       }
       return "לא";
+    },
+    exportCalcHoursToExcel() {
+      this.downloadFile(
+        this.dataToTable,
+        this.excelHeaders,
+        "פיצול שעות.xlsx",
+        "פיצול שעות"
+      );
+    },
+    downloadDemoFile() {
+      var emptyForDemo = [];
+      this.downloadFile(
+        emptyForDemo,
+        this.excelHeaders,
+        "פיצול שעות.xlsx",
+        "פיצול שעות"
+      );
+    },
+    downloadFile(dataToExport, headers, excelName, sheetName) {
+      var temp = dataToExport;
+      temp.unshift(headers);
+      var calcHoursWs = XLSX.utils.json_to_sheet(temp, {
+        skipHeader: true,
+        Views: [{ RTL: true }],
+      });
+
+      // A workbook is the name given to an Excel file
+      var wb = XLSX.utils.book_new(); // make Workbook of Excel'
+      XLSX.utils.book_append_sheet(wb, calcHoursWs, sheetName);
+      this.set_right_to_left(wb);
+
+      // export Excel file
+      XLSX.writeFile(wb, excelName);
+    },
+
+    set_right_to_left(wb /*:Workbook*/) {
+      if (!wb.Workbook) wb.Workbook = {};
+      if (!wb.Workbook.Views) wb.Workbook.Views = [];
+      if (!wb.Workbook.Views[0])
+        (wb.Workbook.Views[0] = {}), (wb.Workbook.Views[0].RTL = true);
     },
   },
 };

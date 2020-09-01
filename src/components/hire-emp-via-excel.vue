@@ -30,18 +30,18 @@
         ></v-data-table>
       </div>
     </v-card>
-    <WeeklyHoursExcel/>
+    <WeeklyHoursExcel />
   </v-card>
 </template>
 
 <script>
 import XLSX from "xlsx";
 import axios from "axios";
-import WeeklyHoursExcel from './weekly-hours-excel'
+import WeeklyHoursExcel from "./weekly-hours-excel";
 
 export default {
   name: "HireEmpsvieExcel",
-   components: {
+  components: {
     WeeklyHoursExcel,
   },
   data() {
@@ -81,7 +81,7 @@ export default {
           birthDate: this.formattedDate(el.birthDate),
           gender: this.fromatGenderText(el.gender),
           mother: this.formatMotherType(el.mother),
-          ageHours: this.getageHours(el.birthDate),
+          ageHours: this.getAgeHours(el.birthDate),
         });
       });
       this.downloadFile(
@@ -129,7 +129,7 @@ export default {
         firstName: "שם פרטי",
         birthDate: "תאריך לידה",
         gender: "מין",
-        mother: "משרת אם"
+        mother: "משרת אם",
       };
       return headers;
     },
@@ -229,15 +229,19 @@ export default {
       }
       return "לא";
     },
-    getageHours(getDate) {
-      // TODO
-      if (getDate === undefined) {
-        return null;
-      }
+    getAgeHours(getDate) {
       var birthDate = new Date(getDate);
-      var currDate = new Date();
+      var today = new Date();
+      var currSchoolYear = new Date(today.getFullYear(), 8, 1);
 
-      var age = currDate.getFullYear() - birthDate.getFullYear();
+      if (
+        today.getUTCMonth() > 8 ||
+        (today.getUTCMonth() == 8 && today.getUTCDay() > 1)
+      ) {
+        currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
+      }
+
+      var age = currSchoolYear.getFullYear() - birthDate.getFullYear();
       if (age < 50) {
         return 0;
       } else if (age > 55) {

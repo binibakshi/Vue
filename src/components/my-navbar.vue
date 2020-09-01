@@ -30,7 +30,6 @@
       <p v-if="_mossadId == 999">(מנהלה)</p>
       <p>{{_mossadName}}</p>
       <v-icon large @click="logout()" class="test" color="#6666ff">mdi-arrow-left-bold-circle</v-icon>
-      <!-- <v-btn v-if="_isLogged  == true" @click="logout()" color="#6666ff">התנתקות</v-btn> -->
     </v-toolbar>
     <v-row></v-row>
   </nav>

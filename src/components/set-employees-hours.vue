@@ -18,8 +18,8 @@
           <p>אחוז איוש - {{ getTwoDigits((_mossadInfo.currHours /_mossadInfo.maxHours) * 100) }}%</p>
         </v-col>
       </v-row>
-      <v-row id="serchEmployee">
-        <v-col cols="12" md="8">
+      <v-row>
+        <v-col id="serchEmployee" cols="12" md="3">
           <v-autocomplete
             v-model="empId"
             :items="tzArray"
@@ -32,34 +32,28 @@
             @change="getEmployeeInfo()"
           ></v-autocomplete>
         </v-col>
-      </v-row>
-      <v-row class="second" v-if="Object.keys(this.employeeInfo).length > 0">
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="1" v-if="Object.keys(this.employeeInfo).length > 0">
           <p>שם פרטי</p>
           {{ employeeInfo.firstName }}
         </v-col>
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="1" v-if="Object.keys(this.employeeInfo).length > 0">
           <p>שם משפחה</p>
           {{ employeeInfo.lastName }}
         </v-col>
-        <v-col cols="12" md="1">
+        <v-col cols="12" md="1" v-if="Object.keys(this.employeeInfo).length > 0">
           <p>גיל</p>
           {{ formatDate }}
         </v-col>
-        <v-col cols="12" md="1">
-          <p>מין</p>
-          {{ formatGender }}
-        </v-col>
-        <v-col cols="12" md="1">
+        <v-col cols="12" md="1" v-if="Object.keys(this.employeeInfo).length > 0">
           <p>משרת אם</p>
           {{ formatIsMother }}
         </v-col>
-        <v-col cols="12" md="1">
+        <v-col cols="12" md="1" v-if="Object.keys(this.employeeInfo).length > 0">
           <p>שעות גיל</p>
-          {{ ageHours }}
+          {{ _getAgeHours }}
         </v-col>
-        <v-col cols="12" md="4">
-          <table id="detailsTable" v-if="Object.keys(this.existHours).length > 0">
+        <v-col cols="12" md="4" v-if="Object.keys(this.existHours).length > 0">
+          <table id="detailsTable">
             <thead>
               <th></th>
               <th>א</th>
@@ -80,6 +74,11 @@
               </tr>
             </tbody>
           </table>
+          <v-icon
+            large
+            class="mr-3 excelMDI"
+            @click="exportEmployeeWeeklyHours()"
+          >mdi-file-excel-outline</v-icon>
         </v-col>
       </v-row>
 
@@ -95,12 +94,15 @@
             single-line
           ></v-select>
         </v-col>
-        <v-spacer></v-spacer>
-        <v-btn color="success" @click="exportEmployeeWeeklyHours()">ייצא איוש שעות לאקסל</v-btn>
       </v-row>
       <v-card v-if="employeeInfo != null && selectedReforms != null">
         <v-card class="center" v-for="(reform,index) in selectedReforms" :key="index">
-          <weeklyHours :empId="empId" :reformType="reform"></weeklyHours>
+          <weeklyHours
+            :empId="empId"
+            :reformType="reform"
+            :isMother="employeeInfo.mother"
+            :ageHours="_getAgeHours"
+          ></weeklyHours>
         </v-card>
       </v-card>
     </div>
@@ -181,15 +183,22 @@ export default {
         return "לא";
       }
     },
-    ageHours() {
-      // TODO
+    _getAgeHours() {
       if (this.employeeInfo.birthDate === undefined) {
         return null;
       }
       var birthDate = new Date(this.employeeInfo.birthDate);
-      var currDate = new Date();
+      var today = new Date();
+      var currSchoolYear = new Date(today.getFullYear(), 8, 1);
 
-      var age = currDate.getFullYear() - birthDate.getFullYear();
+      if (
+        today.getMonth() > 8 ||
+        (today.getMonth() == 8 && today.getDay() > 1)
+      ) {
+        currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
+      }
+
+      var age = currSchoolYear.getFullYear() - birthDate.getFullYear();
       if (age < 50) {
         return 0;
       } else if (age > 55) {
@@ -375,7 +384,16 @@ th {
   text-align: center;
   justify-content: center;
   align-items: center;
-  margin-left: 15%;
+  /* margin-left: 15%; */
   margin-right: auto;
+  margin-bottom: 20px;
+}
+.excelMDI {
+  color: green;
+  background-color: lightgray;
+}
+.v-icon:hover {
+  color: blue;
+  display: "tete";
 }
 </style>

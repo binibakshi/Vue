@@ -35,8 +35,9 @@ export default {
 <style>
 * {
   direction: rtl;
-  font-family: Verdana;
-  font-size: large;
+  font-family: Assistant,Arial !important;
+  /* font-family: Verdana; */
+  font-size: medium;
 }
 .mainBackground {
   background-color: #f2fcfc;
@@ -59,4 +60,5 @@ button {
 .v-icon.v-icon {
   margin-right: 4px;
 }
+
 </style>
