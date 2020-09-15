@@ -1,0 +1,678 @@
+<template>
+  <div v-if="empId != null">
+    <v-row>
+      <v-col cols="12" md="3">
+        <v-text-field
+          v-model="tableBegda"
+          label="מתאריך"
+          type="date"
+          :min="begda"
+          :max="endda"
+          @change="setDatesIfChange()"
+        >מתאריך</v-text-field>
+      </v-col>
+      <v-col cols="12" md="3">
+        <v-text-field
+          v-model="tableEndda"
+          label="עד תאריך"
+          type="date"
+          :min="begda"
+          :max="endda"
+          @change="setDatesIfChange()"
+        >עד תאריך</v-text-field>
+      </v-col>
+    </v-row>
+    <div v-show="reformType != 0">
+      <table id="t01">
+        <thead>
+          <tr>
+            <th></th>
+            <th>סוג</th>
+            <th>קוד פיצול</th>
+            <th>תיאור קוד פיצול</th>
+            <th>שעות</th>
+            <th>אחוז משרה</th>
+            <th>א'</th>
+            <th>ב'</th>
+            <th>ג'</th>
+            <th>ד'</th>
+            <th>ה'</th>
+            <th>ו'</th>
+            <th>הפרש</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, index) in newHours" :key="index">
+            <td>
+              <a v-if="row.type == frontalConst && index != 0" @click="removeRow(index)">הסר</a>
+            </td>
+            <td>{{ convertReformDescription(row.type) }}</td>
+            <td id="autocomlete">
+              <v-autocomplete
+                v-if="row.type == frontalConst"
+                v-model="row.code"
+                :items="_filteredCodes"
+                hide-no-data
+                hide-selected
+                :item-text="item => item.code + '-' + item.codeDescription"
+                item-value="code"
+                @change="setPrivateAndPauseCodes(row.code)"
+              ></v-autocomplete>
+            </td>
+            <td class="disableStyle">{{ row.code + '-' + currCodeDescription(row.code) }}</td>
+            <td>
+              <input
+                id="hours"
+                type="number"
+                min="0"
+                v-model="row.hours"
+                :disabled="row.code <= 0 || row.type != frontalConst"
+                @input="getPauseAndPrivateHours()"
+              />
+            </td>
+            <td class="disableStyle"></td>
+            <td v-for="(cell, index2) in row.week" :key="index2">
+              <input type="number" min="0" v-model="row.week[index2]" :disabled="row.hours <= 0" />
+            </td>
+            <td
+              class="disableStyle"
+              :style="{
+                  color: validRowsHours(row) == false ? 'red' : 'inherit',
+                }"
+            >{{ leftHours(row) }}</td>
+          </tr>
+          <tr class="summaryRow">
+            <td></td>
+            <td>סך</td>
+            <td>--</td>
+            <td>--</td>
+            <td>{{ hoursAmount() }}</td>
+            <td>{{ getTwoDigits(calcJobPercent()) }}%</td>
+            <td v-for="(day, index) in parseInt(6)" :key="index">{{ dayAmount(day - 1) }}</td>
+            <td
+              :style="{
+                  color: validTotalHours() == false ? 'red' : 'inherit',
+                }"
+            >{{ leftTableHours() }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <v-btn class="myBtn" color="success" @click="addNewRow()">הוסף שורה</v-btn>
+      <v-btn class="myBtn" color="info" @click="saveHours()">שמור שעות</v-btn>
+      <v-btn class="myBtn" color="red" @click="cleanWeeklyData()">נקה</v-btn>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import { bus } from "../main";
+
+const FRONTAL = 1;
+const PRIVATE = 2;
+const PAUSE = 3;
+
+export default {
+  name: "weeklyHours",
+  props: [
+    "empId",
+    "reformType",
+    "isMother",
+    "ageHours",
+    "existData",
+    "begda",
+    "endda",
+  ],
+  data() {
+    return {
+      newHours: [],
+      tableBegda: "",
+      tableEndda: "",
+      datesRange: {
+        min: "",
+        max: "",
+      },
+      tableToSave: [],
+      tablesArray: [],
+      empOptions: [],
+      reformTypes: [],
+      codeDescription: [],
+      existHours: [],
+      frontalConst: FRONTAL,
+    };
+  },
+  created() {
+    this.initilizer();
+    this.getCodeDescription();
+    this.setBegdaEndda();
+    this.getEmployeeOptions();
+    this.getExistData();
+  },
+  methods: {
+    getPauseAndPrivateHours() {
+      if (this.reformType != 2 && this.reformType != 5) {
+        return;
+      }
+      var totalFrontalHours = Math.round(
+        this.newHours
+          .filter((el) => el.type == FRONTAL)
+          .reduce((sum, record) => sum + parseFloat(record.hours), 0)
+      );
+
+      if (totalFrontalHours <= 0) {
+        return;
+      }
+
+      this.newHours.find((el) => el.type == PAUSE).hours = this.empOptions.find(
+        (el) => el.frontalHours == totalFrontalHours
+      ).pauseHours;
+
+      this.newHours.find(
+        (el) => el.type == PRIVATE
+      ).hours = this.empOptions.find(
+        (el) => el.frontalHours == totalFrontalHours
+      ).privateHours;
+    },
+    getCodeDescription() {
+      axios
+        .get("/convertHours/byReform", {
+          params: {
+            reformType: this.reformType,
+          },
+        })
+        .then((response) => {
+          this.codeDescription = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    getEmployeeOptions() {
+      axios
+        .get("/calcHours/options", {
+          params: {
+            reformType: this.reformType,
+            empId: this.empId,
+          },
+        })
+        .then((response) => {
+          this.empOptions = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    getExistData() {
+      axios
+        .get("/teacherEmploymentDetails/byReform", {
+          params: {
+            empId: this.empId,
+            mossadId: this.$store.state.logginAuth,
+            reformType: this.reformType,
+            begda: this.begda,
+            endda: this.endda,
+          },
+        })
+        .then((response) => {
+          this.existHours = response.data;
+          if (this.existHours != null) {
+            this.setExistHours();
+          }
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    setNewHoursForSave() {
+      this.tableToSave = [];
+      this.newHours.forEach((element) => {
+        element.week.forEach((day, index) => {
+          this.tableToSave.push({
+            empId: this.empId,
+            mossadId: this.$store.state.logginAuth,
+            empCode: element.code,
+            begda: new Date(this.tableBegda),
+            endda: new Date(this.tableEndda),
+            day: index,
+            hours: day,
+          });
+        });
+      });
+    },
+    setPrivateAndPauseCodes(code) {
+      if ((this.reformType != 2 && this.reformType != 5) || code == "") {
+        return;
+      }
+      // OZ LETMURA
+      if (this.reformType == 5) {
+        this.newHours.find((el) => el.type == PRIVATE).code = 9601;
+        this.newHours.find((el) => el.type == PAUSE).code = 9602;
+      }
+      // OFEK HADASH
+      else if (this.reformType == 2) {
+        this.newHours.find((el) => el.type == PAUSE).code = 5468;
+        this.newHours.find((el) => el.type == PRIVATE).code = 5467;
+      }
+    },
+    setExistHours() {
+      let tempHourType;
+      let newRow = {};
+
+      this.existHours.forEach((el) => {
+        tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
+          .hourType;
+        // check if first insert and if need to create new row(for frontal only)
+        if (
+          tempHourType == FRONTAL &&
+          this.newHours.find((e) => e.type == tempHourType).code != ""
+        ) {
+          // after first insert check whether create new row or add to existing one
+          if (this.newHours.find((e) => e.code == el.empCode) == undefined) {
+            newRow = {
+              type: FRONTAL,
+              hours: el.hours,
+              code: el.empCode,
+              week: [0, 0, 0, 0, 0, 0],
+            };
+            newRow.week[el.day] = el.hours;
+            this.newHours.push(newRow);
+          } else {
+            this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
+            this.newHours.find((e) => e.code == el.empCode).week[el.day] +=
+              el.hours;
+          }
+        } else {
+          this.newHours.find((e) => e.type == tempHourType).week[el.day] =
+            el.hours;
+          this.newHours.find((e) => e.type == tempHourType).hours += el.hours;
+          this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
+        }
+      });
+      this.setPrivateAndPauseCodes(
+        this.newHours.find((el) => el.type == FRONTAL).code
+      );
+      this.sortTable();
+    },
+    calcJobPercent() {
+      if (this.hoursAmount() == 0) {
+        return 0;
+      }
+      if (this.reformType == 1 || this.reformType == 7) {
+        return this.getOlamYashanJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      } else if (this.reformType == 2) {
+        return this.getOfekHasashJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      } else if (this.reformType == 5) {
+        return this.getOzLetmuraJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      } else if (this.reformType == 8) {
+        return this.getMinhalaJobPercent(
+          this.ageHours,
+          this.isMother,
+          this.hoursAmount()
+        );
+      }
+    },
+    removeRow(index) {
+      if (index === 0) {
+        return;
+      }
+      if (this.newHours[index].type != FRONTAL) {
+        return;
+      }
+      this.newHours.splice(index, 1);
+      this.getPauseAndPrivateHours();
+    },
+    addNewRow() {
+      this.newHours.push({
+        type: FRONTAL,
+        hours: 0,
+        code: "",
+        week: [0, 0, 0, 0, 0, 0],
+      });
+      this.sortTable();
+    },
+    sortTable() {
+      this.newHours.sort((a, b) => a.type - b.type);
+    },
+    gruopByBegdaEndda() {
+      this.existHours.forEach((el) => {
+        const currArray = this.tablesArray.find(
+          (e) => e.begda == el.begda && e.endda == el.endda
+        );
+        if (currArray != null) {
+          currArray.array.push(el);
+        } else {
+          this.tablesArray.push({
+            begda: el.begda,
+            endda: el.endda,
+            array: [el],
+          });
+        }
+      });
+    },
+    setBegdaEndda() {
+      //   var currDate = new Date();
+      //   var year = currDate.getFullYear();
+      //   if (currDate.getMonth() >= 8) {
+      //     year = currDate.getFullYear() + 1;
+      //   }
+      //   this.begda = this.FormatDate(new Date(year - 1, 8, 1));
+      //   this.endda = this.FormatDate(new Date(year, 5, 30));
+      this.tableBegda = this.FormatDate(this.begda);
+      this.tableEndda = this.FormatDate(this.endda);
+    },
+    FormatDate(iDate) {
+      var inputDate = new Date(iDate);
+      var formattedDate;
+      var year = inputDate.getFullYear();
+      var month = 0;
+      var day = 0;
+
+      month += inputDate.getMonth() + 1;
+      if (month < 10) {
+        month = "0" + month;
+      }
+      if (inputDate.getDate() < 10) {
+        day = "0";
+      }
+      day += inputDate.getDate();
+      formattedDate = year + "-" + month + "-" + day;
+      return formattedDate;
+    },
+    isNumber(n) {
+      return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+    },
+    getTwoDigits(number) {
+      if (isNaN(number)) {
+        return 0;
+      }
+      return parseFloat(number).toFixed(2);
+    },
+    currCodeDescription(index) {
+      if (index != undefined && index > 0) {
+        if (this.codeDescription.find((e) => e.code == index) === undefined) {
+          return "";
+        }
+        return this.codeDescription.find((e) => e.code == index)
+          .codeDescription;
+      }
+      return "";
+    },
+    getAllFrontalHours() {
+      return this.newHours
+        .filter((el) => el.type == FRONTAL)
+        .reduce((sum, record) => sum + parseFloat(record.hours), 0);
+    },
+    saveHours() {
+      //check all data before let user to save
+      let isValid = true;
+      this.newHours.forEach((row) => {
+        if (this.validRowsHours(row) == false) {
+          isValid = false;
+          return;
+        }
+      });
+      if (isValid == false) {
+        alert("יש למלא שעות תקינות");
+        return false;
+      }
+      this.setNewHoursForSave();
+      axios({
+        url: "/teacherEmploymentDetails/saveAll",
+        method: "post",
+        data: this.tableToSave,
+      })
+        .then(() => {
+          alert("הנתונים נשמרו בהצלחה");
+          bus.$emit("changeWeeklyHours");
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
+    },
+    convertReformDescription(reform) {
+      if (reform == PRIVATE) {
+        return "פרטני";
+      } else if (reform == PAUSE) {
+        return "שהייה";
+      } else {
+        return "פרונטלי";
+      }
+    },
+    validRowsHours(row) {
+      if (row.hours != undefined && this.leftHours(row) != 0) {
+        return false;
+      }
+      return true;
+    },
+    validTotalHours() {
+      if (0 != this.leftTableHours()) {
+        return false;
+      }
+      return true;
+    },
+    leftHours(row) {
+      var weekArray = row.week;
+      return (
+        parseFloat(
+          weekArray.reduce((acc, item) => parseFloat(acc) + parseFloat(item), 0)
+        ) - row.hours
+      );
+    },
+    leftTableHours() {
+      return this.newHours.reduce(
+        (acc, item) => parseFloat(acc) + this.leftHours(item),
+        0
+      );
+    },
+    hoursAmount() {
+      return this.newHours
+        .filter((el) => this.isNumber(el.hours))
+        .reduce((acc, item) => parseFloat(acc) + parseFloat(item.hours), 0);
+    },
+    setDatesIfChange() {
+      if (this.tableEndda > this.endda || this.tableEndda < this.begda) {
+        this.tableEndda = this.endda;
+      }
+      if (this.tableBegda > this.endda || this.tableBegda < this.begda) {
+        this.tableBegda = this.begda;
+      }
+    },
+    dayAmount(day) {
+      return this.newHours.reduce(
+        (acc, item) => parseFloat(acc) + parseFloat(item.week[day]),
+        0
+      );
+    },
+    initilizer() {
+      this.existHours = this.getExistData;
+      this.newHours = [];
+      if (this.reformType == 5 || this.reformType == 2) {
+        this.newHours = [
+          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+          { type: PRIVATE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+          { type: PAUSE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+        ];
+      } else {
+        this.newHours = [
+          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+        ];
+      }
+    },
+    cleanWeeklyData() {
+      this.newHours.forEach((el) => {
+        el.hours = 0;
+        el.week = [0, 0, 0, 0, 0, 0];
+      });
+    },
+    getOlamYashanJobPercent(ageHours, isMother, frontalHours) {
+      var jobPercent = 0,
+        fullJobHours = 24;
+      fullJobHours -= ageHours;
+      jobPercent = (frontalHours / fullJobHours) * 100;
+      if (isMother) {
+        jobPercent = jobPercent * 1.1;
+      }
+      return jobPercent;
+    },
+    getOfekHasashJobPercent(ageHours, isMother, allHours) {
+      var jobPercent = 0,
+        fullJobHours = 36;
+      fullJobHours -= ageHours;
+      if (isMother) {
+        fullJobHours -= 2;
+      }
+      jobPercent = (allHours / fullJobHours) * 100;
+      return jobPercent;
+    },
+    getOzLetmuraJobPercent(ageHours, isMother, allHours) {
+      var jobPercent = 0,
+        fullJobHours = 40;
+      fullJobHours -= ageHours;
+      jobPercent = (allHours / fullJobHours) * 100;
+      if (isMother) {
+        if (allHours >= 31.5) {
+          jobPercent = jobPercent + 7;
+        } else {
+          jobPercent = jobPercent * 1.1;
+        }
+      }
+      return jobPercent;
+    },
+    getMinhalaJobPercent(ageHours, isMother, allHours) {
+      var jobPercent = 0,
+        fullJobHours = 20;
+      jobPercent = (allHours / fullJobHours) * 100;
+      return jobPercent;
+    },
+  },
+  computed: {
+    _filteredCodes() {
+      return this.codeDescription.filter(
+        (el) =>
+          (el.hourType == FRONTAL || el.hourType == 0) &&
+          !this.newHours.find((i) => i.code == el.code)
+      );
+    },
+  },
+  watch: {
+    empId: function (val) {
+      this.empId = val;
+      this.initilizer();
+      this.getCodeDescription();
+      this.getEmployeeOptions();
+      //   this.getExistData();
+    },
+    reformType: function (val) {
+      this.reformType = val;
+      this.initilizer();
+      this.getCodeDescription();
+      this.getEmployeeOptions();
+      //   this.getExistData();
+    },
+  },
+};
+</script>
+
+<style scoped>
+#autocomlete {
+  max-width: 50px;
+  max-height: 25px;
+  padding-top: 0;
+}
+
+table,
+tr,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  font-weight: bold;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+tbody {
+  display: table-row-group;
+  vertical-align: inherit;
+  border-block: inherit;
+}
+thead {
+  display: table-header-group;
+  vertical-align: inherit;
+  border-color: inherit;
+}
+input {
+  /* border: 1px solid; */
+  max-width: 50px;
+}
+table#t01 td:nth-child() {
+  background-color: #eee;
+}
+.disableStyle {
+  background-color: #eff0f1;
+}
+option,
+select {
+  border: 1px solid black;
+}
+input:disabled {
+  background-color: #eff0f1;
+}
+.myBtn {
+  padding: 1px;
+  margin: 5px;
+  /* margin-left: 10px; */
+}
+table {
+  max-width: 98%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+p {
+  font-weight: bold;
+  text-decoration: underline;
+}
+#centerize {
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.summaryRow {
+  background: #c2c2d6;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>

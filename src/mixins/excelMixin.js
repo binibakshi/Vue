@@ -17,14 +17,17 @@ export default {
     this.getCodesDescription();
   },
   methods: {
-    async createWeeklyHoursToMossad(mossadId) {
-      await this.getAllEmpInfo(mossadId);
-      await this.getAllEmpHours(mossadId);
-      this.setWeeklyHoursAndExport(mossadId);
+    async createWeeklyHoursToMossad(mossadId, begda, endda) {
+      await this.getAllEmpInfo(mossadId, begda, endda);
+      await this.getAllEmpHours(mossadId, begda, endda);
+      await this.setWeeklyHoursAndExport(mossadId);
+      this.dataToExport = [];
+      this.allEmpsInfo = [];
+      this.empsHours = [];
     },
-    async createWeeklyHoursToEmployee(empId, mossadId) {
-      await this.getEmpInfo(empId, mossadId);
-      await this.getEmpHours(empId, mossadId);
+    async createWeeklyHoursToEmployee(empId, mossadId, begda, endda) {
+      await this.getEmpInfo(empId, mossadId, begda, endda);
+      await this.getEmpHours(empId, mossadId, begda, endda);
       this.setWeeklyHoursAndExport(mossadId);
     },
     async setWeeklyHoursAndExport(mossadId) {
@@ -33,10 +36,11 @@ export default {
         axios
           .get("/mossadot/byId", {
             params: {
-              mossadId: this.$store.state.logginAuth,
+              mossadId: mossadId,
             },
           })
           .then((response) => {
+            console.log(response);
             mossadName = response.data.mossadName;
             resolve(response);
           })
@@ -44,7 +48,6 @@ export default {
             console.log(error);
           });
       });
-
       this.allEmpsInfo.forEach((el) => {
         this.setExistHours(
           el,
@@ -60,13 +63,15 @@ export default {
         "מערכת שעות פרונטליות"
       );
     },
-    getEmpHours(empId, mossadId) {
+    getEmpHours(empId, mossadId, begda, endda) {
       return new Promise((resolve) => {
         axios
           .get("/teacherEmploymentDetails/byMossad", {
             params: {
               empId: empId,
               mossadId: mossadId,
+              begda: begda,
+              endda: endda,
             },
           })
           .then((response) => {
@@ -89,12 +94,14 @@ export default {
           });
       });
     },
-    getAllEmpInfo(mossadId) {
+    getAllEmpInfo(mossadId, begda, endda) {
       return new Promise((resolve) => {
         axios
           .get("/employees/byMossad", {
             params: {
               mossadId: mossadId,
+              begda: begda,
+              endda: endda,
             },
           })
           .then((response) => {
@@ -103,12 +110,14 @@ export default {
           });
       });
     },
-    getAllEmpHours(mossadId) {
+    getAllEmpHours(mossadId, begda, endda) {
       return new Promise((resolve) => {
         axios
           .get("/teacherEmploymentDetails/allByMossad", {
             params: {
               mossadId: mossadId,
+              begda: begda,
+              endda: endda,
             },
           })
           .then((response) => {
@@ -180,6 +189,8 @@ export default {
             codeDescription: this.getCodeDescription(el.empCode),
             mossadId: mossadId + "100", // TODO
             mossadName: mossadName, // TODO
+            begda: el.begda,
+            endda: el.endda,
             Sunday: 0,
             Monday: 0,
             Tuesday: 0,
@@ -273,10 +284,7 @@ export default {
       var today = new Date();
       var currSchoolYear = new Date(today.getFullYear(), 8, 1);
 
-      if (
-        today.getUTCMonth() > 8 ||
-        (today.getUTCMonth() == 8 && today.getUTCDay() > 1)
-      ) {
+      if (today.getUTCMonth() > 8) {
         currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
       }
 

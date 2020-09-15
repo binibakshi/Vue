@@ -41,6 +41,11 @@
         ></v-autocomplete>
       </v-col>
 
+      <v-btn
+        v-if="dataToTable.length > 0"
+        color="success"
+        @click="exportCalcHoursToExcel()"
+      >ייצוא לאקסל</v-btn>
       <a href="https://tlush.edu.gov.il/calculators/" target="_blank">סימולטור שכר</a>
     </v-row>
 
@@ -60,11 +65,6 @@
         <p>{{item.jobPercent}}</p>
       </template>
     </v-data-table>
-    <v-btn
-      v-if="dataToTable.length > 0"
-      color="success"
-      @click="exportCalcHoursToExcel()"
-    >ייצוא לאקסל</v-btn>
   </div>
 </template>
 
@@ -146,7 +146,6 @@ export default {
           (el.mother == this.isMother || this.isMother == null) &&
           (el.ageHours == this.ageHours || this.ageHours == "")
         ) {
-          console.log(el.mother);
           this.dataToTable.push({
             ageHours: el.ageHours,
             mother: this.formatMotherType(el.mother),

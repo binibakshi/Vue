@@ -274,10 +274,7 @@ export default {
       var today = new Date();
       var currSchoolYear = new Date(today.getFullYear(), 8, 1);
 
-      if (
-        today.getUTCMonth() > 8 ||
-        (today.getUTCMonth() == 8 && today.getUTCDay() > 1)
-      ) {
+      if (today.getUTCMonth() > 8) {
         currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
       }
 

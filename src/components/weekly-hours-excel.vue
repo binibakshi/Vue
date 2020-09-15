@@ -15,9 +15,11 @@
             placeholder="חפש מוסד"
             prepend-icon="mdi-database-search"
           ></v-autocomplete>
-          <!-- <v-text-field v-model="localMossadId" label="קוד מוסד" required></v-text-field> -->
         </v-col>
-        <v-btn @click="createWeeklyHoursToMossad(localMossadId)" color="success">ייצא לאקסל</v-btn>
+        <v-btn
+          @click="createWeeklyHoursToMossad(localMossadId,datesRange.min,datesRange.max)"
+          color="success"
+        >ייצא לאקסל</v-btn>
         <v-btn @click="downloadDemoFile()" color="success">מבנה אקסל</v-btn>
       </v-row>
     </v-card>
@@ -38,6 +40,7 @@ export default {
       localMossadId: null,
       allEmpsInfo: null,
       codeDescription: [],
+      datesRange: { min: "", max: "" },
       empsHours: [],
       dataToExport: [],
       mossadot: [],
@@ -46,6 +49,7 @@ export default {
   created() {
     this.getCodesDescription();
     this.getAllMossadot();
+    this.setBegdaEndda();
   },
   mixins: [excelMixin],
   methods: {
@@ -59,6 +63,15 @@ export default {
     //   await this.getEmpHours(empId, this.localMossadId);
     //   this.setWeeklyHoursAndExport(this.localMossadId);
     // },
+    setBegdaEndda() {
+      var currDate = new Date();
+      var year = currDate.getFullYear();
+      if (currDate.getMonth() >= 8) {
+        year = currDate.getFullYear() + 1;
+      }
+      this.datesRange.min = this.FormatDate(new Date(year - 1, 8, 1));
+      this.datesRange.max = this.FormatDate(new Date(year, 5, 30));
+    },
     getAllMossadot() {
       axios
         .get("/mossadot/all")
@@ -70,6 +83,24 @@ export default {
             error,
           })
         );
+    },
+    FormatDate(iDate) {
+      var inputDate = new Date(iDate);
+      var formattedDate;
+      var year = inputDate.getFullYear();
+      var month = 0;
+      var day = 0;
+
+      month += inputDate.getMonth() + 1;
+      if (month < 10) {
+        month = "0" + month;
+      }
+      if (inputDate.getDate() < 10) {
+        day = "0";
+      }
+      day += inputDate.getDate();
+      formattedDate = year + "-" + month + "-" + day;
+      return formattedDate;
     },
   },
 };

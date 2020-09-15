@@ -42,7 +42,7 @@
         </v-col>
         <v-col cols="12" md="1" v-if="Object.keys(this.employeeInfo).length > 0">
           <p>גיל</p>
-          {{ formatDate }}
+          {{ _getAge }}
         </v-col>
         <v-col cols="12" md="1" v-if="Object.keys(this.employeeInfo).length > 0">
           <p>משרת אם</p>
@@ -126,6 +126,7 @@ export default {
       selectedReforms: null,
       empId: null,
       tzArray: [],
+      datesRange: { min: "", max: "" },
       employeeInfo: {},
       existHours: [],
       weeklyHoursComponents: [],
@@ -135,6 +136,7 @@ export default {
   created() {
     this.getAllTz();
     this.getReformTypes();
+    this.setBegdaEndda();
   },
   mounted() {
     bus.$on("changeWeeklyHours", () => {
@@ -149,7 +151,7 @@ export default {
       }
       return this.$store.state.mossadInfo;
     },
-    formatDate() {
+    _getAge() {
       var currDate = new Date();
       var birthDate = new Date(this.employeeInfo.birthDate);
       var tempMonth = 0;
@@ -191,13 +193,9 @@ export default {
       var today = new Date();
       var currSchoolYear = new Date(today.getFullYear(), 8, 1);
 
-      if (
-        today.getMonth() > 8 ||
-        (today.getMonth() == 8 && today.getDay() > 1)
-      ) {
+      if (today.getMonth() >= 8) {
         currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
       }
-
       var age = currSchoolYear.getFullYear() - birthDate.getFullYear();
       if (age < 50) {
         return 0;
@@ -264,6 +262,8 @@ export default {
           params: {
             empId: this.empId,
             mossadId: this.$store.state.logginAuth,
+            begda: this.datesRange.min,
+            endda: this.datesRange.max,
           },
         })
         .then((response) => {
@@ -273,6 +273,8 @@ export default {
             .get("/teacherEmploymentDetails/weekSum", {
               params: {
                 empId: this.empId,
+                begda: this.datesRange.min,
+                endda: this.datesRange.max,
               },
             })
             .then((response) => {
@@ -298,11 +300,40 @@ export default {
           })
         );
     },
+    setBegdaEndda() {
+      var currDate = new Date();
+      var year = currDate.getFullYear();
+      if (currDate.getMonth() >= 8) {
+        year = currDate.getFullYear() + 1;
+      }
+      this.datesRange.min = this.formatDate(new Date(year - 1, 8, 1));
+      this.datesRange.max = this.formatDate(new Date(year, 5, 30));
+    },
+    formatDate(currrDate) {
+      var inputDate = new Date(currrDate);
+      var formattedDate;
+      var year = inputDate.getFullYear();
+      var month = 0;
+      var day = 0;
+
+      month += inputDate.getMonth() + 1;
+      if (month < 10) {
+        month = "0" + month;
+      }
+      if (inputDate.getDate() < 10) {
+        day = "0";
+      }
+      day += inputDate.getDate();
+      formattedDate = year + "-" + month + "-" + day;
+      return formattedDate;
+    },
     exportEmployeeWeeklyHours() {
       // call function in the mixin
       this.createWeeklyHoursToEmployee(
         this.empId,
-        this.$store.state.logginAuth
+        this.$store.state.logginAuth,
+        this.datesRange.min,
+        this.datesRange.max
       );
     },
     navigateToHirepage() {
