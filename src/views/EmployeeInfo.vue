@@ -1,5 +1,3 @@
-/* eslint-disable vue/no-unused-components */
-/* eslint-disable vue/no-unused-components */
 <template>
     <div>
     <setEmployeesHours/>

@@ -47,9 +47,20 @@
     </v-row>
     <v-row>
       <v-spacer></v-spacer>
-      <v-btn :disabled="!isEditing" color="success" @click="saveMossadInfo()" class="moveRight">שמור</v-btn>
+      <v-btn
+        :disabled="!isEditing"
+        color="success"
+        @click="saveMossadInfo()"
+        class="moveRight"
+        >שמור</v-btn
+      >
     </v-row>
-    <v-btn v-if="mossadInfo.mossadId != undefined" color="error" @click="deleteMossad()">מחק מוסד</v-btn>
+    <v-btn
+      v-if="mossadInfo.mossadId != undefined"
+      color="error"
+      @click="deleteMossad()"
+      >מחק מוסד</v-btn
+    >
   </v-form>
 </template>
 

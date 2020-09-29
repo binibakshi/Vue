@@ -28,7 +28,10 @@ export default {
     async createWeeklyHoursToEmployee(empId, mossadId, begda, endda) {
       await this.getEmpInfo(empId, mossadId, begda, endda);
       await this.getEmpHours(empId, mossadId, begda, endda);
-      this.setWeeklyHoursAndExport(mossadId);
+      await this.setWeeklyHoursAndExport(mossadId);
+      this.dataToExport = [];
+      this.allEmpsInfo = [];
+      this.empsHours = [];
     },
     async setWeeklyHoursAndExport(mossadId) {
       var mossadName = "";
@@ -40,7 +43,6 @@ export default {
             },
           })
           .then((response) => {
-            console.log(response);
             mossadName = response.data.mossadName;
             resolve(response);
           })
@@ -56,6 +58,7 @@ export default {
           mossadName
         );
       });
+      this.setDataForDisplay(this.dataToExport);
       this.downloadFile(
         this.dataToExport,
         this.getWeeklyHoursHeaders(),
@@ -177,7 +180,12 @@ export default {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
         // after first insert check whether create new row or add to existing one
-        if (hoursToDisplay.find((e) => e.code == el.empCode) == undefined) {
+        if (
+          hoursToDisplay.find(
+            (e) =>
+              e.code == el.empCode && e.begda == el.begda && e.endda == el.endda
+          ) == undefined
+        ) {
           // create row template
           (newRow = {
             empId: empInfo.empId,
@@ -204,7 +212,10 @@ export default {
             hoursToDisplay.push(newRow);
         }
         this.setHoursInDay(
-          hoursToDisplay.find((e) => e.code == el.empCode),
+          hoursToDisplay.find(
+            (e) =>
+              e.code == el.empCode && e.begda == el.begda && e.endda == el.endda
+          ),
           el.day,
           el.hours
         );
@@ -238,6 +249,12 @@ export default {
         systemMessages: "הערות מערכת",
       };
       return headers;
+    },
+    setDataForDisplay(dataToExport) {
+      dataToExport.forEach((el) => {
+        el.begda = this.formattedDate(el.begda);
+        el.endda = this.formattedDate(el.endda);
+      });
     },
     setHoursInDay(record, day, newHours) {
       if (day == 0) {

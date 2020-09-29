@@ -70,7 +70,7 @@ export default {
         year = currDate.getFullYear() + 1;
       }
       this.datesRange.min = this.FormatDate(new Date(year - 1, 8, 1));
-      this.datesRange.max = this.FormatDate(new Date(year, 5, 30));
+      this.datesRange.max = this.FormatDate(new Date(year, 5, 20));
     },
     getAllMossadot() {
       axios

@@ -14,10 +14,9 @@ export const store = new Vuex.Store({
     logginAuth: localStorage.getItem("mossadId") || null,
     username: localStorage.getItem("username") || null,
     mossadInfo: {
-      mossadNme: "",
+      mossadName: "",
       mossadId: "",
-      currHours: "",
-      maxHours: "",
+      mossadType: "",
     },
   },
   getters: {

@@ -1,27 +1,5 @@
 <template>
   <div v-if="empId != null">
-    <v-row>
-      <v-col cols="12" md="3">
-        <v-text-field
-          v-model="tableBegda"
-          label="מתאריך"
-          type="date"
-          :min="begda"
-          :max="endda"
-          @change="setDatesIfChange()"
-        >מתאריך</v-text-field>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-text-field
-          v-model="tableEndda"
-          label="עד תאריך"
-          type="date"
-          :min="begda"
-          :max="endda"
-          @change="setDatesIfChange()"
-        >עד תאריך</v-text-field>
-      </v-col>
-    </v-row>
     <div v-show="reformType != 0">
       <table id="t01">
         <thead>
@@ -44,27 +22,44 @@
         <tbody>
           <tr v-for="(row, index) in newHours" :key="index">
             <td>
-              <a v-if="row.type == frontalConst && index != 0" @click="removeRow(index)">הסר</a>
+              <div id="additionalActions">
+                <v-icon
+                  id="myPlusIcon"
+                  @click="addNewRow()"
+                  v-if="row.type == frontalConst"
+                  >mdi-plus</v-icon
+                >
+                <v-icon
+                  id="myMinusIcon"
+                  @click="removeRow(index)"
+                  v-if="row.type == frontalConst && index != 0"
+                  >mdi-minus</v-icon
+                >
+              </div>
             </td>
             <td>{{ convertReformDescription(row.type) }}</td>
-            <td id="autocomlete">
+            <td>
               <v-autocomplete
+                class="autocomlete"
                 v-if="row.type == frontalConst"
                 v-model="row.code"
                 :items="_filteredCodes"
                 hide-no-data
                 hide-selected
-                :item-text="item => item.code + '-' + item.codeDescription"
+                :item-text="(item) => item.code + '-' + item.codeDescription"
                 item-value="code"
                 @change="setPrivateAndPauseCodes(row.code)"
               ></v-autocomplete>
             </td>
-            <td class="disableStyle">{{ row.code + '-' + currCodeDescription(row.code) }}</td>
+            <td class="disableStyle">
+              {{ row.code + "-" + currCodeDescription(row.code) }}
+            </td>
             <td>
               <input
                 id="hours"
                 type="number"
                 min="0"
+                step="0.1"
                 v-model="row.hours"
                 :disabled="row.code <= 0 || row.type != frontalConst"
                 @input="getPauseAndPrivateHours()"
@@ -72,14 +67,22 @@
             </td>
             <td class="disableStyle"></td>
             <td v-for="(cell, index2) in row.week" :key="index2">
-              <input type="number" min="0" v-model="row.week[index2]" :disabled="row.hours <= 0" />
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                v-model="row.week[index2]"
+                :disabled="row.hours <= 0"
+              />
             </td>
             <td
               class="disableStyle"
               :style="{
-                  color: validRowsHours(row) == false ? 'red' : 'inherit',
-                }"
-            >{{ leftHours(row) }}</td>
+                color: validRowsHours(row) == false ? 'red' : 'inherit',
+              }"
+            >
+              {{ getTwoDigits(leftHours(row)) }}
+            </td>
           </tr>
           <tr class="summaryRow">
             <td></td>
@@ -88,16 +91,19 @@
             <td>--</td>
             <td>{{ hoursAmount() }}</td>
             <td>{{ getTwoDigits(calcJobPercent()) }}%</td>
-            <td v-for="(day, index) in parseInt(6)" :key="index">{{ dayAmount(day - 1) }}</td>
+            <td v-for="(day, index) in parseInt(6)" :key="index">
+              {{ dayAmount(day - 1) }}
+            </td>
             <td
               :style="{
-                  color: validTotalHours() == false ? 'red' : 'inherit',
-                }"
-            >{{ leftTableHours() }}</td>
+                color: validTotalHours() == false ? 'red' : 'inherit',
+              }"
+            >
+              {{ getTwoDigits(leftTableHours()) }}
+            </td>
           </tr>
         </tbody>
       </table>
-      <v-btn class="myBtn" color="success" @click="addNewRow()">הוסף שורה</v-btn>
       <v-btn class="myBtn" color="info" @click="saveHours()">שמור שעות</v-btn>
       <v-btn class="myBtn" color="red" @click="cleanWeeklyData()">נקה</v-btn>
     </div>
@@ -374,7 +380,7 @@ export default {
       //     year = currDate.getFullYear() + 1;
       //   }
       //   this.begda = this.FormatDate(new Date(year - 1, 8, 1));
-      //   this.endda = this.FormatDate(new Date(year, 5, 30));
+      //   this.endda = this.FormatDate(new Date(year, 5, 20));
       this.tableBegda = this.FormatDate(this.begda);
       this.tableEndda = this.FormatDate(this.endda);
     },
@@ -401,6 +407,9 @@ export default {
     },
     getTwoDigits(number) {
       if (isNaN(number)) {
+        return 0;
+      }
+      if (number == 0) {
         return 0;
       }
       return parseFloat(number).toFixed(2);
@@ -488,14 +497,6 @@ export default {
       return this.newHours
         .filter((el) => this.isNumber(el.hours))
         .reduce((acc, item) => parseFloat(acc) + parseFloat(item.hours), 0);
-    },
-    setDatesIfChange() {
-      if (this.tableEndda > this.endda || this.tableEndda < this.begda) {
-        this.tableEndda = this.endda;
-      }
-      if (this.tableBegda > this.endda || this.tableBegda < this.begda) {
-        this.tableBegda = this.begda;
-      }
     },
     dayAmount(day) {
       return this.newHours.reduce(
@@ -594,8 +595,8 @@ export default {
 </script>
 
 <style scoped>
-#autocomlete {
-  max-width: 50px;
+.autocomlete {
+  max-width: 70px;
   max-height: 25px;
   padding-top: 0;
 }
@@ -607,8 +608,6 @@ td {
   border: 1px solid black;
   border-collapse: collapse;
   font-weight: bold;
-  padding-right: 5px;
-  padding-left: 5px;
 }
 tbody {
   display: table-row-group;
@@ -674,5 +673,14 @@ input[type="number"] {
   align-items: center;
   margin-left: auto;
   margin-right: auto;
+}
+#additionalActions {
+  display: flex;
+}
+#myPlusIcon {
+  color: blue;
+}
+#myMinusIcon {
+  color: red;
 }
 </style>
