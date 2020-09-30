@@ -1,8 +1,8 @@
 <template>
   <div v-if="empId != null" class="reformTypeTables">
     <h1 class="center">{{ _reformDiscription }}</h1>
-    <div v-for="(table,index) in tablesArray" :key="index">
-      <v-row>
+    <div v-for="(table, index) in tablesArray" :key="index" class="container">
+      <div class="fixed">
         <v-col cols="12" md="2">
           <v-text-field
             v-model="table.begda"
@@ -11,7 +11,8 @@
             :min="datesRange.min"
             :max="datesRange.max"
             @change="setDatesIfChange(table)"
-          >מתאריך</v-text-field>
+            >מתאריך</v-text-field
+          >
         </v-col>
         <v-col cols="12" md="2">
           <v-text-field
@@ -21,19 +22,22 @@
             :min="datesRange.min"
             :max="datesRange.max"
             @change="setDatesIfChange(table)"
-          >עד תאריך</v-text-field>
+            >עד תאריך</v-text-field
+          >
         </v-col>
-      </v-row>
-      <weeklyHoursTable
-        class="center"
-        :empId="empId"
-        :reformType="reformType"
-        :isMother="isMother"
-        :ageHours="ageHours"
-        :existData="table.data"
-        :begda="table.begda"
-        :endda="table.endda"
-      />
+      </div>
+      <div class="flex-item">
+        <weeklyHoursTable
+          class="center"
+          :empId="empId"
+          :reformType="reformType"
+          :isMother="isMother"
+          :ageHours="ageHours"
+          :existData="table.data"
+          :begda="table.begda"
+          :endda="table.endda"
+        />
+      </div>
     </div>
     <!-- <v-row>
       <v-icon id="myPlusIcon" @click="addWeeklHoursTable()">mdi-plus</v-icon>
@@ -76,8 +80,8 @@ export default {
             empId: this.empId,
             mossadId: this.$store.state.logginAuth,
             reformType: this.reformType,
-            begda: this.datesRange.min,
-            endda: this.datesRange.max,
+            begda: this.FormatDate(this.datesRange.min),
+            endda: this.FormatDate(this.datesRange.max),
           },
         })
         .then((response) => {
@@ -93,7 +97,9 @@ export default {
     async gruopByBegdaEndda() {
       await this.existHours.forEach((el) => {
         let currArray = this.tablesArray.find(
-          (e) => e.begda == el.begda && e.endda == el.endda
+          (e) =>
+            e.begda == this.FormatDate(el.begda) &&
+            e.endda == this.FormatDate(el.endda)
         );
         if (currArray != null) {
           currArray.data.push(el);
@@ -217,6 +223,15 @@ export default {
 </script>
 
 <style scoped>
+.container {
+  display: flex;
+}
+.fixed {
+  width: 18%;
+}
+.flex-item {
+  flex-grow: 1;
+}
 #myPlusIcon {
   color: blue;
 }
@@ -225,7 +240,7 @@ export default {
 }
 #myPlusIcon:hover {
   size: 150%;
-  
+
   transform: scale(3);
 }
 #myMinusIcon:hover {

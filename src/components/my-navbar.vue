@@ -1,8 +1,8 @@
 <template>
-  <nav>
+  <nav >
     <v-toolbar flat v-if="_isLogged">
       <v-toolbar-items>
-        <router-link to="/empInfo">
+        <router-link  to="/empInfo">
           <v-btn>איוש שעות</v-btn>
         </router-link>
         <router-link to="/calcHours">
@@ -11,25 +11,44 @@
         <router-link to="/HireEmp">
           <v-btn>עובדים</v-btn>
         </router-link>
-        <router-link v-if="isAdmin()" to="/mossadot">
-          <v-btn>ניהול מוסדות</v-btn>
-        </router-link>
+
         <router-link to>
           <v-btn>דוחות</v-btn>
         </router-link>
-        <router-link v-if="isAdmin()" to="/ImportData">
-          <v-btn>ניהול Excel</v-btn>
-        </router-link>
-        <router-link v-if="isAdmin()" to="/auth">
-          <v-btn>הרשאות</v-btn>
-        </router-link>
+
+        <v-menu bottom offset-y v-if="isAdmin()">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn v-bind="attrs" v-on="on">
+              <v-icon>mdi-arrow-down</v-icon> <span>מנהלה</span>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <router-link to="/auth">
+                <v-btn>הרשאות</v-btn>
+              </router-link>
+            </v-list-item>
+            <v-list-item>
+              <router-link to="/ImportData">
+                <v-btn>ניהול Excel</v-btn>
+              </router-link>
+            </v-list-item>
+            <v-list-item>
+              <router-link to="/mossadot">
+                <v-btn>ניהול מוסדות</v-btn>
+              </router-link>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-toolbar-items>
 
       <v-spacer></v-spacer>
-      <p>{{_username}}</p>
+      <p>{{ _username }}</p>
       <p v-if="_mossadId == 999">(מנהלה)</p>
-      <p>{{_mossadName}}</p>
-      <v-icon large @click="logout()" class="test" color="#6666ff">mdi-arrow-left-bold-circle</v-icon>
+      <p>{{ _mossadName }}</p>
+      <v-icon large @click="logout()" class="test" color="#6666ff"
+        >mdi-arrow-left-bold-circle</v-icon
+      >
     </v-toolbar>
     <v-row></v-row>
   </nav>
@@ -120,6 +139,10 @@ p {
   margin-left: 10px;
   margin-top: 15px;
   font-weight: bold;
+}
+
+.v-btn:not(.v-btn--round).v-size--default {
+  max-height: 30px;
 }
 
 /* .test:hover:before {

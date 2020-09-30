@@ -1,34 +1,45 @@
 <template>
   <v-card>
     <div class="littleMargin">
-      <div class="sticky">
-        <v-row id="mossadHoursDetails">
-          <v-col cols="12" md="2">
-            <p>מוסד - {{ mossadInfo.mossadName }}</p>
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>שעות מאוישות - {{ mossadInfo.currHours }}</p>
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>יתרת שעות - {{ mossadInfo.maxHours - mossadInfo.currHours }}</p>
-          </v-col>
-          <v-col cols="12" md="3">
-            <p>כמות שעות מקסימלית - {{ mossadInfo.maxHours }}</p>
-          </v-col>
-          <v-col cols="12" md="2">
-            <p>
-              אחוז איוש -
-              {{
-                getTwoDigits(
-                  (mossadInfo.currHours / mossadInfo.maxHours) * 100
-                )
-              }}%
-            </p>
-          </v-col>
-        </v-row>
+      <v-row id="mossadHoursDetails">
+        <v-col cols="12" md="2">
+          <v-select
+            :items="years"
+            @change="loadPage()"
+            v-model="selectedYear"
+            item-text="hebrewYear"
+            item-value="year"
+            label="שנה"
+          ></v-select>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>מוסד - {{ mossadInfo.mossadName }}</p>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>שעות מאוישות - {{ mossadInfo.currHours }}</p>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>יתרת שעות - {{ mossadInfo.maxHours - mossadInfo.currHours }}</p>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>מגבלת שעות- {{ mossadInfo.maxHours }}</p>
+        </v-col>
+        <v-col cols="12" md="2">
+          <p>
+            אחוז איוש -
+            {{
+              getTwoDigits((mossadInfo.currHours / mossadInfo.maxHours) * 100)
+            }}%
+          </p>
+        </v-col>
+      </v-row>
+      <div v-show="mossadInfo.maxHours != null && mossadInfo.maxHours != 0">
         <v-row>
           <v-col id="serchEmployee" cols="12" md="3">
             <v-autocomplete
+              :disabled="
+                mossadInfo.maxHours == null || mossadInfo.maxHours == 0
+              "
               v-model="empId"
               :items="tzArray"
               color="indigo lighten-5"
@@ -104,7 +115,18 @@
                 <tr v-for="(row, index) in existHours" :key="index">
                   <td>{{ getRowType(row.type) }}</td>
                   <td v-for="index in 6" :key="index">
-                    {{ row.week[index - 1] }}
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on, attrs }">
+                        <span
+                          v-bind="attrs"
+                          v-on="on"
+                          @mouseover="changeText(index)"
+                        >
+                          {{ row.week[index - 1] }}</span
+                        >
+                      </template>
+                      <span>{{ hoverText }}</span>
+                    </v-tooltip>
                   </td>
                   <td>{{ totalHours(row.week) }}</td>
                   <td>{{ getTwoDigits(row.week[6]) }}%</td>
@@ -119,30 +141,30 @@
             >
           </v-col>
         </v-row>
-      </div>
-      <v-row v-if="empId != null">
-        <v-col cols="12" md="3">
-          <v-select
-            v-model="selectedReforms"
-            :items="reformTypes"
-            item-text="name"
-            item-value="reformId"
-            label="בחר רפורמה"
-            multiple
-            single-line
-          ></v-select>
-        </v-col>
-      </v-row>
-      <v-card v-if="employeeInfo != null && selectedReforms != null">
-        <v-card v-for="(reform, index) in selectedReforms" :key="index">
-          <weeklyHours
-            :empId="empId"
-            :reformType="reform"
-            :isMother="employeeInfo.mother"
-            :ageHours="_getAgeHours"
-          ></weeklyHours>
+        <v-row v-if="empId != null">
+          <v-col cols="12" md="3">
+            <v-select
+              v-model="selectedReforms"
+              :items="reformTypes"
+              item-text="name"
+              item-value="reformId"
+              label="בחר רפורמה"
+              multiple
+              single-line
+            ></v-select>
+          </v-col>
+        </v-row>
+        <v-card v-if="employeeInfo != null && selectedReforms != null">
+          <v-card v-for="(reform, index) in selectedReforms" :key="index">
+            <weeklyHours
+              :empId="empId"
+              :reformType="reform"
+              :isMother="employeeInfo.mother"
+              :ageHours="_getAgeHours"
+            ></weeklyHours>
+          </v-card>
         </v-card>
-      </v-card>
+      </div>
     </div>
   </v-card>
 </template>
@@ -171,6 +193,8 @@ export default {
       weeklyHoursComponents: [],
       reformTypes: [],
       mossadInfo: {},
+      hoverText: "",
+      test: {},
     };
   },
   created() {
@@ -183,6 +207,7 @@ export default {
   mounted() {
     bus.$on("changeWeeklyHours", () => {
       this.getWeeklySum();
+      this.getMossadHours();
     });
   },
   computed: {
@@ -245,13 +270,26 @@ export default {
     initilize() {
       this.mossadInfo.mossadId = this.$store.state.mossadId;
       this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName;
+      this.years = [
+        { year: 2021, hebrewYear: 'תשפ"א' },
+        { year: 2022, hebrewYear: 'תשפ"ב' },
+        { year: 2023, hebrewYear: 'תשפ"ג' },
+        { year: 2024, hebrewYear: 'תשפ"ד' },
+        { year: 2025, hebrewYear: 'תשפ"ה' },
+      ];
+    },
+    loadPage() {
+      this.initilize();
+      this.getAllTz();
+      this.getReformTypes();
+      this.setBegdaEndda();
+      this.getMossadHours();
     },
     totalHours(week) {
-      let sum = 0;
-
       if (week != null) {
+        let sum = 0;
         for (let index = 0; index < 6; index++) {
-          sum = sum + parseInt(week[index]);
+          sum = sum + parseFloat(week[index]);
         }
         return sum;
       } else {
@@ -295,10 +333,12 @@ export default {
       this.getWeeklySum();
     },
     getMossadHours() {
+      this.mossadInfo.currHours = 0;
+      this.mossadInfo.maxHours = 0;
       axios
         .get("mossadHours/byId", {
           params: {
-            mossadId: this.$store.getters.mossadId,
+            mossadId: this.$store.state.logginAuth,
             year: this.selectedYear,
           },
         })
@@ -306,11 +346,11 @@ export default {
           this.mossadInfo.currHours = response.data.currHours;
           this.mossadInfo.maxHours = response.data.maxHours;
         })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
+        .catch(() => {
+          alert(
+            "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
+          );
+        });
     },
     getWeeklySum() {
       this.existHours = [];
@@ -358,13 +398,10 @@ export default {
         );
     },
     setBegdaEndda() {
-      var currDate = new Date();
-      var year = currDate.getFullYear();
-      if (currDate.getMonth() >= 8) {
-        year = currDate.getFullYear() + 1;
-      }
-      this.datesRange.min = this.formatDate(new Date(year - 1, 8, 1));
-      this.datesRange.max = this.formatDate(new Date(year, 5, 20));
+      this.datesRange.min = this.formatDate(
+        new Date(this.selectedYear - 1, 8, 1)
+      );
+      this.datesRange.max = this.formatDate(new Date(this.selectedYear, 5, 20));
     },
     formatDate(currrDate) {
       var inputDate = new Date(currrDate);
@@ -418,6 +455,12 @@ export default {
         return "";
       }
       return parseFloat(number).toFixed(2);
+    },
+    changeText(index) {
+      this.hoverText = this.existHours[1].week[index - 1];
+    },
+    testFunction() {
+      axios.get("/");
     },
   },
   mixins: [excelMixin],

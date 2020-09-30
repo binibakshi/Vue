@@ -112,7 +112,7 @@
     <template v-slot:item.actions="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
       <v-icon small @click="deleteUser(item)">mdi-delete</v-icon>
-      <v-icon small @click="logginAsUser(item)">mdi-key</v-icon>
+      <v-icon v-if="item.mossadId != 999" small @click="logginAsUser(item)">mdi-key</v-icon>
     </template>
   </v-data-table>
 </template>

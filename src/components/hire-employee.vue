@@ -26,7 +26,7 @@
           <v-spacer></v-spacer>
           <v-dialog v-model="dialog" max-width="50%">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">צור משתמש</v-btn>
+              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">צור עובד</v-btn>
             </template>
             <v-card id="myform" class="center wrapper">
               <h1>פרטי עובד</h1>
@@ -73,8 +73,8 @@
                       <input type="date" name="birthDate" v-model="editedEmployee.birthDate" />
                     </v-col>
                   </v-row>
-                  <v-btn color="info" @click="saveEmployer()">שמור עובד</v-btn>
-                  <v-btn color="red" @click="close()">סגור</v-btn>
+                  <v-btn color="primary" @click="saveEmployer()">שמור עובד</v-btn>
+                  <v-btn color="grey" @click="close()">סגור</v-btn>
                 </v-container>
               </v-card-text>
             </v-card>

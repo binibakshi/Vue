@@ -26,15 +26,6 @@
                     hide-details
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="4">
-                  <v-select
-                    :items="years"
-                    v-model="selectedYear"
-                    item-text="hebrewYear"
-                    item-value="year"
-                    label="שנה"
-                  ></v-select>
-                </v-col>
               </v-row>
             </v-card-title>
           </v-toolbar-title>
@@ -96,56 +87,23 @@
         <v-icon small @click="deleteMossad(item)">mdi-delete</v-icon>
       </template>
     </v-data-table>
-    <!-- <v-card class="wrapper" background-color="#ffffe6">
-    <v-card-title primary-title>ניהול מוסדות</v-card-title>
-    <v-row>
-      <v-col cols="12" md="3">
-        <v-autocomplete
-          v-model="mossadInfo"
-          :items="mossadot"
-          color="primary"
-          hide-no-data
-          hide-selected
-          item-text="mossadName"
-          item-value="mossadId"
-          placeholder="חפש מוסד"
-          prepend-icon="mdi-database-search"
-          return-object
-        ></v-autocomplete>
-      </v-col>
-      <v-col cols="12" md="2" v-if="mossadInfo.mossadId != undefined">
-        <h4 class="centerize">קוד מוסד - {{mossadInfo.mossadId}}</h4>
-      </v-col>
-      <v-btn color="success" class="centerize" @click="createMossad()">צור מוסד</v-btn>
-      <v-btn color="success" class="centerize" @click="onExport()">ייצא לאקסל</v-btn>
-    </v-row>
-    <mosssadDetails v-if="mossadInfo != null" :mossadInfo="mossadInfo" />
-    <createMossad v-if="isNew == true && mossadInfo.mossadId == undefined" />
-  </v-card> -->
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import XLSX from "xlsx";
-// import mosssadDetails from "./mossad-details";
-// import createMossad from "./create-mossad";
 
 export default {
-  name: "mosssadotMenagement",
-  components: {
-    // mosssadDetails,
-    // createMossad,
-  },
+  name: "mossadotMenagement",
+  components: {},
 
   data() {
     return {
       isNew: false,
       mossadInfo: {},
       search: "",
-      years: [{ year: 2021, hebrewYear: 'תשפ"א' }],
       dialog: false,
-      selectedYear: { year: 2021, hebrewYear: 'תשפ"א' },
       mossadot: [],
       mossadTypes: [],
       mossadotHeaders: [

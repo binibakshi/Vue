@@ -7,7 +7,6 @@
             <th></th>
             <th>סוג</th>
             <th>קוד פיצול</th>
-            <th>תיאור קוד פיצול</th>
             <th>שעות</th>
             <th>אחוז משרה</th>
             <th>א'</th>
@@ -39,20 +38,19 @@
             </td>
             <td>{{ convertReformDescription(row.type) }}</td>
             <td>
-              <v-autocomplete
-                class="autocomlete"
+              <v-select
+                class="mySelectOption"
                 v-if="row.type == frontalConst"
                 v-model="row.code"
-                :items="_filteredCodes"
-                hide-no-data
+                :items="frontalCodes"
                 hide-selected
-                :item-text="(item) => item.code + '-' + item.codeDescription"
+                :item-text="(item) => item.code + ' - ' + item.codeDescription"
                 item-value="code"
                 @change="setPrivateAndPauseCodes(row.code)"
-              ></v-autocomplete>
-            </td>
-            <td class="disableStyle">
-              {{ row.code + "-" + currCodeDescription(row.code) }}
+              ></v-select>
+              <span v-if="row.type != frontalConst">{{
+                currCodeDescription(row.code)
+              }}</span>
             </td>
             <td>
               <input
@@ -88,7 +86,6 @@
             <td></td>
             <td>סך</td>
             <td>--</td>
-            <td>--</td>
             <td>{{ hoursAmount() }}</td>
             <td>{{ getTwoDigits(calcJobPercent()) }}%</td>
             <td v-for="(day, index) in parseInt(6)" :key="index">
@@ -104,8 +101,10 @@
           </tr>
         </tbody>
       </table>
-      <v-btn class="myBtn" color="info" @click="saveHours()">שמור שעות</v-btn>
-      <v-btn class="myBtn" color="red" @click="cleanWeeklyData()">נקה</v-btn>
+      <v-btn class="myBtn" color="primary" @click="saveHours()"
+        >שמור שעות</v-btn
+      >
+      <v-btn class="myBtn" color="" @click="cleanWeeklyData()">נקה</v-btn>
     </div>
   </div>
 </template>
@@ -143,6 +142,7 @@ export default {
       empOptions: [],
       reformTypes: [],
       codeDescription: [],
+      frontalCodes: [],
       existHours: [],
       frontalConst: FRONTAL,
     };
@@ -188,6 +188,7 @@ export default {
         })
         .then((response) => {
           this.codeDescription = response.data;
+          this.setFrontalCodes();
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -219,8 +220,8 @@ export default {
             empId: this.empId,
             mossadId: this.$store.state.logginAuth,
             reformType: this.reformType,
-            begda: this.begda,
-            endda: this.endda,
+            begda: this.FormatDate(this.begda),
+            endda: this.FormatDate(this.endda),
           },
         })
         .then((response) => {
@@ -269,7 +270,6 @@ export default {
     setExistHours() {
       let tempHourType;
       let newRow = {};
-
       this.existHours.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
@@ -357,30 +357,7 @@ export default {
     sortTable() {
       this.newHours.sort((a, b) => a.type - b.type);
     },
-    gruopByBegdaEndda() {
-      this.existHours.forEach((el) => {
-        const currArray = this.tablesArray.find(
-          (e) => e.begda == el.begda && e.endda == el.endda
-        );
-        if (currArray != null) {
-          currArray.array.push(el);
-        } else {
-          this.tablesArray.push({
-            begda: el.begda,
-            endda: el.endda,
-            array: [el],
-          });
-        }
-      });
-    },
     setBegdaEndda() {
-      //   var currDate = new Date();
-      //   var year = currDate.getFullYear();
-      //   if (currDate.getMonth() >= 8) {
-      //     year = currDate.getFullYear() + 1;
-      //   }
-      //   this.begda = this.FormatDate(new Date(year - 1, 8, 1));
-      //   this.endda = this.FormatDate(new Date(year, 5, 20));
       this.tableBegda = this.FormatDate(this.begda);
       this.tableEndda = this.FormatDate(this.endda);
     },
@@ -414,13 +391,12 @@ export default {
       }
       return parseFloat(number).toFixed(2);
     },
-    currCodeDescription(index) {
-      if (index != undefined && index > 0) {
-        if (this.codeDescription.find((e) => e.code == index) === undefined) {
+    currCodeDescription(code) {
+      if (code != undefined && code > 0) {
+        if (this.codeDescription.find((e) => e.code == code) === undefined) {
           return "";
         }
-        return this.codeDescription.find((e) => e.code == index)
-          .codeDescription;
+        return this.codeDescription.find((e) => e.code == code).codeDescription;
       }
       return "";
     },
@@ -505,7 +481,7 @@ export default {
       );
     },
     initilizer() {
-      this.existHours = this.getExistData;
+      // this.existHours = this.getExistData;
       this.newHours = [];
       if (this.reformType == 5 || this.reformType == 2) {
         this.newHours = [
@@ -565,16 +541,15 @@ export default {
       jobPercent = (allHours / fullJobHours) * 100;
       return jobPercent;
     },
-  },
-  computed: {
-    _filteredCodes() {
-      return this.codeDescription.filter(
+    setFrontalCodes() {
+      this.frontalCodes = this.codeDescription.filter(
         (el) =>
           (el.hourType == FRONTAL || el.hourType == 0) &&
           !this.newHours.find((i) => i.code == el.code)
       );
     },
   },
+  computed: {},
   watch: {
     empId: function (val) {
       this.empId = val;
@@ -595,9 +570,10 @@ export default {
 </script>
 
 <style scoped>
-.autocomlete {
-  max-width: 70px;
-  max-height: 25px;
+.mySelectOption {
+  min-width: 200px;
+  max-width: 250px !important;
+  max-height: 32px;
   padding-top: 0;
 }
 
