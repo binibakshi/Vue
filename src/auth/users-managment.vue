@@ -23,7 +23,9 @@
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="800px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">צור משתמש</v-btn>
+            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on"
+              >צור משתמש</v-btn
+            >
           </template>
           <v-card id="myform" class="center wrapper">
             <v-card-text>
@@ -35,7 +37,8 @@
                       :rules="[rules.required]"
                       label="שם משתמש"
                       autocomplete="off"
-                    >שם משתמש</v-text-field>
+                      >שם משתמש</v-text-field
+                    >
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
@@ -43,7 +46,8 @@
                       :rules="[rules.required]"
                       label="שם פרטי"
                       autocomplete="off"
-                    >שם משתמש</v-text-field>
+                      >שם משתמש</v-text-field
+                    >
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
@@ -51,7 +55,8 @@
                       :rules="[rules.required]"
                       label="שם משפחה"
                       autocomplete="off"
-                    >שם משתמש</v-text-field>
+                      >שם משתמש</v-text-field
+                    >
                   </v-col>
                 </v-row>
                 <v-row>
@@ -65,7 +70,8 @@
                       label="סיסמה"
                       hint="לפחות 6 תווים"
                       @click:append="show1 = !show1"
-                    >סיסמה</v-text-field>
+                      >סיסמה</v-text-field
+                    >
                   </v-col>
                 </v-row>
                 <v-row>
@@ -80,7 +86,8 @@
                       label="חזור על סיסמה"
                       hint="לפחות 6 תווים"
                       @click:append="show2 = !show2"
-                    >סיסמה</v-text-field>
+                      >סיסמה</v-text-field
+                    >
                   </v-col>
                 </v-row>
                 <v-row>
@@ -104,15 +111,15 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <!-- <template v-slot:[x60;item.actions&#x60;]="{ item }"> -->
-    <!-- <template v-slot:[`item.actions`]="{ item }"> -->
-    <template v-slot:item.mossadId="{ item }">
-      <p>{{formatMossadId(item.mossadId)}}</p>
+    <template v-slot:[`item.mossadId`]="{ item }">
+      <p>{{ formatMossadId(item.mossadId) }}</p>
     </template>
-    <template v-slot:item.actions="{ item }">
+    <template v-slot:[`item.actions`]="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
       <v-icon small @click="deleteUser(item)">mdi-delete</v-icon>
-      <v-icon v-if="item.mossadId != 999" small @click="logginAsUser(item)">mdi-key</v-icon>
+      <v-icon v-if="item.mossadId != 999" small @click="logginAsUser(item)"
+        >mdi-key</v-icon
+      >
     </template>
   </v-data-table>
 </template>

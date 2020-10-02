@@ -127,6 +127,7 @@ export default {
     "existData",
     "begda",
     "endda",
+    "codeDescription",
   ],
   data() {
     return {
@@ -141,7 +142,6 @@ export default {
       tablesArray: [],
       empOptions: [],
       reformTypes: [],
-      codeDescription: [],
       frontalCodes: [],
       existHours: [],
       frontalConst: FRONTAL,
@@ -149,7 +149,7 @@ export default {
   },
   created() {
     this.initilizer();
-    this.getCodeDescription();
+    this.setFrontalCodes();
     this.setBegdaEndda();
     this.getEmployeeOptions();
     this.getExistData();
@@ -178,23 +178,6 @@ export default {
       ).hours = this.empOptions.find(
         (el) => el.frontalHours == totalFrontalHours
       ).privateHours;
-    },
-    getCodeDescription() {
-      axios
-        .get("/convertHours/byReform", {
-          params: {
-            reformType: this.reformType,
-          },
-        })
-        .then((response) => {
-          this.codeDescription = response.data;
-          this.setFrontalCodes();
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
     },
     getEmployeeOptions() {
       axios
@@ -243,6 +226,7 @@ export default {
           this.tableToSave.push({
             empId: this.empId,
             mossadId: this.$store.state.logginAuth,
+            changedBy: this.$store.state.username,
             empCode: element.code,
             begda: new Date(this.tableBegda),
             endda: new Date(this.tableEndda),
@@ -481,7 +465,6 @@ export default {
       );
     },
     initilizer() {
-      // this.existHours = this.getExistData;
       this.newHours = [];
       if (this.reformType == 5 || this.reformType == 2) {
         this.newHours = [
@@ -549,19 +532,18 @@ export default {
       );
     },
   },
-  computed: {},
   watch: {
     empId: function (val) {
       this.empId = val;
       this.initilizer();
-      this.getCodeDescription();
+      this.setFrontalCodes();
       this.getEmployeeOptions();
       //   this.getExistData();
     },
     reformType: function (val) {
       this.reformType = val;
       this.initilizer();
-      this.getCodeDescription();
+      this.setFrontalCodes();
       this.getEmployeeOptions();
       //   this.getExistData();
     },
@@ -576,7 +558,6 @@ export default {
   max-height: 32px;
   padding-top: 0;
 }
-
 table,
 tr,
 th,

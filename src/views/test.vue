@@ -1,68 +1,21 @@
 <template>
-  <!-- <div>
-    <table>
-      <tr>
-        <th v-for="(item, index) in headers" :key="index">{{item.text}}</th>
-      </tr>
-      <tr v-for="(item, index) in res" :key="index">
-        <td>{{ item.fullName }}</td>
-        <td>{{ item.med }}</td>
-        <td>bla</td>
-        <td>{{ item.fullName }}</td>
-        <td>
-          <v-select
-            v-model="item.selected"
-            :items="testTable"
-            :item-text="(item) => item.name + '-' + item.value"
-            item-value="value"
-          ></v-select>
-        </td>
-      </tr>
-    </table>
-  </div> -->
-  <div class="navbar">
-    <a href="#home">Home</a>
-    <a href="#news">News</a>
-    <div class="dropdown">
-      <button class="dropbtn">
-        Dropdown
-        <i class="fa fa-caret-down"></i>
-      </button>
-      <div class="dropdown-content">
-        <a href="#">Link 1</a>
-        <a href="#">Link 2</a>
-        <a href="#">Link 3</a>
-      </div>
-    </div>
-    <v-menu open-on-hover bottom offset-y>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn color="primary" dark v-bind="attrs" v-on="on"> Dropdown </v-btn>
-      </template>
-
-      <v-list>
-        <v-list-item>
-          <router-link to="/empInfo">
-            <v-btn>איוש שעות</v-btn>
-          </router-link>
-        </v-list-item>
-        <v-list-item>
-          <router-link to="/empInfo">
-            <v-btn>איוש שעות</v-btn>
-          </router-link>
-        </v-list-item>
-        <v-list-item>
-          <router-link to="/empInfo">
-            <v-btn>איוש שעות</v-btn>
-          </router-link>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+  <div>
+    <teserComponent/>
+    <mossadHours />
   </div>
 </template>
 
 
 <script>
+import mossadHours from "../components/mossadHours";
+import teserComponent from "../components/teserComponent";
+
 export default {
+  name: "mossadot",
+  components: {
+    mossadHours,
+    teserComponent,
+  },
   data() {
     return {
       expanded: [],

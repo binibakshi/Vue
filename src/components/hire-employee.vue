@@ -5,8 +5,10 @@
       :headers="headers"
       :items="employeesData"
       :search="search"
-      :footer-props="{'items-per-page-options':[20, 50, 100, -1],
-      'items-per-page-text':'מספר תוצאות  :'}"
+      :footer-props="{
+        'items-per-page-options': [20, 50, 100, -1],
+        'items-per-page-text': 'מספר תוצאות  :',
+      }"
       class="elevation-3"
     >
       <template v-slot:top>
@@ -26,7 +28,9 @@
           <v-spacer></v-spacer>
           <v-dialog v-model="dialog" max-width="50%">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">צור עובד</v-btn>
+              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on"
+                >צור עובד</v-btn
+              >
             </template>
             <v-card id="myform" class="center wrapper">
               <h1>פרטי עובד</h1>
@@ -34,7 +38,10 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" md="3">
-                      <v-text-field v-model="editedEmployee.empId" label="תעודת זהות"></v-text-field>
+                      <v-text-field
+                        v-model="editedEmployee.empId"
+                        label="תעודת זהות"
+                      ></v-text-field>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -56,24 +63,36 @@
                   <v-row>
                     <v-col cols="12" md="2">
                       <p>מין</p>
-                      <v-radio-group v-model="editedEmployee.gender" :mandatory="false">
+                      <v-radio-group
+                        v-model="editedEmployee.gender"
+                        :mandatory="false"
+                      >
                         <v-radio label="זכר" value="M"></v-radio>
                         <v-radio label="נקבה" value="F"></v-radio>
                       </v-radio-group>
                     </v-col>
                     <v-col cols="12" md="2">
                       <p>משרת אם</p>
-                      <v-radio-group v-model="editedEmployee.mother" :mandatory="false">
+                      <v-radio-group
+                        v-model="editedEmployee.mother"
+                        :mandatory="false"
+                      >
                         <v-radio label="כן" value="true"></v-radio>
                         <v-radio label="לא" value="false"></v-radio>
                       </v-radio-group>
                     </v-col>
                     <v-col cols="12" md="3">
                       <label for="birthDate">תאריך לידה</label>
-                      <input type="date" name="birthDate" v-model="editedEmployee.birthDate" />
+                      <input
+                        type="date"
+                        name="birthDate"
+                        v-model="editedEmployee.birthDate"
+                      />
                     </v-col>
                   </v-row>
-                  <v-btn color="primary" @click="saveEmployer()">שמור עובד</v-btn>
+                  <v-btn color="primary" @click="saveEmployer()"
+                    >שמור עובד</v-btn
+                  >
                   <v-btn color="grey" @click="close()">סגור</v-btn>
                 </v-container>
               </v-card-text>
@@ -81,10 +100,16 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:item.birthDate="{ item }">{{FormatDate2(item.birthDate)}}</template>
-      <template v-slot:item.ageHours="{ item }">{{_getAgeHours(item.birthDate)}}</template>
-      <template v-slot:item.mother="{ item }">{{formatMother(item.mother)}}</template>
-      <template v-slot:item.actions="{ item }">
+      <template v-slot:[`item.birthDate`]="{ item }">{{
+        FormatDate2(item.birthDate)
+      }}</template>
+      <template v-slot:[`item.ageHours`]="{ item }">{{
+        _getAgeHours(item.birthDate)
+      }}</template>
+      <template v-slot:[`item.mother`]="{ item }">{{
+        formatMother(item.mother)
+      }}</template>
+      <template v-slot:[`item.actions`]="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small @click="deleteEmployer(item)">mdi-delete</v-icon>
       </template>

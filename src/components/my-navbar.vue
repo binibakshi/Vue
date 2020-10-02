@@ -1,56 +1,43 @@
 <template>
-  <nav >
-    <v-toolbar flat v-if="_isLogged">
-      <v-toolbar-items>
-        <router-link  to="/empInfo">
-          <v-btn>איוש שעות</v-btn>
-        </router-link>
-        <router-link to="/calcHours">
-          <v-btn>רפורמות עובד</v-btn>
-        </router-link>
-        <router-link to="/HireEmp">
-          <v-btn>עובדים</v-btn>
-        </router-link>
-
-        <router-link to>
-          <v-btn>דוחות</v-btn>
-        </router-link>
-
-        <v-menu bottom offset-y v-if="isAdmin()">
+  <nav>
+    <v-tabs class="grey lighten-3">
+      <v-tab to="/empInfo"> איוש שעות </v-tab>
+      <v-tab to="/calcHours"> רפורמות עובד </v-tab>
+      <v-tab to="/HireEmp"> עובדים </v-tab>
+      <v-tab to="/test"> דוחות </v-tab>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn text class="align-self-center mr-4" v-bind="attrs" v-on="on">
+            מנהלה
+            <v-icon right> mdi-menu-down </v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item to="/auth"> הרשאות </v-list-item>
+          <v-list-item to="/ImportData"> ניהול Excel </v-list-item>
+          <v-list-item to="/mossadot">ניהול מוסדות </v-list-item>
+        </v-list>
+      </v-menu>
+      <div id="navbarInfo" class="parent">
+        <p class="child inline-block-child">{{ _username }}</p>
+        <p v-if="_mossadId == 999" class="child inline-block-child">(מנהלה)</p>
+        <p class="child inline-block-child">{{ _mossadName }}</p>
+        <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on">
-              <v-icon>mdi-arrow-down</v-icon> <span>מנהלה</span>
-            </v-btn>
+            <v-icon
+              large
+              @click="logout()"
+              v-bind="attrs"
+              v-on="on"
+              class="child inline-block-child"
+              color="primary"
+              >mdi-arrow-left-bold-circle</v-icon
+            >
           </template>
-          <v-list>
-            <v-list-item>
-              <router-link to="/auth">
-                <v-btn>הרשאות</v-btn>
-              </router-link>
-            </v-list-item>
-            <v-list-item>
-              <router-link to="/ImportData">
-                <v-btn>ניהול Excel</v-btn>
-              </router-link>
-            </v-list-item>
-            <v-list-item>
-              <router-link to="/mossadot">
-                <v-btn>ניהול מוסדות</v-btn>
-              </router-link>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-toolbar-items>
-
-      <v-spacer></v-spacer>
-      <p>{{ _username }}</p>
-      <p v-if="_mossadId == 999">(מנהלה)</p>
-      <p>{{ _mossadName }}</p>
-      <v-icon large @click="logout()" class="test" color="#6666ff"
-        >mdi-arrow-left-bold-circle</v-icon
-      >
-    </v-toolbar>
-    <v-row></v-row>
+          <span>התנתק</span>
+        </v-tooltip>
+      </div>
+    </v-tabs>
   </nav>
 </template>
 
@@ -138,15 +125,19 @@ nav {
 p {
   margin-left: 10px;
   margin-top: 15px;
+  color: black;
   font-weight: bold;
 }
 
 .v-btn:not(.v-btn--round).v-size--default {
   max-height: 30px;
 }
+.inline-block-child {
+  display: inline-block;
+}
 
-/* .test:hover:before {
-  content: "התנתק";
-  font-size:medium;
-} */
+#navbarInfo {
+  position: absolute;
+  left: 20px;
+}
 </style>

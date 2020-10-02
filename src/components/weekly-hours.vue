@@ -1,8 +1,8 @@
 <template>
   <div v-if="empId != null" class="reformTypeTables">
     <h1 class="center">{{ _reformDiscription }}</h1>
-    <div v-for="(table, index) in tablesArray" :key="index" class="container">
-      <div class="fixed">
+    <div v-for="(table, index) in tablesArray" :key="index">
+      <v-row>
         <v-col cols="12" md="2">
           <v-text-field
             v-model="table.begda"
@@ -25,19 +25,20 @@
             >עד תאריך</v-text-field
           >
         </v-col>
-      </div>
-      <div class="flex-item">
-        <weeklyHoursTable
-          class="center"
-          :empId="empId"
-          :reformType="reformType"
-          :isMother="isMother"
-          :ageHours="ageHours"
-          :existData="table.data"
-          :begda="table.begda"
-          :endda="table.endda"
-        />
-      </div>
+        <v-col cols="12" md="8">
+          <weeklyHoursTable
+            class="center"
+            :empId="empId"
+            :reformType="reformType"
+            :isMother="isMother"
+            :ageHours="ageHours"
+            :existData="table.data"
+            :begda="table.begda"
+            :endda="table.endda"
+            :codeDescription="codeDescription"
+          />
+        </v-col>
+      </v-row>
     </div>
     <!-- <v-row>
       <v-icon id="myPlusIcon" @click="addWeeklHoursTable()">mdi-plus</v-icon>
@@ -53,7 +54,14 @@ import weeklyHoursTable from "./weekly-hours-table";
 
 export default {
   name: "weeklyHours",
-  props: ["empId", "reformType", "isMother", "ageHours"],
+  props: [
+    "empId",
+    "reformType",
+    "isMother",
+    "ageHours",
+    "selectedYear",
+    "codeDescription",
+  ],
   components: { weeklyHoursTable },
   data() {
     return {
@@ -63,7 +71,7 @@ export default {
       },
       tablesArray: [],
       reformTypes: [],
-      codeDescription: [],
+      // codeDescription: [],
       existHours: [],
     };
   },
@@ -126,13 +134,8 @@ export default {
         );
     },
     setBegdaEndda() {
-      var currDate = new Date();
-      var year = currDate.getFullYear();
-      if (currDate.getMonth() >= 8) {
-        year = currDate.getFullYear() + 1;
-      }
-      this.datesRange.min = new Date(year - 1, 8, 1);
-      this.datesRange.max = new Date(year, 5, 20);
+      this.datesRange.min = new Date(this.selectedYear - 1, 8, 1);
+      this.datesRange.max = new Date(this.selectedYear, 5, 20);
     },
     setDefualtValues() {
       if (this.tablesArray.length == 0) {
@@ -206,16 +209,16 @@ export default {
   watch: {
     empId: function (val) {
       this.empId = val;
-      // this.initilizer();
-      // this.getCodeDescription();
-      // this.getEmployeeOptions();
       this.getExistData();
     },
     reformType: function (val) {
       this.reformType = val;
-      // this.initilizer();
-      // this.getCodeDescription();
-      // this.getEmployeeOptions();
+      this.getExistData();
+    },
+    selectedYear: function (val) {
+      this.selectedYear = val;
+      this.tablesArray = [];
+      this.setBegdaEndda();
       this.getExistData();
     },
   },

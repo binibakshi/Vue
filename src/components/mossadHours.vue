@@ -1,15 +1,17 @@
 <template>
   <div>
     <v-data-table
+      dense
       id="mossadotTable"
       :headers="mossadotHeaders"
-      :items="mossadotHours"
+      :items="mossadotTable"
       :search="search"
       :footer-props="{
         'items-per-page-options': [20, 50, 100, -1],
         'items-per-page-text': 'מספר תוצאות  :',
       }"
-      class="elevation-3"
+      item-key="mossadId"
+      class="elevation-1"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
@@ -29,7 +31,8 @@
                 <v-col cols="12" md="3">
                   <v-select
                     :items="years"
-                    v-model="mossadInfo.year"
+                    v-model="selectedYear"
+                    @change="getAllMossadotHours()"
                     item-text="hebrewYear"
                     item-value="year"
                     label="שנה"
@@ -39,70 +42,60 @@
             </v-card-title>
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-dialog v-model="dialog" max-width="50%">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="primary"
-                @click="cleanmossadInfo()"
-                dark
-                class="mb-2"
-                v-bind="attrs"
-                v-on="on"
-                >הוסף שעות שנתיות
-              </v-btn>
-            </template>
-            <v-card id="myform" class="center">
-              <h1>מגבלת ש"ש</h1>
-              <v-card-text>
-                <v-row>
-                  <v-col cols="12" md="4">
-                    <v-select
-                      :items="mossadot"
-                      v-model="mossadInfo.mossadId"
-                      item-text="mossadName"
-                      item-value="mossadId"
-                      label="מוסד"
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-select
-                      :items="years"
-                      v-model="mossadInfo.year"
-                      item-text="hebrewYear"
-                      item-value="year"
-                      label="שנה"
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="mossadInfo.maxHours"
-                      type="number"
-                      min="0"
-                      color="indigo accent-1"
-                      label="מקסימום שעות"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="success"
-                    @click="saveMossadInfo()"
-                    class="moveRight"
-                    >שמור</v-btn
-                  >
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:item.mossadName="{ item }">{{
+      <template v-slot:[`item.mossadName`]="{ item }">{{
         getMossadName(item.mossadId)
       }}</template>
-      <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editMossad(item)">mdi-pencil</v-icon>
-        <v-icon small @click="deleteMossad(item)">mdi-delete</v-icon>
+      <template v-slot:[`item.maxHours`]="{ item }">
+        <v-text-field
+          dense
+          :disabled="item.disabled"
+          style="max-width: 75px"
+          type="number"
+          v-model="item.maxHours"
+        ></v-text-field
+      ></template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+              small
+              class="mr-2"
+              @click="editMossad(item)"
+              v-bind="attrs"
+              v-on="on"
+              >mdi-pencil</v-icon
+            >
+          </template>
+          <span>{{ editText(item) }}</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+              small
+              class="mr-2"
+              @click="saveMossad(item)"
+              v-bind="attrs"
+              v-on="on"
+              >mdi-content-save</v-icon
+            >
+          </template>
+          <span>שמור</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+              small
+              class="mr-2"
+              @click="deleteMossad(item)"
+              v-bind="attrs"
+              v-on="on"
+              >mdi-delete</v-icon
+            >
+          </template>
+          <span>מחק</span>
+        </v-tooltip>
       </template>
     </v-data-table>
   </div>
@@ -120,27 +113,32 @@ export default {
       isNew: false,
       mossadInfo: {},
       search: "",
+      // selectedRows: [],
       years: [],
       dialog: false,
-      selectedYear: { year: 2021, hebrewYear: 'תשפ"א' },
+      selectedYear: 0,
       mossadot: [],
+      mossadotTable: [],
       mossadotHours: [],
       mossadTypes: [],
       mossadotHeaders: [
         { text: "מוסד", value: "mossadName" },
-        { text: "שנה", value: "year" },
+        { text: "מגבלת שעות", value: "maxHours" },
         { text: "שעות בפועל", value: "currHours" },
-        { text: "מקסימום שעות", value: "maxHours" },
         { text: "פעולות", value: "actions", sortable: false },
       ],
     };
   },
-  created() {
+  async created() {
     this.initilize();
-    this.getAllMossadotHours();
-    this.getAllMossadot();
+    await this.getAllMossadot();
+    await this.getAllMossadotHours();
   },
+
   methods: {
+    editText(item) {
+      return item.disabled == false ? "ערוך" : "צפייה";
+    },
     initilize() {
       this.years = [
         { year: 2021, hebrewYear: 'תשפ"א' },
@@ -149,30 +147,46 @@ export default {
         { year: 2024, hebrewYear: 'תשפ"ד' },
         { year: 2025, hebrewYear: 'תשפ"ה' },
       ];
+      let currDate = new Date();
+      this.selectedYear = currDate.getFullYear();
+      if (currDate.getMonth() >= 8) {
+        this.selectedYear++;
+      }
     },
     getAllMossadot() {
-      axios
-        .get("/mossadot/all")
-        .then((response) => {
-          this.mossadot = response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
+      return new Promise((resolve) => {
+        axios
+          .get("/mossadot/all")
+          .then((response) => {
+            this.mossadot = response.data;
+            resolve(response);
           })
-        );
+          .catch((error) =>
+            this.$store.dispatch("displayErrorMessage", {
+              error,
+            })
+          );
+      });
     },
-    getAllMossadotHours() {
-      axios
-        .get("/mossadHours/all")
-        .then((response) => {
-          this.mossadotHours = response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
+    async getAllMossadotHours() {
+      await new Promise((resolve) => {
+        axios
+          .get("/mossadHours/byYear", {
+            params: {
+              year: this.selectedYear,
+            },
           })
-        );
+          .then((response) => {
+            this.mossadotHours = response.data;
+            resolve(response);
+          })
+          .catch((error) =>
+            this.$store.dispatch("displayErrorMessage", {
+              error,
+            })
+          );
+      });
+      this.orderMossadot();
     },
     getMossadName(mossadId) {
       const mossad = this.mossadot.find((el) => el.mossadId == mossadId);
@@ -205,13 +219,26 @@ export default {
       return isSaved;
     },
     editMossad(mossad) {
-      this.editedIndex = this.mossadotHours.indexOf(mossad);
-      this.mossadInfo = mossad;
-      this.mossadInfo.year = this.selectedYear.year;
-      this.dialog = true;
+      mossad.disabled = !mossad.disabled;
+    },
+    saveMossad(item) {
+      axios({
+        url: "/mossadHours/save",
+        method: "post",
+        data: item,
+      })
+        .then(() => {
+          alert("הנתונים נשמרו בהצלחה");
+          this.getAllMossadotHours();
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
     },
     deleteMossad(item) {
-      console.log(item)
+      console.log(item);
       axios
         .delete("/mossadHours/byId", {
           params: {
@@ -227,6 +254,30 @@ export default {
     },
     cleanmossadInfo() {
       this.mossadInfo = {};
+    },
+    orderMossadot() {
+      this.mossadotTable = [];
+      this.mossadot.forEach((el) => {
+        this.mossadotTable.push({
+          mossadId: el.mossadId,
+          mossadName: el.mossadName,
+          mossadType: el.mossadType,
+          currHours: 0,
+          maxHours: 0,
+          year: this.selectedYear,
+          disabled: true,
+        });
+      });
+
+      this.mossadotTable.forEach((el) => {
+        let currMossad = this.mossadotHours.find(
+          (e) => e.mossadId == el.mossadId
+        );
+        if (currMossad != undefined) {
+          el.maxHours = currMossad.maxHours;
+          el.currHours = currMossad.currHours;
+        }
+      });
     },
   },
 };

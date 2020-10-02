@@ -79,10 +79,10 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:item.mossadType="{ item }">
+      <template v-slot:[`item.mossadType`]="{ item }">
         {{ getMossadType(item.mossadType) }}
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template v-slot:[`item.actions`]="{ item }">
         <v-icon small class="mr-2" @click="editMossad(item)">mdi-pencil</v-icon>
         <v-icon small @click="deleteMossad(item)">mdi-delete</v-icon>
       </template>

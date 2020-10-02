@@ -5,7 +5,7 @@
         <v-col cols="12" md="2">
           <v-select
             :items="years"
-            @change="loadPage()"
+            @change="onYearChanged()"
             v-model="selectedYear"
             item-text="hebrewYear"
             item-value="year"
@@ -13,22 +13,24 @@
           ></v-select>
         </v-col>
         <v-col cols="12" md="2">
-          <p>מוסד - {{ mossadInfo.mossadName }}</p>
+          <p>מוסד - {{ _mossadInfo.mossadName }}</p>
         </v-col>
         <v-col cols="12" md="2">
-          <p>שעות מאוישות - {{ mossadInfo.currHours }}</p>
+          <p>שעות מאוישות - {{ _mossadInfo.currHours }}</p>
         </v-col>
         <v-col cols="12" md="2">
-          <p>יתרת שעות - {{ mossadInfo.maxHours - mossadInfo.currHours }}</p>
+          <p>יתרת שעות - {{ _mossadInfo.maxHours - _mossadInfo.currHours }}</p>
         </v-col>
         <v-col cols="12" md="2">
-          <p>מגבלת שעות- {{ mossadInfo.maxHours }}</p>
+          <p>מגבלת שעות- {{ _mossadInfo.maxHours }}</p>
         </v-col>
         <v-col cols="12" md="2">
           <p>
             אחוז איוש -
             {{
-              getTwoDigits((mossadInfo.currHours / mossadInfo.maxHours) * 100)
+              getTwoDigits(
+                (_mossadInfo.currHours / _mossadInfo.maxHours) * 100
+              )
             }}%
           </p>
         </v-col>
@@ -92,7 +94,7 @@
             v-if="Object.keys(this.employeeInfo).length > 0"
           >
             <p>שעות גיל</p>
-            {{ _getAgeHours }}
+            {{ ageHours }}
           </v-col>
           <v-col
             cols="12"
@@ -133,12 +135,19 @@
                 </tr>
               </tbody>
             </table>
-            <v-icon
-              large
-              class="mr-3 excelMDI"
-              @click="exportEmployeeWeeklyHours()"
-              >mdi-file-excel-outline</v-icon
-            >
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  large
+                  class="mr-3 excelMDI"
+                  @click="exportEmployeeWeeklyHours()"
+                  v-bind="attrs"
+                  v-on="on"
+                  >mdi-file-excel-outline</v-icon
+                >
+              </template>
+              <span>ייצוא איוש שעות לאקסל</span>
+            </v-tooltip>
           </v-col>
         </v-row>
         <v-row v-if="empId != null">
@@ -160,7 +169,9 @@
               :empId="empId"
               :reformType="reform"
               :isMother="employeeInfo.mother"
-              :ageHours="_getAgeHours"
+              :ageHours="ageHours"
+              :selectedYear="selectedYear"
+              :codeDescription="getRelevantCodesDescription(reform)"
             ></weeklyHours>
           </v-card>
         </v-card>
@@ -186,28 +197,29 @@ export default {
       selectedReforms: null,
       selectedYear: 2021,
       empId: null,
+      ageHours: 0,
       tzArray: [],
       datesRange: { min: "", max: "" },
       employeeInfo: {},
       existHours: [],
-      weeklyHoursComponents: [],
       reformTypes: [],
+      codeDescription: [],
       mossadInfo: {},
       hoverText: "",
-      test: {},
     };
   },
   created() {
     this.initilize();
     this.getAllTz();
+    this.getCodeDescription();
     this.getReformTypes();
     this.setBegdaEndda();
     this.getMossadHours();
   },
   mounted() {
-    bus.$on("changeWeeklyHours", () => {
-      this.getWeeklySum();
-      this.getMossadHours();
+    bus.$on("changeWeeklyHours", async () => {
+      await this.getWeeklySum();
+      await this.getMossadHours();
     });
   },
   computed: {
@@ -265,6 +277,9 @@ export default {
         return 2;
       }
     },
+    _mossadInfo() {
+      return this.mossadInfo;
+    },
   },
   methods: {
     initilize() {
@@ -278,12 +293,12 @@ export default {
         { year: 2025, hebrewYear: 'תשפ"ה' },
       ];
     },
-    loadPage() {
+    onYearChanged() {
       this.initilize();
       this.getAllTz();
-      this.getReformTypes();
       this.setBegdaEndda();
       this.getMossadHours();
+      this.getWeeklySum();
     },
     totalHours(week) {
       if (week != null) {
@@ -314,45 +329,54 @@ export default {
           })
         );
     },
-    getEmployeeInfo() {
-      axios
-        .get("/employees/byId", {
-          params: {
-            empId: this.empId,
-          },
-        })
-        .then((response) => {
-          this.employeeInfo = response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
+    async getEmployeeInfo() {
+      await new Promise((resolve) => {
+        axios
+          .get("/employees/byId", {
+            params: {
+              empId: this.empId,
+            },
           })
-        );
-
+          .then((response) => {
+            this.employeeInfo = response.data;
+            resolve(response);
+          })
+          .catch((error) =>
+            this.$store.dispatch("displayErrorMessage", {
+              error,
+            })
+          );
+      });
+      this.calcAgeHours();
       this.getWeeklySum();
     },
     getMossadHours() {
       this.mossadInfo.currHours = 0;
       this.mossadInfo.maxHours = 0;
-      axios
-        .get("mossadHours/byId", {
-          params: {
-            mossadId: this.$store.state.logginAuth,
-            year: this.selectedYear,
-          },
-        })
-        .then((response) => {
-          this.mossadInfo.currHours = response.data.currHours;
-          this.mossadInfo.maxHours = response.data.maxHours;
-        })
-        .catch(() => {
-          alert(
-            "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
-          );
-        });
+      new Promise((resolve) => {
+        axios
+          .get("mossadHours/byId", {
+            params: {
+              mossadId: this.$store.state.logginAuth,
+              year: this.selectedYear,
+            },
+          })
+          .then((response) => {
+            this.mossadInfo.currHours = response.data.currHours;
+            this.mossadInfo.maxHours = response.data.maxHours;
+            resolve(response);
+          })
+          .catch(() => {
+            alert(
+              "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
+            );
+          });
+      });
     },
     getWeeklySum() {
+      if (this.empId == "" || this.empId == null) {
+        return;
+      }
       this.existHours = [];
       axios
         .get("/teacherEmploymentDetails/weekSumPerMossad", {
@@ -390,6 +414,18 @@ export default {
         .then((response) => {
           this.reformTypes = response.data;
           this.filterReformTypeByMossad();
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    getCodeDescription() {
+      axios
+        .get("/convertHours/all")
+        .then((response) => {
+          this.codeDescription = response.data;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -459,8 +495,28 @@ export default {
     changeText(index) {
       this.hoverText = this.existHours[1].week[index - 1];
     },
-    testFunction() {
-      axios.get("/");
+    getRelevantCodesDescription(reformType) {
+      return this.codeDescription.filter((el) => el.reformType == reformType);
+    },
+    calcAgeHours() {
+      if (this.employeeInfo.birthDate === undefined) {
+        this.ageHours = 0;
+      }
+      var birthDate = new Date(this.employeeInfo.birthDate);
+      var today = new Date();
+      var currSchoolYear = new Date(today.getFullYear(), 8, 1);
+
+      if (today.getMonth() >= 8) {
+        currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
+      }
+      var age = currSchoolYear.getFullYear() - birthDate.getFullYear();
+      if (age < 50) {
+        this.ageHours = 0;
+      } else if (age > 55) {
+        this.ageHours = 4;
+      } else {
+        this.ageHours = 2;
+      }
     },
   },
   mixins: [excelMixin],
@@ -520,6 +576,8 @@ th {
 }
 .excelMDI {
   color: green;
+  position: absolute;
+  left: 3%;
   background-color: lightgray;
 }
 .v-icon:hover {

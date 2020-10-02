@@ -45,8 +45,11 @@
         v-if="dataToTable.length > 0"
         color="success"
         @click="exportCalcHoursToExcel()"
-      >ייצוא לאקסל</v-btn>
-      <a href="https://tlush.edu.gov.il/calculators/" target="_blank">סימולטור שכר</a>
+        >ייצוא לאקסל</v-btn
+      >
+      <a href="https://tlush.edu.gov.il/calculators/" target="_blank"
+        >סימולטור שכר</a
+      >
     </v-row>
 
     <v-data-table
@@ -56,13 +59,14 @@
       item
       :headers="headers"
       :items="dataToTable"
-      :footer-props="{ 
-      'items-per-page-options':[20, 50, 100, -1],
-      'items-per-page-text':'מספר תוצאות  :'}"
+      :footer-props="{
+        'items-per-page-options': [20, 50, 100, -1],
+        'items-per-page-text': 'מספר תוצאות  :',
+      }"
       class="elevation-1 center"
     >
-      <template v-slot:item.jobPercent="{ item }">
-        <p>{{item.jobPercent}}</p>
+      <template v-slot:[`item.jobPercent`]="{ item }">
+        <p>{{ item.jobPercent }}</p>
       </template>
     </v-data-table>
   </div>
