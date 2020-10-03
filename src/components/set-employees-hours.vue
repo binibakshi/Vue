@@ -99,7 +99,7 @@
           <v-col
             cols="12"
             md="4"
-            v-if="Object.keys(this.existHours).length > 0"
+            v-if="Object.keys(this.empHoursTable).length > 0"
           >
             <table id="detailsTable">
               <thead>
@@ -114,7 +114,7 @@
                 <th>אחוז משרה</th>
               </thead>
               <tbody>
-                <tr v-for="(row, index) in existHours" :key="index">
+                <tr v-for="(row, index) in empHoursTable" :key="index">
                   <td>{{ getRowType(row.type) }}</td>
                   <td v-for="index in 6" :key="index">
                     <v-tooltip top>
@@ -122,16 +122,16 @@
                         <span
                           v-bind="attrs"
                           v-on="on"
-                          @mouseover="changeText(index)"
+                          @mouseover="changeText(row.type, index - 1)"
                         >
-                          {{ row.week[index - 1] }}</span
+                          {{ row.week[index - 1].hours }}</span
                         >
                       </template>
                       <span>{{ hoverText }}</span>
                     </v-tooltip>
                   </td>
-                  <td>{{ totalHours(row.week) }}</td>
-                  <td>{{ getTwoDigits(row.week[6]) }}%</td>
+                  <td>{{ row.sum }}</td>
+                  <td>{{ getTwoDigits(row.jobPercent) }}%</td>
                 </tr>
               </tbody>
             </table>
@@ -184,6 +184,7 @@
 import axios from "axios";
 import weeklyHours from "./weekly-hours.vue";
 import excelMixin from "../mixins/excelMixin";
+import calcHoursMixin from "../mixins/calcHoursMixin";
 import { bus } from "../main";
 
 export default {
@@ -202,8 +203,11 @@ export default {
       datesRange: { min: "", max: "" },
       employeeInfo: {},
       existHours: [],
+      existData: [],
       reformTypes: [],
       codeDescription: [],
+      empHoursTable: [],
+      mossadot: [],
       mossadInfo: {},
       hoverText: "",
     };
@@ -212,13 +216,15 @@ export default {
     this.initilize();
     this.getAllTz();
     this.getCodeDescription();
+    this.getMossadot();
     this.getReformTypes();
     this.setBegdaEndda();
     this.getMossadHours();
   },
   mounted() {
     bus.$on("changeWeeklyHours", async () => {
-      await this.getWeeklySum();
+      this.getAllEmpData();
+      // await this.getWeeklySum();
       await this.getMossadHours();
     });
   },
@@ -297,25 +303,9 @@ export default {
       this.initilize();
       this.getAllTz();
       this.setBegdaEndda();
+      this.getAllEmpData();
       this.getMossadHours();
-      this.getWeeklySum();
-    },
-    totalHours(week) {
-      if (week != null) {
-        let sum = 0;
-        for (let index = 0; index < 6; index++) {
-          sum = sum + parseFloat(week[index]);
-        }
-        return sum;
-      } else {
-        return 0;
-      }
-    },
-    getRowType(type) {
-      if (type === 1) {
-        return "במוסד";
-      }
-      return "בכל המוסדות";
+      // this.getWeeklySum();
     },
     getAllTz() {
       axios
@@ -330,84 +320,79 @@ export default {
         );
     },
     async getEmployeeInfo() {
-      await new Promise((resolve) => {
-        axios
-          .get("/employees/byId", {
-            params: {
-              empId: this.empId,
-            },
-          })
-          .then((response) => {
-            this.employeeInfo = response.data;
-            resolve(response);
-          })
-          .catch((error) =>
-            this.$store.dispatch("displayErrorMessage", {
-              error,
-            })
-          );
-      });
-      this.calcAgeHours();
-      this.getWeeklySum();
-    },
-    getMossadHours() {
-      this.mossadInfo.currHours = 0;
-      this.mossadInfo.maxHours = 0;
-      new Promise((resolve) => {
-        axios
-          .get("mossadHours/byId", {
-            params: {
-              mossadId: this.$store.state.logginAuth,
-              year: this.selectedYear,
-            },
-          })
-          .then((response) => {
-            this.mossadInfo.currHours = response.data.currHours;
-            this.mossadInfo.maxHours = response.data.maxHours;
-            resolve(response);
-          })
-          .catch(() => {
-            alert(
-              "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
-            );
-          });
-      });
-    },
-    getWeeklySum() {
-      if (this.empId == "" || this.empId == null) {
-        return;
-      }
-      this.existHours = [];
-      axios
-        .get("/teacherEmploymentDetails/weekSumPerMossad", {
+      await axios
+        .get("/employees/byId", {
           params: {
             empId: this.empId,
-            mossadId: this.$store.state.logginAuth,
-            begda: this.datesRange.min,
-            endda: this.datesRange.max,
           },
         })
         .then((response) => {
-          this.existHours.push({ type: 1, week: response.data });
-
-          axios
-            .get("/teacherEmploymentDetails/weekSum", {
-              params: {
-                empId: this.empId,
-                begda: this.datesRange.min,
-                endda: this.datesRange.max,
-              },
-            })
-            .then((response) => {
-              this.existHours.push({ type: 2, week: response.data });
-            });
+          this.employeeInfo = response.data;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
             error,
           })
         );
+      this.calcAgeHours();
+      // this.getWeeklySum();
+      this.getAllEmpData();
     },
+    getMossadHours() {
+      this.mossadInfo.currHours = 0;
+      this.mossadInfo.maxHours = 0;
+      axios
+        .get("mossadHours/byId", {
+          params: {
+            mossadId: this.$store.state.logginAuth,
+            year: this.selectedYear,
+          },
+        })
+        .then((response) => {
+          this.mossadInfo.currHours = response.data.currHours;
+          this.mossadInfo.maxHours = response.data.maxHours;
+        })
+        .catch(() => {
+          alert(
+            "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
+          );
+        });
+    },
+    // getWeeklySum() {
+    //   if (this.empId == "" || this.empId == null) {
+    //     return;
+    //   }
+    //   this.existHours = [];
+    //   axios
+    //     .get("/teacherEmploymentDetails/weekSumPerMossad", {
+    //       params: {
+    //         empId: this.empId,
+    //         mossadId: this.$store.state.logginAuth,
+    //         begda: this.datesRange.min,
+    //         endda: this.datesRange.max,
+    //       },
+    //     })
+    //     .then((response) => {
+    //       this.existHours.push({ type: 1, week: response.data });
+
+    //       axios
+    //         .get("/teacherEmploymentDetails/weekSum", {
+    //           params: {
+    //             empId: this.empId,
+    //             begda: this.datesRange.min,
+    //             endda: this.datesRange.max,
+    //           },
+    //         })
+    //         .then((response) => {
+    //           this.existHours.push({ type: 2, week: response.data });
+    //         });
+    //     })
+    //     .catch((error) =>
+    //       this.$store.dispatch("displayErrorMessage", {
+    //         error,
+    //       })
+    //     );
+    // },
     getReformTypes() {
       axios
         .get("/reformTypes/relevant")
@@ -426,6 +411,28 @@ export default {
         .get("/convertHours/all")
         .then((response) => {
           this.codeDescription = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    getAllEmpData() {
+      if (this.empId == null || this.empId == "") {
+        return;
+      }
+      axios
+        .get("/teacherEmploymentDetails/byId", {
+          params: {
+            empId: this.empId,
+            begda: this.datesRange.min,
+            endda: this.datesRange.max,
+          },
+        })
+        .then((response) => {
+          this.existData = response.data;
+          this.calcEmpHoursData();
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -466,9 +473,6 @@ export default {
         this.datesRange.max
       );
     },
-    navigateToHirePage() {
-      this.$router.push("/HireEmp");
-    },
     filterReformTypeByMossad() {
       if (this.$store.state.mossadInfo.mossadType == 2) {
         this.reformTypes = this.reformTypes.filter(
@@ -492,11 +496,35 @@ export default {
       }
       return parseFloat(number).toFixed(2);
     },
-    changeText(index) {
-      this.hoverText = this.existHours[1].week[index - 1];
+    changeText(rowType, index) {
+      // this.hoverText = this.existHours[1].week[index - 1];
+      this.hoverText = this.getMossadotDescription(
+        this.empHoursTable[rowType].week[index].mossadot
+      );
+    },
+    getMossadotDescription(mossadotTable) {
+      if (mossadotTable == null) {
+        return "";
+      }
+      var mossadotames = "";
+      mossadotTable.forEach((el) => {
+        mossadotames +=
+          this.mossadot.find((e) => e.mossadId == el).mossadName + ", ";
+      });
+      return mossadotames;
     },
     getRelevantCodesDescription(reformType) {
       return this.codeDescription.filter((el) => el.reformType == reformType);
+    },
+    getMossadot() {
+      axios
+        .get("mossadot/all")
+        .then((response) => (this.mossadot = response.data))
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     calcAgeHours() {
       if (this.employeeInfo.birthDate === undefined) {
@@ -518,8 +546,83 @@ export default {
         this.ageHours = 2;
       }
     },
+    totalHours(week) {
+      if (week != null) {
+        let sum = 0;
+        for (let index = 0; index < 6; index++) {
+          sum = sum + parseFloat(week[index]);
+        }
+        return sum;
+      } else {
+        return 0;
+      }
+    },
+    getRowType(type) {
+      if (type === 0) {
+        return "במוסד";
+      }
+      return "בכל המוסדות";
+    },
+    calcEmpHoursData() {
+      // this function calc all emp hours the
+
+      // set initial values in the displayed array
+      this.empHoursTable = [
+        { week: [], sum: 0, jobPercent: 0, type: 0 },
+        { week: [], sum: 0, jobPercent: 0, type: 1 },
+      ];
+      for (let index = 0; index < 6; index++) {
+        this.empHoursTable[0].week.push({
+          day: index,
+          hours: 0,
+          mossadot: [this.$store.state.logginAuth],
+        });
+        this.empHoursTable[1].week.push({ day: index, hours: 0, mossadot: [] });
+      }
+
+      // get acutal hours devied by curr mossad(0) and all mossadot(1)
+      this.existData.forEach((el) => {
+        if (el.mossadId == this.$store.state.logginAuth) {
+          this.empHoursTable[0].week[el.day].hours += el.hours;
+          this.empHoursTable[0].sum += el.hours;
+        }
+        this.empHoursTable[1].week[el.day].hours += el.hours;
+        this.empHoursTable[1].sum += el.hours;
+        if (
+          !this.empHoursTable[1].week[el.day].mossadot.includes(el.mossadId)
+        ) {
+          this.empHoursTable[1].week[el.day].mossadot.push(el.mossadId);
+        }
+      });
+
+      // calc job percent devied by curr mossad and all mossadot
+      this.reformTypes.forEach((el) => {
+        let currReformPerMossadSum = this.existData
+          .filter(
+            (e) =>
+              e.reformType == el.reformId &&
+              e.mossadId == this.$store.state.logginAuth
+          )
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
+        this.empHoursTable[0].jobPercent += this.calcJobPercent(
+          el.reformId,
+          currReformPerMossadSum,
+          this.ageHours,
+          this.employeeInfo.mother
+        );
+        let currReformSum = this.existData
+          .filter((e) => e.reformType == el.reformId)
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
+        this.empHoursTable[1].jobPercent += this.calcJobPercent(
+          el.reformId,
+          currReformSum,
+          this.ageHours,
+          this.employeeInfo.mother
+        );
+      });
+    },
   },
-  mixins: [excelMixin],
+  mixins: [excelMixin, calcHoursMixin],
 };
 </script>
 

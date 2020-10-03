@@ -87,7 +87,18 @@
             <td>סך</td>
             <td>--</td>
             <td>{{ hoursAmount() }}</td>
-            <td>{{ getTwoDigits(calcJobPercent()) }}%</td>
+            <td>
+              {{
+                getTwoDigits(
+                  this.calcJobPercent(
+                    this.reformType,
+                    this.hoursAmount(),
+                    this.ageHours,
+                    this.isMother
+                  )
+                )
+              }}%
+            </td>
             <td v-for="(day, index) in parseInt(6)" :key="index">
               {{ dayAmount(day - 1) }}
             </td>
@@ -112,6 +123,7 @@
 <script>
 import axios from "axios";
 import { bus } from "../main";
+import calcHoursMixin from "../mixins/calcHoursMixin";
 
 const FRONTAL = 1;
 const PRIVATE = 2;
@@ -289,36 +301,6 @@ export default {
       );
       this.sortTable();
     },
-    calcJobPercent() {
-      if (this.hoursAmount() == 0) {
-        return 0;
-      }
-      if (this.reformType == 1 || this.reformType == 7) {
-        return this.getOlamYashanJobPercent(
-          this.ageHours,
-          this.isMother,
-          this.hoursAmount()
-        );
-      } else if (this.reformType == 2) {
-        return this.getOfekHasashJobPercent(
-          this.ageHours,
-          this.isMother,
-          this.hoursAmount()
-        );
-      } else if (this.reformType == 5) {
-        return this.getOzLetmuraJobPercent(
-          this.ageHours,
-          this.isMother,
-          this.hoursAmount()
-        );
-      } else if (this.reformType == 8) {
-        return this.getMinhalaJobPercent(
-          this.ageHours,
-          this.isMother,
-          this.hoursAmount()
-        );
-      }
-    },
     removeRow(index) {
       if (index === 0) {
         return;
@@ -484,46 +466,6 @@ export default {
         el.week = [0, 0, 0, 0, 0, 0];
       });
     },
-    getOlamYashanJobPercent(ageHours, isMother, frontalHours) {
-      var jobPercent = 0,
-        fullJobHours = 24;
-      fullJobHours -= ageHours;
-      jobPercent = (frontalHours / fullJobHours) * 100;
-      if (isMother) {
-        jobPercent = jobPercent * 1.1;
-      }
-      return jobPercent;
-    },
-    getOfekHasashJobPercent(ageHours, isMother, allHours) {
-      var jobPercent = 0,
-        fullJobHours = 36;
-      fullJobHours -= ageHours;
-      if (isMother) {
-        fullJobHours -= 2;
-      }
-      jobPercent = (allHours / fullJobHours) * 100;
-      return jobPercent;
-    },
-    getOzLetmuraJobPercent(ageHours, isMother, allHours) {
-      var jobPercent = 0,
-        fullJobHours = 40;
-      fullJobHours -= ageHours;
-      jobPercent = (allHours / fullJobHours) * 100;
-      if (isMother) {
-        if (allHours >= 31.5) {
-          jobPercent = jobPercent + 7;
-        } else {
-          jobPercent = jobPercent * 1.1;
-        }
-      }
-      return jobPercent;
-    },
-    getMinhalaJobPercent(ageHours, isMother, allHours) {
-      var jobPercent = 0,
-        fullJobHours = 20;
-      jobPercent = (allHours / fullJobHours) * 100;
-      return jobPercent;
-    },
     setFrontalCodes() {
       this.frontalCodes = this.codeDescription.filter(
         (el) =>
@@ -548,6 +490,7 @@ export default {
       //   this.getExistData();
     },
   },
+  mixins: [calcHoursMixin],
 };
 </script>
 

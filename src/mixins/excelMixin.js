@@ -35,21 +35,19 @@ export default {
     },
     async setWeeklyHoursAndExport(mossadId) {
       var mossadName = "";
-      await new Promise((resolve) => {
-        axios
-          .get("/mossadot/byId", {
-            params: {
-              mossadId: mossadId,
-            },
-          })
-          .then((response) => {
-            mossadName = response.data.mossadName;
-            resolve(response);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      });
+      await axios
+        .get("/mossadot/byId", {
+          params: {
+            mossadId: mossadId,
+          },
+        })
+        .then((response) => {
+          mossadName = response.data.mossadName;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
       this.allEmpsInfo.forEach((el) => {
         this.setExistHours(
           el,
@@ -67,67 +65,55 @@ export default {
       );
     },
     getEmpHours(empId, mossadId, begda, endda) {
-      return new Promise((resolve) => {
-        axios
-          .get("/teacherEmploymentDetails/byMossad", {
-            params: {
-              empId: empId,
-              mossadId: mossadId,
-              begda: begda,
-              endda: endda,
-            },
-          })
-          .then((response) => {
-            this.empsHours = response.data;
-            resolve(response);
-          });
-      });
+      axios
+        .get("/teacherEmploymentDetails/byMossad", {
+          params: {
+            empId: empId,
+            mossadId: mossadId,
+            begda: begda,
+            endda: endda,
+          },
+        })
+        .then((response) => {
+          this.empsHours = response.data;
+        });
     },
     getEmpInfo(empId) {
-      return new Promise((resolve) => {
-        axios
-          .get("/employees/byId", {
-            params: {
-              empId: empId,
-            },
-          })
-          .then((response) => {
-            this.allEmpsInfo.push(response.data);
-            resolve(response);
-          });
-      });
+      axios
+        .get("/employees/byId", {
+          params: {
+            empId: empId,
+          },
+        })
+        .then((response) => {
+          this.allEmpsInfo.push(response.data);
+        });
     },
     getAllEmpInfo(mossadId, begda, endda) {
-      return new Promise((resolve) => {
-        axios
-          .get("/employees/byMossad", {
-            params: {
-              mossadId: mossadId,
-              begda: begda,
-              endda: endda,
-            },
-          })
-          .then((response) => {
-            this.allEmpsInfo = response.data;
-            resolve(response);
-          });
-      });
+      axios
+        .get("/employees/byMossad", {
+          params: {
+            mossadId: mossadId,
+            begda: begda,
+            endda: endda,
+          },
+        })
+        .then((response) => {
+          this.allEmpsInfo = response.data;
+        });
     },
     getAllEmpHours(mossadId, begda, endda) {
-      return new Promise((resolve) => {
-        axios
-          .get("/teacherEmploymentDetails/allByMossad", {
-            params: {
-              mossadId: mossadId,
-              begda: begda,
-              endda: endda,
-            },
-          })
-          .then((response) => {
-            this.empsHours = response.data;
-            resolve(response);
-          });
-      });
+      axios
+        .get("/teacherEmploymentDetails/allByMossad", {
+          params: {
+            mossadId: mossadId,
+            begda: begda,
+            endda: endda,
+          },
+        })
+        .then((response) => {
+          this.empsHours = response.data;
+        });
     },
     getCodesDescription() {
       axios

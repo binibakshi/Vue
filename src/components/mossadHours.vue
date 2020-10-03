@@ -154,38 +154,32 @@ export default {
       }
     },
     getAllMossadot() {
-      return new Promise((resolve) => {
-        axios
-          .get("/mossadot/all")
-          .then((response) => {
-            this.mossadot = response.data;
-            resolve(response);
+      axios
+        .get("/mossadot/all")
+        .then((response) => {
+          this.mossadot = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
           })
-          .catch((error) =>
-            this.$store.dispatch("displayErrorMessage", {
-              error,
-            })
-          );
-      });
+        );
     },
     async getAllMossadotHours() {
-      await new Promise((resolve) => {
-        axios
-          .get("/mossadHours/byYear", {
-            params: {
-              year: this.selectedYear,
-            },
+      await axios
+        .get("/mossadHours/byYear", {
+          params: {
+            year: this.selectedYear,
+          },
+        })
+        .then((response) => {
+          this.mossadotHours = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
           })
-          .then((response) => {
-            this.mossadotHours = response.data;
-            resolve(response);
-          })
-          .catch((error) =>
-            this.$store.dispatch("displayErrorMessage", {
-              error,
-            })
-          );
-      });
+        );
       this.orderMossadot();
     },
     getMossadName(mossadId) {

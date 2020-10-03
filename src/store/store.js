@@ -49,26 +49,22 @@ export const store = new Vuex.Store({
   },
   actions: {
     retrieveToken(context, credentials) {
-      return new Promise((resolve, reject) => {
-        axios
-          .post("/authenticate", {
-            username: credentials.username,
-            password: credentials.password,
-          })
-          .then((response) => {
-            const token = response.data.jwt;
-            localStorage.setItem("access_token", token);
-            localStorage.setItem("username", credentials.username);
-            context.state.username = credentials.username;
-            context.commit("retrieveToken", token);
-            // axios.defaults.headers.Authorization = "Bearer " + token;
-            resolve(response);
-          })
-          .catch((error) => {
-            console.log(error);
-            reject(error);
-          });
-      });
+      axios
+        .post("/authenticate", {
+          username: credentials.username,
+          password: credentials.password,
+        })
+        .then((response) => {
+          const token = response.data.jwt;
+          localStorage.setItem("access_token", token);
+          localStorage.setItem("username", credentials.username);
+          context.state.username = credentials.username;
+          context.commit("retrieveToken", token);
+          // axios.defaults.headers.Authorization = "Bearer " + token;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     destroyToken(context) {
       // axios.defaults.headers.common["Authorization"] =
