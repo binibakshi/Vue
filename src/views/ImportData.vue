@@ -5,15 +5,14 @@
 </template>
 
 <script>
-import HireEmpsviaExcel from "../components/hire-emp-via-excel";
+import HireEmpsviaExcel from "../components/excels/hire-emp-via-excel";
 
 export default {
   name: "ImportData",
   components: {
-    HireEmpsviaExcel
-  }
+    HireEmpsviaExcel,
+  },
 };
-
 </script>
 <style scoped>
 </style>

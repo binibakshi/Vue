@@ -4,6 +4,7 @@
       <v-row id="mossadHoursDetails">
         <v-col cols="12" md="2">
           <v-select
+            style="max-hight: 40px"
             :items="years"
             @change="onYearChanged()"
             v-model="selectedYear"
@@ -35,12 +36,12 @@
           </p>
         </v-col>
       </v-row>
-      <div v-show="mossadInfo.maxHours != null && mossadInfo.maxHours != 0">
-        <v-row>
+      <div v-show="_mossadInfo.maxHours != null && _mossadInfo.maxHours != 0">
+        <v-row id="employeeDetails">
           <v-col id="serchEmployee" cols="12" md="3">
             <v-autocomplete
               :disabled="
-                mossadInfo.maxHours == null || mossadInfo.maxHours == 0
+                _mossadInfo.maxHours == null || _mossadInfo.maxHours == 0
               "
               v-model="empId"
               :items="tzArray"
@@ -56,51 +57,27 @@
               @change="getEmployeeInfo()"
             ></v-autocomplete>
           </v-col>
-          <v-col
-            cols="12"
-            md="1"
-            v-if="Object.keys(this.employeeInfo).length > 0"
-          >
+          <v-col cols="12" md="1">
             <p>שם פרטי</p>
             {{ employeeInfo.firstName }}
           </v-col>
-          <v-col
-            cols="12"
-            md="1"
-            v-if="Object.keys(this.employeeInfo).length > 0"
-          >
+          <v-col cols="12" md="1">
             <p>שם משפחה</p>
             {{ employeeInfo.lastName }}
           </v-col>
-          <v-col
-            cols="12"
-            md="1"
-            v-if="Object.keys(this.employeeInfo).length > 0"
-          >
+          <v-col cols="12" md="1">
             <p>גיל</p>
             {{ _getAge }}
           </v-col>
-          <v-col
-            cols="12"
-            md="1"
-            v-if="Object.keys(this.employeeInfo).length > 0"
-          >
+          <v-col cols="12" md="1">
             <p>משרת אם</p>
             {{ formatIsMother }}
           </v-col>
-          <v-col
-            cols="12"
-            md="1"
-            v-if="Object.keys(this.employeeInfo).length > 0"
-          >
+          <v-col cols="12" md="1">
             <p>שעות גיל</p>
-            {{ ageHours }}
+            {{ _getAgeHours }}
           </v-col>
-          <v-col
-            cols="12"
-            md="4"
-            v-if="Object.keys(this.empHoursTable).length > 0"
-          >
+          <v-col cols="12" md="4">
             <table id="detailsTable">
               <thead>
                 <th></th>
@@ -172,6 +149,7 @@
               :ageHours="ageHours"
               :selectedYear="selectedYear"
               :codeDescription="getRelevantCodesDescription(reform)"
+              :existData="getRelevantData(reform)"
             ></weeklyHours>
           </v-card>
         </v-card>
@@ -183,9 +161,9 @@
 <script>
 import axios from "axios";
 import weeklyHours from "./weekly-hours.vue";
-import excelMixin from "../mixins/excelMixin";
-import calcHoursMixin from "../mixins/calcHoursMixin";
-import { bus } from "../main";
+import excelMixin from "../../mixins/excelMixin";
+import calcHoursMixin from "../../mixins/calcHoursMixin";
+import { bus } from "../../main";
 
 export default {
   name: "setEmployeesHours",
@@ -194,7 +172,6 @@ export default {
   },
   data() {
     return {
-      search: null,
       selectedReforms: null,
       selectedYear: 2021,
       empId: null,
@@ -202,13 +179,12 @@ export default {
       tzArray: [],
       datesRange: { min: "", max: "" },
       employeeInfo: {},
-      existHours: [],
       existData: [],
       reformTypes: [],
       codeDescription: [],
       empHoursTable: [],
       mossadot: [],
-      mossadInfo: {},
+      mossadInfo: { mossadId: "", mossadName: "", maxHours: 0, currHours: 0 },
       hoverText: "",
     };
   },
@@ -224,12 +200,14 @@ export default {
   mounted() {
     bus.$on("changeWeeklyHours", async () => {
       this.getAllEmpData();
-      // await this.getWeeklySum();
       await this.getMossadHours();
     });
   },
   computed: {
     _getAge() {
+      if (this.isNotEmpty(this.employeeInfo)) {
+        return;
+      }
       var currDate = new Date();
       var birthDate = new Date(this.employeeInfo.birthDate);
       var tempMonth = 0;
@@ -247,6 +225,10 @@ export default {
       return tempYears + "." + tempMonth;
     },
     formatGender() {
+      if (this.isNotEmpty(this.employeeInfo)) {
+        return;
+      }
+
       if (this.employeeInfo.gender != undefined) {
         if (this.employeeInfo.gender === "M") {
           return "זכר";
@@ -257,6 +239,10 @@ export default {
       return undefined;
     },
     formatIsMother() {
+      if (this.isNotEmpty(this.employeeInfo)) {
+        return;
+      }
+
       if (this.employeeInfo.mother === true) {
         return "כן";
       } else {
@@ -264,8 +250,8 @@ export default {
       }
     },
     _getAgeHours() {
-      if (this.employeeInfo.birthDate === undefined) {
-        return null;
+      if (this.isNotEmpty(this.employeeInfo)) {
+        return;
       }
       var birthDate = new Date(this.employeeInfo.birthDate);
       var today = new Date();
@@ -289,6 +275,11 @@ export default {
   },
   methods: {
     initilize() {
+      var currDate = new Date();
+      this.selectedYear =
+        currDate.getMonth() >= 8
+          ? currDate.getFullYear() + 1
+          : currDate.getFullYear();
       this.mossadInfo.mossadId = this.$store.state.mossadId;
       this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName;
       this.years = [
@@ -298,14 +289,24 @@ export default {
         { year: 2024, hebrewYear: 'תשפ"ד' },
         { year: 2025, hebrewYear: 'תשפ"ה' },
       ];
+      this.empHoursTable = [
+        { week: [], sum: 0, jobPercent: 0, type: 0 },
+        { week: [], sum: 0, jobPercent: 0, type: 1 },
+      ];
+      for (let index = 0; index < 6; index++) {
+        this.empHoursTable[0].week.push({
+          day: index,
+          hours: 0,
+          mossadot: [],
+        });
+        this.empHoursTable[1].week.push({ day: index, hours: 0, mossadot: [] });
+      }
     },
     onYearChanged() {
       this.initilize();
-      this.getAllTz();
       this.setBegdaEndda();
-      this.getAllEmpData();
       this.getMossadHours();
-      // this.getWeeklySum();
+      this.getAllEmpData();
     },
     getAllTz() {
       axios
@@ -335,12 +336,9 @@ export default {
           })
         );
       this.calcAgeHours();
-      // this.getWeeklySum();
       this.getAllEmpData();
     },
     getMossadHours() {
-      this.mossadInfo.currHours = 0;
-      this.mossadInfo.maxHours = 0;
       axios
         .get("mossadHours/byId", {
           params: {
@@ -353,46 +351,13 @@ export default {
           this.mossadInfo.maxHours = response.data.maxHours;
         })
         .catch(() => {
+          this.mossadInfo.currHours = 0;
+          this.mossadInfo.maxHours = 0;
           alert(
             "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
           );
         });
     },
-    // getWeeklySum() {
-    //   if (this.empId == "" || this.empId == null) {
-    //     return;
-    //   }
-    //   this.existHours = [];
-    //   axios
-    //     .get("/teacherEmploymentDetails/weekSumPerMossad", {
-    //       params: {
-    //         empId: this.empId,
-    //         mossadId: this.$store.state.logginAuth,
-    //         begda: this.datesRange.min,
-    //         endda: this.datesRange.max,
-    //       },
-    //     })
-    //     .then((response) => {
-    //       this.existHours.push({ type: 1, week: response.data });
-
-    //       axios
-    //         .get("/teacherEmploymentDetails/weekSum", {
-    //           params: {
-    //             empId: this.empId,
-    //             begda: this.datesRange.min,
-    //             endda: this.datesRange.max,
-    //           },
-    //         })
-    //         .then((response) => {
-    //           this.existHours.push({ type: 2, week: response.data });
-    //         });
-    //     })
-    //     .catch((error) =>
-    //       this.$store.dispatch("displayErrorMessage", {
-    //         error,
-    //       })
-    //     );
-    // },
     getReformTypes() {
       axios
         .get("/reformTypes/relevant")
@@ -497,7 +462,6 @@ export default {
       return parseFloat(number).toFixed(2);
     },
     changeText(rowType, index) {
-      // this.hoverText = this.existHours[1].week[index - 1];
       this.hoverText = this.getMossadotDescription(
         this.empHoursTable[rowType].week[index].mossadot
       );
@@ -515,6 +479,9 @@ export default {
     },
     getRelevantCodesDescription(reformType) {
       return this.codeDescription.filter((el) => el.reformType == reformType);
+    },
+    getRelevantData(reformType) {
+      return this.existData.filter((el) => el.reformType == reformType);
     },
     getMossadot() {
       axios
@@ -621,6 +588,10 @@ export default {
         );
       });
     },
+    isNotEmpty(obj) {
+      for (var i in obj) return false;
+      return true;
+    },
   },
   mixins: [excelMixin, calcHoursMixin],
 };
@@ -636,11 +607,6 @@ p {
 }
 #serchEmployee {
   max-width: 400px;
-}
-.divider {
-  width: 98%;
-  overflow: hidden;
-  margin-top: 30px;
 }
 table,
 tr,
@@ -676,6 +642,9 @@ th {
   align-items: center;
   margin-right: auto;
   margin-bottom: 20px;
+}
+#mossadHoursDetails {
+  border-bottom: 1px solid;
 }
 .excelMDI {
   color: green;

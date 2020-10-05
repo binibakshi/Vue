@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import HireEmployee from "../components/hire-employee.vue";
+import HireEmployee from "../components/tables/hire-employee.vue";
 export default {
   name: "HireEmp",
   components: {

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import mossadotMenagement from "../components/mossadot-menagement";
+import mossadotMenagement from "../components/tables/mossadot-menagement";
 
 export default {
   name: "mossadot",

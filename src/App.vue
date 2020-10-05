@@ -1,14 +1,14 @@
 <template>
   <v-app class="rtl">
     <myNavBar />
-    <v-content class="mainBackground">
+    <v-main class="mainBackground">
       <router-view></router-view>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
 <script>
-import myNavBar from "./components/my-navbar.vue";
+import myNavBar from "./components/pageContent/my-navbar";
 // import axios from "axios";
 export default {
   name: "App",
@@ -35,7 +35,7 @@ export default {
 <style>
 * {
   direction: rtl;
-  font-family: Assistant,Arial !important;
+  font-family: Assistant, Arial !important;
   /* font-family: Verdana; */
   font-size: medium;
 }
@@ -45,6 +45,9 @@ export default {
 .v-card > *:first-child:not(.v-btn):not(.v-chip) {
   padding: 2%;
   /* background-color: #d4fafa; */
+}
+.v-data-footer {
+  direction: ltr !important;
 }
 button {
   margin-left: 2%;
@@ -60,5 +63,4 @@ button {
 .v-icon.v-icon {
   margin-right: 4px;
 }
-
 </style>

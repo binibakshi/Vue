@@ -64,8 +64,8 @@ export default {
         "מערכת שעות פרונטליות"
       );
     },
-    getEmpHours(empId, mossadId, begda, endda) {
-      axios
+    async getEmpHours(empId, mossadId, begda, endda) {
+      await axios
         .get("/teacherEmploymentDetails/byMossad", {
           params: {
             empId: empId,
@@ -78,8 +78,8 @@ export default {
           this.empsHours = response.data;
         });
     },
-    getEmpInfo(empId) {
-      axios
+    async getEmpInfo(empId) {
+      await axios
         .get("/employees/byId", {
           params: {
             empId: empId,
@@ -89,8 +89,8 @@ export default {
           this.allEmpsInfo.push(response.data);
         });
     },
-    getAllEmpInfo(mossadId, begda, endda) {
-      axios
+    async getAllEmpInfo(mossadId, begda, endda) {
+      await axios
         .get("/employees/byMossad", {
           params: {
             mossadId: mossadId,
@@ -102,8 +102,8 @@ export default {
           this.allEmpsInfo = response.data;
         });
     },
-    getAllEmpHours(mossadId, begda, endda) {
-      axios
+    async getAllEmpHours(mossadId, begda, endda) {
+      await axios
         .get("/teacherEmploymentDetails/allByMossad", {
           params: {
             mossadId: mossadId,

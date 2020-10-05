@@ -25,19 +25,16 @@
             >עד תאריך</v-text-field
           >
         </v-col>
-        <v-col cols="12" md="8">
-          <weeklyHoursTable
-            class="center"
-            :empId="empId"
-            :reformType="reformType"
-            :isMother="isMother"
-            :ageHours="ageHours"
-            :existData="table.data"
-            :begda="table.begda"
-            :endda="table.endda"
-            :codeDescription="codeDescription"
-          />
-        </v-col>
+        <weeklyHoursTable
+          :empId="empId"
+          :reformType="reformType"
+          :isMother="isMother"
+          :ageHours="ageHours"
+          :existData="table.data"
+          :begda="table.begda"
+          :endda="table.endda"
+          :codeDescription="codeDescription"
+        />
       </v-row>
     </div>
     <!-- <v-row>
@@ -49,7 +46,6 @@
 
 <script>
 import axios from "axios";
-// import { bus } from "../main";
 import weeklyHoursTable from "./weekly-hours-table";
 
 export default {
@@ -61,6 +57,7 @@ export default {
     "ageHours",
     "selectedYear",
     "codeDescription",
+    "existData",
   ],
   components: { weeklyHoursTable },
   data() {
@@ -71,39 +68,17 @@ export default {
       },
       tablesArray: [],
       reformTypes: [],
-      // codeDescription: [],
-      existHours: [],
     };
   },
   created() {
     this.getReformTypes();
     this.setBegdaEndda();
-    this.getExistData();
+    this.gruopByBegdaEndda();
   },
   methods: {
-    getExistData() {
-      axios
-        .get("/teacherEmploymentDetails/byReform", {
-          params: {
-            empId: this.empId,
-            mossadId: this.$store.state.logginAuth,
-            reformType: this.reformType,
-            begda: this.FormatDate(this.datesRange.min),
-            endda: this.FormatDate(this.datesRange.max),
-          },
-        })
-        .then((response) => {
-          this.existHours = response.data;
-          this.gruopByBegdaEndda();
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
-    },
-    async gruopByBegdaEndda() {
-      await this.existHours.forEach((el) => {
+    gruopByBegdaEndda() {
+      this.tablesArray = [];
+      this.existData.forEach((el) => {
         let currArray = this.tablesArray.find(
           (e) =>
             e.begda == this.FormatDate(el.begda) &&
@@ -142,7 +117,7 @@ export default {
         this.tablesArray.push({
           begda: this.FormatDate(this.datesRange.min),
           endda: this.FormatDate(this.datesRange.max),
-          data: {},
+          data: [],
         });
       }
     },
@@ -155,7 +130,7 @@ export default {
         this.tablesArray.push({
           begda: this.FormatDate(maxCurrDate),
           endda: this.FormatDate(this.datesRange.max),
-          data: {},
+          data: [],
         });
       } else {
         alert("אין אפשרות ליצור יותר מרושמה אחת על תאריכים חופפים");
@@ -213,13 +188,18 @@ export default {
     },
     reformType: function (val) {
       this.reformType = val;
-      this.getExistData();
+      // this.getExistData();
     },
     selectedYear: function (val) {
       this.selectedYear = val;
       this.tablesArray = [];
       this.setBegdaEndda();
-      this.getExistData();
+      // this.getExistData();
+    },
+    existData: function (val) {
+      this.existData = val;
+      this.setBegdaEndda();
+      this.gruopByBegdaEndda();
     },
   },
 };
@@ -251,6 +231,7 @@ export default {
   transform: scale(3);
 }
 .reformTypeTables {
+  margin-right: 1%;
   margin-bottom: 15px;
   border-bottom: 1px solid black;
 }

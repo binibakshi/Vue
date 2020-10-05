@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import calcHoursTable from "../components/calc-hours-table.vue";
+import calcHoursTable from "../components/tables/calc-hours-table.vue";
 
 export default {
   name: "employeeInfo",

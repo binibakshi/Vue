@@ -17,9 +17,16 @@
           ></v-autocomplete>
         </v-col>
         <v-btn
-          @click="createWeeklyHoursToMossad(localMossadId,datesRange.min,datesRange.max)"
+          @click="
+            createWeeklyHoursToMossad(
+              localMossadId,
+              datesRange.min,
+              datesRange.max
+            )
+          "
           color="success"
-        >ייצא לאקסל</v-btn>
+          >ייצא לאקסל</v-btn
+        >
         <v-btn @click="downloadDemoFile()" color="success">מבנה אקסל</v-btn>
       </v-row>
     </v-card>
@@ -30,7 +37,7 @@
 /* eslint-disable no-unused-vars */
 import XLSX from "xlsx";
 import axios from "axios";
-import excelMixin from "../mixins/excelMixin";
+import excelMixin from "../../mixins/excelMixin";
 const FRONTAL = 1;
 
 export default {

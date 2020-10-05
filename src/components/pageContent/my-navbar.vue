@@ -2,12 +2,29 @@
   <nav>
     <v-tabs class="grey lighten-3">
       <v-tab to="/empInfo"> איוש שעות </v-tab>
+      <v-tab to="/empInfo">גמולים</v-tab>
       <v-tab to="/calcHours"> רפורמות עובד </v-tab>
       <v-tab to="/HireEmp"> עובדים </v-tab>
-      <v-tab to="/test"> דוחות </v-tab>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn text class="align-self-center mr-4" v-bind="attrs" v-on="on">
+            דוחות
+            <v-icon right> mdi-menu-down </v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item to="/reportWeeklyHours">איוש שעות</v-list-item>
+        </v-list>
+      </v-menu>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            text
+            class="align-self-center mr-4"
+            style="magin: 0"
+            v-bind="attrs"
+            v-on="on"
+          >
             מנהלה
             <v-icon right> mdi-menu-down </v-icon>
           </v-btn>
@@ -16,6 +33,7 @@
           <v-list-item to="/auth"> הרשאות </v-list-item>
           <v-list-item to="/ImportData"> ניהול Excel </v-list-item>
           <v-list-item to="/mossadot">ניהול מוסדות </v-list-item>
+          <v-list-item to="/mossadotHours"> מגבלת שעות למוסד </v-list-item>
         </v-list>
       </v-menu>
       <div id="navbarInfo" class="parent">
@@ -43,7 +61,7 @@
 
 <script>
 import axios from "axios";
-import { bus } from "../main";
+import { bus } from "../../main";
 
 export default {
   data() {
@@ -131,7 +149,10 @@ p {
 
 .v-btn:not(.v-btn--round).v-size--default {
   max-height: 30px;
+  margin: 0;
+  padding: 0;
 }
+
 .inline-block-child {
   display: inline-block;
 }

@@ -1,12 +1,9 @@
 <template>
-  <div>
-    <span>{{ empId }}</span>
-  </div>
+  <v-container grid-list-xs> </v-container>
 </template>
 
 <script>
 export default {
-  props: ["empId"],
   data() {
     return {};
   },

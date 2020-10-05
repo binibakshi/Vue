@@ -1,129 +1,129 @@
 <template>
-  <div v-if="empId != null">
-    <div v-show="reformType != 0">
-      <table id="t01">
-        <thead>
-          <tr>
-            <th></th>
-            <th>סוג</th>
-            <th>קוד פיצול</th>
-            <th>שעות</th>
-            <th>אחוז משרה</th>
-            <th>א'</th>
-            <th>ב'</th>
-            <th>ג'</th>
-            <th>ד'</th>
-            <th>ה'</th>
-            <th>ו'</th>
-            <th>הפרש</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in newHours" :key="index">
-            <td>
-              <div id="additionalActions">
-                <v-icon
-                  id="myPlusIcon"
-                  @click="addNewRow()"
-                  v-if="row.type == frontalConst"
-                  >mdi-plus</v-icon
-                >
-                <v-icon
-                  id="myMinusIcon"
-                  @click="removeRow(index)"
-                  v-if="row.type == frontalConst && index != 0"
-                  >mdi-minus</v-icon
-                >
-              </div>
-            </td>
-            <td>{{ convertReformDescription(row.type) }}</td>
-            <td>
-              <v-select
-                class="mySelectOption"
+  <div v-if="empId != null && reformType != 0" style="margin: auto">
+    <table id="t01">
+      <thead>
+        <tr>
+          <th></th>
+          <th>סוג</th>
+          <th>קוד פיצול</th>
+          <th>שעות</th>
+          <th>אחוז משרה</th>
+          <th>א'</th>
+          <th>ב'</th>
+          <th>ג'</th>
+          <th>ד'</th>
+          <th>ה'</th>
+          <th>ו'</th>
+          <th>הפרש</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(row, index) in newHours" :key="index">
+          <td>
+            <div id="additionalActions">
+              <v-icon
+                id="myPlusIcon"
+                @click="addNewRow()"
                 v-if="row.type == frontalConst"
-                v-model="row.code"
-                :items="frontalCodes"
-                hide-selected
-                :item-text="(item) => item.code + ' - ' + item.codeDescription"
-                item-value="code"
-                @change="setPrivateAndPauseCodes(row.code)"
-              ></v-select>
-              <span v-if="row.type != frontalConst">{{
-                currCodeDescription(row.code)
-              }}</span>
-            </td>
-            <td>
-              <input
-                id="hours"
-                type="number"
-                min="0"
-                step="0.1"
-                v-model="row.hours"
-                :disabled="row.code <= 0 || row.type != frontalConst"
-                @input="getPauseAndPrivateHours()"
-              />
-            </td>
-            <td class="disableStyle"></td>
-            <td v-for="(cell, index2) in row.week" :key="index2">
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                v-model="row.week[index2]"
-                :disabled="row.hours <= 0"
-              />
-            </td>
-            <td
-              class="disableStyle"
-              :style="{
-                color: validRowsHours(row) == false ? 'red' : 'inherit',
-              }"
-            >
-              {{ getTwoDigits(leftHours(row)) }}
-            </td>
-          </tr>
-          <tr class="summaryRow">
-            <td></td>
-            <td>סך</td>
-            <td>--</td>
-            <td>{{ hoursAmount() }}</td>
-            <td>
-              {{
-                getTwoDigits(
-                  this.calcJobPercent(
-                    this.reformType,
-                    this.hoursAmount(),
-                    this.ageHours,
-                    this.isMother
-                  )
+                >mdi-plus</v-icon
+              >
+              <v-icon
+                id="myMinusIcon"
+                @click="removeRow(index)"
+                v-if="row.type == frontalConst && index != 0"
+                >mdi-minus</v-icon
+              >
+            </div>
+          </td>
+          <td>{{ convertReformDescription(row.type) }}</td>
+          <td>
+            <v-select
+              class="mySelectOption"
+              v-if="row.type == frontalConst"
+              v-model="row.code"
+              :items="frontalCodes"
+              hide-selected
+              :item-text="(item) => item.code + ' - ' + item.codeDescription"
+              item-value="code"
+              @change="setPrivateAndPauseCodes(row.code)"
+            ></v-select>
+            <span v-if="row.type != frontalConst">{{
+              currCodeDescription(row.code)
+            }}</span>
+          </td>
+          <td>
+            <input
+              id="hours"
+              type="number"
+              min="0"
+              step="0.1"
+              v-model="row.hours"
+              :disabled="row.code <= 0 || row.type != frontalConst"
+              @input="getPauseAndPrivateHours()"
+            />
+          </td>
+          <td class="disableStyle"></td>
+          <td v-for="(cell, index2) in row.week" :key="index2">
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              v-model="row.week[index2]"
+              :disabled="row.hours <= 0"
+            />
+          </td>
+          <td
+            class="disableStyle"
+            :style="{
+              color: validRowsHours(row) == false ? 'red' : 'inherit',
+            }"
+          >
+            {{ getTwoDigits(leftHours(row)) }}
+          </td>
+        </tr>
+        <tr class="summaryRow">
+          <td></td>
+          <td>סך</td>
+          <td>--</td>
+          <td>{{ hoursAmount() }}</td>
+          <td>
+            {{
+              getTwoDigits(
+                this.calcJobPercent(
+                  this.reformType,
+                  this.hoursAmount(),
+                  this.ageHours,
+                  this.isMother
                 )
-              }}%
-            </td>
-            <td v-for="(day, index) in parseInt(6)" :key="index">
-              {{ dayAmount(day - 1) }}
-            </td>
-            <td
-              :style="{
-                color: validTotalHours() == false ? 'red' : 'inherit',
-              }"
-            >
-              {{ getTwoDigits(leftTableHours()) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              )
+            }}%
+          </td>
+          <td v-for="(day, index) in parseInt(6)" :key="index">
+            {{ dayAmount(day - 1) }}
+          </td>
+          <td
+            :style="{
+              color: validTotalHours() == false ? 'red' : 'inherit',
+            }"
+          >
+            {{ getTwoDigits(leftTableHours()) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <v-row class="center">
       <v-btn class="myBtn" color="primary" @click="saveHours()"
         >שמור שעות</v-btn
       >
       <v-btn class="myBtn" color="" @click="cleanWeeklyData()">נקה</v-btn>
-    </div>
+    </v-row>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import { bus } from "../main";
-import calcHoursMixin from "../mixins/calcHoursMixin";
+import { bus } from "../../main";
+import calcHoursMixin from "../../mixins/calcHoursMixin";
 
 const FRONTAL = 1;
 const PRIVATE = 2;
@@ -155,7 +155,6 @@ export default {
       empOptions: [],
       reformTypes: [],
       frontalCodes: [],
-      existHours: [],
       frontalConst: FRONTAL,
     };
   },
@@ -164,7 +163,7 @@ export default {
     this.setFrontalCodes();
     this.setBegdaEndda();
     this.getEmployeeOptions();
-    this.getExistData();
+    this.setExistData();
   },
   methods: {
     getPauseAndPrivateHours() {
@@ -208,29 +207,6 @@ export default {
           })
         );
     },
-    getExistData() {
-      axios
-        .get("/teacherEmploymentDetails/byReform", {
-          params: {
-            empId: this.empId,
-            mossadId: this.$store.state.logginAuth,
-            reformType: this.reformType,
-            begda: this.FormatDate(this.begda),
-            endda: this.FormatDate(this.endda),
-          },
-        })
-        .then((response) => {
-          this.existHours = response.data;
-          if (this.existHours != null) {
-            this.setExistHours();
-          }
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
-    },
     setNewHoursForSave() {
       this.tableToSave = [];
       this.newHours.forEach((element) => {
@@ -263,10 +239,10 @@ export default {
         this.newHours.find((el) => el.type == PRIVATE).code = 5467;
       }
     },
-    setExistHours() {
+    setExistData() {
       let tempHourType;
       let newRow = {};
-      this.existHours.forEach((el) => {
+      this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
         // check if first insert and if need to create new row(for frontal only)
@@ -478,16 +454,17 @@ export default {
     empId: function (val) {
       this.empId = val;
       this.initilizer();
-      this.setFrontalCodes();
       this.getEmployeeOptions();
-      //   this.getExistData();
     },
     reformType: function (val) {
       this.reformType = val;
       this.initilizer();
       this.setFrontalCodes();
       this.getEmployeeOptions();
-      //   this.getExistData();
+    },
+    existData: function (val) {
+      this.existData = val;
+      this.setExistData();
     },
   },
   mixins: [calcHoursMixin],
@@ -542,7 +519,6 @@ input:disabled {
   /* margin-left: 10px; */
 }
 table {
-  max-width: 98%;
   text-align: center;
   justify-content: center;
   align-items: center;
@@ -552,11 +528,6 @@ table {
 p {
   font-weight: bold;
   text-decoration: underline;
-}
-#centerize {
-  padding: 10px;
-  margin-left: auto;
-  margin-right: auto;
 }
 .summaryRow {
   background: #c2c2d6;

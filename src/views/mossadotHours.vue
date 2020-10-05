@@ -1,20 +1,17 @@
 <template>
   <div>
-    <teserComponent/>
     <mossadHours />
   </div>
 </template>
 
 
 <script>
-import mossadHours from "../components/mossadHours";
-import teserComponent from "../components/teserComponent";
+import mossadHours from "../components/tables/mossadHours";
 
 export default {
-  name: "mossadot",
+  name: "mossadotHours",
   components: {
     mossadHours,
-    teserComponent,
   },
   data() {
     return {
