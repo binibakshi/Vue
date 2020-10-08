@@ -9,7 +9,7 @@
 
 <script>
 import myNavBar from "./components/pageContent/my-navbar";
-// import axios from "axios";
+import axios from "axios";
 export default {
   name: "App",
   components: {
@@ -23,11 +23,29 @@ export default {
   },
   methods: {
     onStart() {
-      // if (this.$store.state.token != null) {
-      //   axios.defaults.headers.Authorization =
-      //     "Bearer " + this.$store.state.token;
-      // }
+      if (this.$store.state.token != null) {
+        axios.defaults.headers.Authorization = "Bearer " + this.$store.state.token;
+      }
     },
+  //   HandleExpiredToken() {
+  //     if (this.$store.state.token == null) {
+  //       return;
+  //     }
+  //     axios
+  //       .get("/authenticate/isExpired", {
+  //         params: {
+  //           token: this.$store.state.token,
+  //         },
+  //       })
+  //       .then((response) => {
+  //         if (response.data == true) {
+  //           this.$store.dispatch("destroyToken");
+  //         }
+  //       })
+  //       .catch(() => {
+  //         this.$store.dispatch("destroyToken");
+  //       });
+  //   },
   },
 };
 </script>

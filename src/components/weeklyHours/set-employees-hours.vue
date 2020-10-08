@@ -16,7 +16,7 @@
         <v-col cols="12" md="2">
           <p>מוסד - {{ _mossadInfo.mossadName }}</p>
         </v-col>
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="2" @click="test()">
           <p>שעות מאוישות - {{ _mossadInfo.currHours }}</p>
         </v-col>
         <v-col cols="12" md="2">
@@ -131,7 +131,7 @@
           <v-col cols="12" md="3">
             <v-select
               v-model="selectedReforms"
-              :items="reformTypes"
+              :items="relevantRreformTypes"
               item-text="name"
               item-value="reformId"
               label="בחר רפורמה"
@@ -173,7 +173,7 @@ export default {
   data() {
     return {
       selectedReforms: null,
-      selectedYear: 2021,
+      selectedYear: 0,
       empId: null,
       ageHours: 0,
       tzArray: [],
@@ -181,6 +181,7 @@ export default {
       employeeInfo: {},
       existData: [],
       reformTypes: [],
+      relevantRreformTypes: [],
       codeDescription: [],
       empHoursTable: [],
       mossadot: [],
@@ -274,8 +275,12 @@ export default {
     },
   },
   methods: {
+    test() {
+      let routeData = this.$router.resolve({ name: "reportWeeklyHours" });
+      window.open(routeData.href, "_blank");
+    },
     initilize() {
-      var currDate = new Date();
+      let currDate = new Date();
       this.selectedYear =
         currDate.getMonth() >= 8
           ? currDate.getFullYear() + 1
@@ -342,7 +347,7 @@ export default {
       axios
         .get("mossadHours/byId", {
           params: {
-            mossadId: this.$store.state.logginAuth,
+            mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
           },
         })
@@ -409,7 +414,7 @@ export default {
       this.datesRange.min = this.formatDate(
         new Date(this.selectedYear - 1, 8, 1)
       );
-      this.datesRange.max = this.formatDate(new Date(this.selectedYear, 5, 20));
+      this.datesRange.max = this.formatDate(new Date(this.selectedYear, 5, 21));
     },
     formatDate(currrDate) {
       var inputDate = new Date(currrDate);
@@ -433,14 +438,14 @@ export default {
       // call function in the mixin
       this.createWeeklyHoursToEmployee(
         this.empId,
-        this.$store.state.logginAuth,
+        this.$store.state.logginAs,
         this.datesRange.min,
         this.datesRange.max
       );
     },
     filterReformTypeByMossad() {
       if (this.$store.state.mossadInfo.mossadType == 2) {
-        this.reformTypes = this.reformTypes.filter(
+        this.relevantRreformTypes = this.reformTypes.filter(
           (el) =>
             el.reformId == 1 ||
             el.reformId == 5 ||
@@ -449,12 +454,12 @@ export default {
             el.reformId == 8
         );
       } else if (this.$store.state.mossadInfo.mossadType == 1) {
-        this.reformTypes = this.reformTypes.filter(
+        this.relevantRreformTypes = this.reformTypes.filter(
           (el) => el.reformId == 1 || el.reformId == 5 || el.reformId == 8
         );
       }
-      this.reformTypes.filter;
     },
+
     getTwoDigits(number) {
       if (isNaN(number)) {
         return "";
@@ -481,7 +486,11 @@ export default {
       return this.codeDescription.filter((el) => el.reformType == reformType);
     },
     getRelevantData(reformType) {
-      return this.existData.filter((el) => el.reformType == reformType);
+      return this.existData.filter(
+        (el) =>
+          el.reformType == reformType &&
+          el.mossadId == this.$store.state.logginAs
+      );
     },
     getMossadot() {
       axios
@@ -542,14 +551,14 @@ export default {
         this.empHoursTable[0].week.push({
           day: index,
           hours: 0,
-          mossadot: [this.$store.state.logginAuth],
+          mossadot: [this.$store.state.logginAs],
         });
         this.empHoursTable[1].week.push({ day: index, hours: 0, mossadot: [] });
       }
 
       // get acutal hours devied by curr mossad(0) and all mossadot(1)
       this.existData.forEach((el) => {
-        if (el.mossadId == this.$store.state.logginAuth) {
+        if (el.mossadId == this.$store.state.logginAs) {
           this.empHoursTable[0].week[el.day].hours += el.hours;
           this.empHoursTable[0].sum += el.hours;
         }
@@ -568,7 +577,7 @@ export default {
           .filter(
             (e) =>
               e.reformType == el.reformId &&
-              e.mossadId == this.$store.state.logginAuth
+              e.mossadId == this.$store.state.logginAs
           )
           .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
         this.empHoursTable[0].jobPercent += this.calcJobPercent(

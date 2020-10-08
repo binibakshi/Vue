@@ -137,7 +137,7 @@ export default {
 
   methods: {
     editText(item) {
-      return item.disabled == false ? "ערוך" : "צפייה";
+      return item.disabled != false ? "ערוך" : "צפייה";
     },
     initilize() {
       this.years = [
@@ -232,7 +232,6 @@ export default {
         });
     },
     deleteMossad(item) {
-      console.log(item);
       axios
         .delete("/mossadHours/byId", {
           params: {
@@ -244,7 +243,11 @@ export default {
           alert("פעולת המחיקה בוצעה בהצלחה");
           location.reload();
         })
-        .catch((e) => console.log(e));
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     cleanmossadInfo() {
       this.mossadInfo = {};

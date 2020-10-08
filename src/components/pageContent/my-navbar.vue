@@ -2,7 +2,7 @@
   <nav>
     <v-tabs class="grey lighten-3">
       <v-tab to="/empInfo"> איוש שעות </v-tab>
-      <v-tab to="/empInfo">גמולים</v-tab>
+      <v-tab to="/AdditionalRewards">גמולים</v-tab>
       <v-tab to="/calcHours"> רפורמות עובד </v-tab>
       <v-tab to="/HireEmp"> עובדים </v-tab>
       <v-menu offset-y>
@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     test() {
-      if (this.$store.state.logginAuth != null) {
+      if (this.$store.state.logginAs != null) {
         this.$store.dispatch("getMossadInfo");
       }
     },
@@ -105,7 +105,7 @@ export default {
       axios
         .get("mossadot/byId", {
           params: {
-            mossadId: this.$store.state.logginAuth,
+            mossadId: this.$store.state.logginAs,
           },
         })
         .then((response) => {
@@ -113,12 +113,15 @@ export default {
           this.$store.commit("setMossadInfo", response.data);
           this.mossadName = response.data.mossadName;
         })
-        .catch((error) => console.log(error));
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     logout() {
       this.$store.dispatch("destroyToken").then(() => {
         localStorage.removeItem("mossadId");
-        this.$router.push({ name: "login" });
       });
     },
     isAdmin() {

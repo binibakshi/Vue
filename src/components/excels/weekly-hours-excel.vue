@@ -5,7 +5,7 @@
       <v-row>
         <v-col cols="12" md="2">
           <v-autocomplete
-            v-model="localMossadId"
+            v-model="selectedMossad"
             :items="mossadot"
             color="primary"
             hide-no-data
@@ -16,15 +16,26 @@
             prepend-icon="mdi-database-search"
           ></v-autocomplete>
         </v-col>
+        <v-col cols="12" md="2">
+          <v-select
+            style="max-hight: 40px"
+            :items="years"
+            v-model="selectedYear"
+            item-text="hebrewYear"
+            item-value="year"
+            label="שנה"
+          ></v-select>
+        </v-col>
         <v-btn
           @click="
             createWeeklyHoursToMossad(
-              localMossadId,
+              selectedMossad,
               datesRange.min,
               datesRange.max
             )
           "
           color="success"
+          :disabled="selectedMossad == null"
           >ייצא לאקסל</v-btn
         >
         <v-btn @click="downloadDemoFile()" color="success">מבנה אקסל</v-btn>
@@ -44,32 +55,40 @@ export default {
   name: "WeeklyHoursExcel",
   data() {
     return {
-      localMossadId: null,
+      selectedMossad: null,
       allEmpsInfo: null,
       codeDescription: [],
       datesRange: { min: "", max: "" },
       empsHours: [],
       dataToExport: [],
       mossadot: [],
+      years: [],
+      selectedYear: 0,
     };
   },
   created() {
+    this.initilize();
     this.getCodesDescription();
     this.getAllMossadot();
     this.setBegdaEndda();
   },
   mixins: [excelMixin],
   methods: {
-    // async createWeeklyHoursToMossad() {
-    //   await this.getAllEmpInfo(this.localMossadId);
-    //   await this.getAllEmpHours(this.localMossadId);
-    //   this.setWeeklyHoursAndExport(this.localMossadId);
-    // },
-    // async createWeeklyHoursToEmployee(empId) {
-    //   await this.getEmpInfo(empId, this.localMossadId);
-    //   await this.getEmpHours(empId, this.localMossadId);
-    //   this.setWeeklyHoursAndExport(this.localMossadId);
-    // },
+    initilize() {
+      let currDate = new Date();
+      this.selectedYear =
+        currDate.getMonth() >= 8
+          ? currDate.getFullYear() + 1
+          : currDate.getFullYear();
+
+      this.years = [
+        { year: 2021, hebrewYear: 'תשפ"א' },
+        { year: 2022, hebrewYear: 'תשפ"ב' },
+        { year: 2023, hebrewYear: 'תשפ"ג' },
+        { year: 2024, hebrewYear: 'תשפ"ד' },
+        { year: 2025, hebrewYear: 'תשפ"ה' },
+      ];
+    },
     setBegdaEndda() {
       var currDate = new Date();
       var year = currDate.getFullYear();

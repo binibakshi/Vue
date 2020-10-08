@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row id="selections" class="center">
+    <v-row id="selections" class="center" style="align-items: initial">
       <v-col cols="12" md="2">
         <v-select
           :items="years"
@@ -43,14 +43,10 @@
           label="קוד פיצול"
           placeholder="בחר קוד פיצול"
         ></v-select>
-      </v-col>
-      <v-col cols="12" md="2">
-        <v-text-field v-model="selections.status" label="סטטוס"></v-text-field>
+        <v-btn color="primary" @click="getSelectedData()">חפש</v-btn>
       </v-col>
     </v-row>
-    <v-btn style="margin-right: 5%" color="primary" @click="getSelectedData()"
-      >חפש</v-btn
-    >
+
     <div id="weeklyHoursReport">
       <v-data-table
         dense
@@ -136,10 +132,10 @@ export default {
       dataToDisplay: [],
       selections: {
         year: 0,
-        mossadId: null,
-        reformType: null,
-        code: null,
-        status: null,
+        mossadId: [],
+        reformType: [],
+        code: [],
+        status: [],
       },
     };
   },
@@ -149,6 +145,7 @@ export default {
     this.getMossadot();
     this.getReformTypes();
     this.getEmployees();
+    this.getSelectedData();
   },
   methods: {
     initilize() {
@@ -163,6 +160,9 @@ export default {
         currDate.getMonth() >= 8
           ? currDate.getFullYear() + 1
           : currDate.getFullYear();
+      if (this.$store.state.logginAs != 999) {
+        this.selections.mossadId.push(this.$store.state.logginAs);
+      }
     },
     getMossadot() {
       axios
@@ -240,6 +240,8 @@ export default {
       );
     },
     getSelectedData() {
+      console.log("try selecting");
+
       var params = {
         begda: this.formatDate(new Date(this.selections.year - 2, 8, 1)),
         endda: this.formatDate(new Date(this.selections.year + 2, 5, 20)),
@@ -248,6 +250,7 @@ export default {
         empCode: this.addSpaceIfNeeded(this.selections.code),
         status: this.selections.status,
       };
+      console.log(params);
       axios
         .get("teacherEmploymentDetails/getReport", {
           params: params,

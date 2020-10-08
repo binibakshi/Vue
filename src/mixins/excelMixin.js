@@ -44,10 +44,11 @@ export default {
         .then((response) => {
           mossadName = response.data.mossadName;
         })
-        .catch((error) => {
-          console.log(error);
-        });
-
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
       this.allEmpsInfo.forEach((el) => {
         this.setExistHours(
           el,
@@ -76,7 +77,12 @@ export default {
         })
         .then((response) => {
           this.empsHours = response.data;
-        });
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     async getEmpInfo(empId) {
       await axios
@@ -87,7 +93,11 @@ export default {
         })
         .then((response) => {
           this.allEmpsInfo.push(response.data);
-        });
+        }).catch((error) =>
+        this.$store.dispatch("displayErrorMessage", {
+          error,
+        })
+      );
     },
     async getAllEmpInfo(mossadId, begda, endda) {
       await axios
@@ -100,7 +110,11 @@ export default {
         })
         .then((response) => {
           this.allEmpsInfo = response.data;
-        });
+        }).catch((error) =>
+        this.$store.dispatch("displayErrorMessage", {
+          error,
+        })
+      );
     },
     async getAllEmpHours(mossadId, begda, endda) {
       await axios
@@ -113,7 +127,11 @@ export default {
         })
         .then((response) => {
           this.empsHours = response.data;
-        });
+        }).catch((error) =>
+        this.$store.dispatch("displayErrorMessage", {
+          error,
+        })
+      );
     },
     getCodesDescription() {
       axios

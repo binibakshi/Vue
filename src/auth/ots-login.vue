@@ -7,15 +7,27 @@
     <form class="login-right" @submit.prevent>
       <div class="h2">כניסה</div>
       <div class="form-group">
-        <input type="text" id="username" placeholder="שם משתמש" v-model="username" />
+        <input
+          type="text"
+          id="username"
+          placeholder="שם משתמש"
+          v-model="username"
+        />
         <label for="username">Username</label>
       </div>
       <div class="form-group">
-        <input type="password" id="Password" placeholder="סיסמה" v-model="password" />
+        <input
+          type="password"
+          id="Password"
+          placeholder="סיסמה"
+          v-model="password"
+        />
         <label for="Password">Password</label>
       </div>
       <div class="button-area">
-        <button class="btn btn-primary pull-right" @click="login()">התחבר</button>
+        <button class="btn btn-primary pull-right" @click="login()">
+          התחבר
+        </button>
       </div>
     </form>
   </div>
@@ -40,38 +52,47 @@ export default {
     }, init);
   },
   methods: {
-    login() {
-      this.$store
-        .dispatch("retrieveToken", {
-          username: this.username,
-          password: this.password,
+    async login() {
+      axios.defaults.headers.Authorization = "";
+      await this.$store.dispatch("retrieveToken", {
+        username: this.username,
+        password: this.password,
+      });
+
+      await axios
+        .get("/getMossad", {
+          params: {
+            username: this.username,
+          },
         })
-        .then(() => {
-          axios
-            .get("/getMossad", {
-              params: {
-                username: this.username,
-              },
-            })
-            .then((response) => {
-              this.$store.state.mossadId = response.data;
-              this.$store.state.logginAuth = response.data;
-              localStorage.setItem("mossadId", response.data);
-              axios
-                .get("mossadot/byId", {
-                  params: {
-                    mossadId: this.$store.state.logginAuth,
-                  },
-                })
-                .then((response) => {
-                  this.$store.state.mossadInfo = response.data;
-                  this.$store.commit("setMossadInfo", response.data);
-                })
-                .catch((error) => console.log(error));
-              this.$router.push({ name: "empInfo" });
-            });
+        .then((response) => {
+          this.$store.state.mossadId = response.data;
+          this.$store.state.logginAs = response.data;
+          localStorage.setItem("mossadId", response.data);
         })
-        .catch(() => alert("שגיאה בפרטי התחברות"));
+       .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+      await axios
+        .get("mossadot/byId", {
+          params: {
+            mossadId: this.$store.state.logginAs,
+          },
+        })
+        .then((response) => {
+          this.$store.state.mossadInfo = response.data;
+          this.$store.commit("setMossadInfo", response.data);
+        }).catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+       
+      this.$router.push({ name: "employeeInfo" }).catch((error) => {
+        console.info(error.message);
+      });
     },
   },
 };

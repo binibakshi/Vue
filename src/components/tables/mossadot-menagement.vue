@@ -186,7 +186,11 @@ export default {
           alert("המוסד נמחק בהצלחה");
           location.reload();
         })
-        .catch((e) => console.log(e));
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     getMossadType(mossadType) {
       const currRecord = this.mossadTypes.find((el) => el.typeId == mossadType);

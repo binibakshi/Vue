@@ -32,7 +32,11 @@ export default {
       axios
         .get("/auth/all")
         .then((response) => (this.usersData = response.data))
-        .catch((error) => console.log(error));
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     initilizer() {
       this.usersHeaders = [

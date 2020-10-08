@@ -135,6 +135,11 @@ export default {
             (this.reformTable = response.data.filter(
               (el) => el.reformId == 1 || el.reformId == 2 || el.reformId == 5
             ))
+        )
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
         );
     },
     getEmploymentcodes() {

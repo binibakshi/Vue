@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
+import router from "../router/index";
 
 Vue.use(Vuex);
 // axios.defaults.baseURL = "http://localhost:9191";
@@ -11,7 +12,7 @@ export const store = new Vuex.Store({
   state: {
     token: localStorage.getItem("access_token") || null,
     mossadId: localStorage.getItem("mossadId") || null,
-    logginAuth: localStorage.getItem("mossadId") || null,
+    logginAs: localStorage.getItem("mossadId") || null,
     username: localStorage.getItem("username") || null,
     mossadInfo: {
       mossadName: "",
@@ -21,10 +22,10 @@ export const store = new Vuex.Store({
   },
   getters: {
     loggedIn(state) {
-      return state.token !== null;
+      return state.token != null;
     },
-    isAdmin() {
-      if (this.state.mossadId == 999) {
+    isAdmin(state) {
+      if (state.mossadId == 999) {
         return true;
       }
       return false;
@@ -48,56 +49,83 @@ export const store = new Vuex.Store({
     },
   },
   actions: {
-    retrieveToken(context, credentials) {
-      axios
+    async retrieveToken(context, credentials) {
+      await axios
         .post("/authenticate", {
           username: credentials.username,
           password: credentials.password,
         })
         .then((response) => {
           const token = response.data.jwt;
+          axios.defaults.headers.Authorization = "Bearer " + token;
           localStorage.setItem("access_token", token);
           localStorage.setItem("username", credentials.username);
           context.state.username = credentials.username;
           context.commit("retrieveToken", token);
-          // axios.defaults.headers.Authorization = "Bearer " + token;
         })
         .catch((error) => {
-          console.log(error);
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+          alert("שגיאה בפרטי התחברות");
         });
     },
     destroyToken(context) {
-      // axios.defaults.headers.common["Authorization"] =
-      //   "Bearer " + context.state.token;
-
       if (context.getters.loggedIn) {
         context.state.mossadId = null;
-        context.state.logginAuth = null;
+        context.state.logginAs = null;
         context.state.mossadInfo = null;
         context.state.username = null;
         context.state.token = null;
         localStorage.removeItem("access_token");
         localStorage.removeItem("username");
+        localStorage.removeItem("mossadId");
         context.commit("destroyToken");
 
-        // return new Promise((resolve, reject) => {
-        //   axios
-        //     .post("/logout")
-        //     .then((response) => {
-        //       localStorage.removeItem("access_token");
-        //       context.commit("destroyToken");
-        //       resolve(response);
-        //     })
-        //     .catch((error) => {
-        //       localStorage.removeItem("access_token");
-        //       context.commit("destroyToken");
-        //       reject(error);
-        //     });
-        // });
+        router.push({ name: "login" });
       }
     },
+
+    // async refreahToken(context) {
+    //   var loadAgian = false;
+    //   // delete only for this request
+    //   delete axios.defaults.headers.Authorization;
+    //   await axios
+    //     .get("/authenticate/refresh", {
+    //       params: {
+    //         token: context.state.token,
+    //         username: context.state.username,
+    //       },
+    //     })
+    //     .then((response) => {
+    //       if (response.data.jwt != undefined && response.data.jwt != null) {
+    //         context.state.token = response.data.jwt;
+    //         localStorage.setItem("access_token", context.state.token);
+    //         axios.defaults.headers.Authorization =
+    //           "Bearer " + context.state.token;
+    //         loadAgian = true;
+    //       } else {
+    //         context.dispatch("destroyToken");
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       console.log(error);
+    //       context.dispatch("destroyToken");
+    //     });
+    //   return loadAgian;
+    // },
     displayErrorMessage(context, error) {
       if (
+        error.error.response.status != undefined &&
+        (error.error.response.status == 401 ||
+          (error.error.response.status == 500 &&
+            error.error.response.data.message.startsWith("JWT")))
+      ) {
+        if (context.state.token != null) {
+          alert("התחבר מחדש");
+          context.dispatch("destroyToken");
+        }
+      } else if (
         error.error == undefined ||
         error.error.response == undefined ||
         error.error.response.data.errorMessage == undefined
@@ -111,14 +139,18 @@ export const store = new Vuex.Store({
       axios
         .get("mossadot/byId", {
           params: {
-            mossadId: context.state.logginAuth,
+            mossadId: context.state.logginAs,
           },
         })
         .then((response) => {
           context.state.mossadInfo = response.data;
           context.commit("setMossadInfo", response.data);
         })
-        .catch((error) => console.log(error));
+        .catch((error) =>
+          context.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
   },
 });

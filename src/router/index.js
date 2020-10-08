@@ -7,25 +7,6 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
-    name: "empInfo",
-    // route level code-splitting
-    // this generates a separate chunk (HireEmployee.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(
-        /* webpackChunkName: "default-page" */ "../views/EmployeeInfo.vue"
-      ),
-    beforeEnter(to, from, next) {
-      if (store.state.logginAuth == 999) {
-        alert("התחבר כמוסד כדי להכנס לדף זה");
-        next({ name: "auth" });
-      } else {
-        next();
-      }
-    },
-  },
-  {
     path: "/login",
     name: "login",
     // route level code-splitting
@@ -57,13 +38,24 @@ const routes = [
       ),
 
     beforeEnter(to, from, next) {
-      if (store.state.logginAuth == 999) {
+      if (to.name == "employeeInfo" && store.state.logginAs == 999) {
         alert("התחבר כמוסד כדי להכנס לדף זה");
         next({ name: "auth" });
       } else {
         next();
       }
     },
+  },
+  {
+    path: "/AdditionalRewards",
+    name: "AdditionalRewards",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(
+        /* webpackChunkName: "AdditionalRewards" */ "../views/AdditionalRewards.vue"
+      ),
   },
   {
     path: "/mossadot",
@@ -126,6 +118,7 @@ const routes = [
 ];
 
 const router = new VueRouter({
+  mode: "history",
   routes,
 });
 

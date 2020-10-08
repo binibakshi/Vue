@@ -196,13 +196,21 @@ export default {
           this.mossadotList = response.data;
           this.mossadotList.push({ mossadName: "מנהלה", mossadId: 999 });
         })
-        .catch((e) => console.log(e));
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     getAllUsers() {
       axios
         .get("/auth/all")
         .then((response) => (this.usersData = response.data))
-        .catch((error) => console.log(error));
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     editItem(item) {
       this.editedIndex = this.usersData.indexOf(item);
@@ -281,7 +289,7 @@ export default {
         });
     },
     logginAsUser(user) {
-      this.$store.state.logginAuth = user.mossadId;
+      this.$store.state.logginAs = user.mossadId;
       this.$store.dispatch("getMossadInfo");
     },
   },

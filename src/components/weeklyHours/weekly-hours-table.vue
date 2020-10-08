@@ -213,7 +213,7 @@ export default {
         element.week.forEach((day, index) => {
           this.tableToSave.push({
             empId: this.empId,
-            mossadId: this.$store.state.logginAuth,
+            mossadId: this.$store.state.logginAs,
             changedBy: this.$store.state.username,
             empCode: element.code,
             begda: new Date(this.tableBegda),
@@ -464,6 +464,7 @@ export default {
     },
     existData: function (val) {
       this.existData = val;
+      this.initilizer();
       this.setExistData();
     },
   },
