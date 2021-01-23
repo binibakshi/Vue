@@ -21,6 +21,7 @@
             style="max-hight: 40px"
             :items="years"
             v-model="selectedYear"
+            @change="setBegdaEndda()"
             item-text="hebrewYear"
             item-value="year"
             label="שנה"
@@ -35,7 +36,7 @@
             )
           "
           color="success"
-          :disabled="selectedMossad == null"
+          :disabled="selectedMossad == null || selectedYear == 0"
           >ייצא לאקסל</v-btn
         >
         <v-btn @click="downloadDemoFile()" color="success">מבנה אקסל</v-btn>
@@ -66,7 +67,7 @@ export default {
       selectedYear: 0,
     };
   },
-  created() {
+  mounted(){
     this.initilize();
     this.getCodesDescription();
     this.getAllMossadot();
@@ -90,13 +91,10 @@ export default {
       ];
     },
     setBegdaEndda() {
-      var currDate = new Date();
-      var year = currDate.getFullYear();
-      if (currDate.getMonth() >= 8) {
-        year = currDate.getFullYear() + 1;
-      }
-      this.datesRange.min = this.FormatDate(new Date(year - 1, 8, 1));
-      this.datesRange.max = this.FormatDate(new Date(year, 5, 20));
+      this.datesRange.min = this.FormatDate(
+        new Date(this.selectedYear - 1, 8, 1)
+      );
+      this.datesRange.max = this.FormatDate(new Date(this.selectedYear, 5, 20));
     },
     getAllMossadot() {
       axios

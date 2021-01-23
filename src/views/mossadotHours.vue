@@ -48,11 +48,6 @@ export default {
         { text: "Create  ", value: "path", width: "200" },
         { text: "selected  ", value: "selected" },
       ],
-      testTable: [
-        { name: "bini", value: 1 },
-        { name: "toto", value: 2 },
-        { name: "africa", value: 3 },
-      ],
     };
   },
 };

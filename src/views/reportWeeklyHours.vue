@@ -7,7 +7,7 @@
 <script>
 import reportWeeklyHours from "../components/reports/report-weeklyHours";
 export default {
-  name: "test",
+  name: "reportWeeklyHoursView",
   components: {
     reportWeeklyHours,
   },

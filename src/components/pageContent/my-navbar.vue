@@ -15,8 +15,11 @@
         <v-list>
           <v-list-item to="/reportWeeklyHours">איוש שעות</v-list-item>
         </v-list>
+        <v-list>
+          <v-list-item to="/reportBagrutRewards">גמולי בגרות</v-list-item>
+        </v-list>
       </v-menu>
-      <v-menu offset-y>
+      <v-menu offset-y v-if="$store.state.mossadId == 999">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             text
@@ -30,15 +33,18 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item to="/auth"> הרשאות </v-list-item>
+          <v-list-item to="/auth" v-if="$store.state.mossadId == 999">
+            הרשאות
+          </v-list-item>
           <v-list-item to="/ImportData"> ניהול Excel </v-list-item>
           <v-list-item to="/mossadot">ניהול מוסדות </v-list-item>
           <v-list-item to="/mossadotHours"> מגבלת שעות למוסד </v-list-item>
+          <v-list-item to="/mossadClasses">ניהול כיתות במוסד</v-list-item>
         </v-list>
       </v-menu>
       <div id="navbarInfo" class="parent">
         <p class="child inline-block-child">{{ _username }}</p>
-        <p v-if="_mossadId == 999" class="child inline-block-child">(מנהלה)</p>
+        <p class="child inline-block-child">{{ _AuthText }}</p>
         <p class="child inline-block-child">{{ _mossadName }}</p>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -69,16 +75,24 @@ export default {
       mossadName: "",
     };
   },
-  created() {
-    this.test();
-  },
   mounted() {
+    if (this.$store.state.logginAs != null) {
+      this.$store.dispatch("getMossadInfo");
+    }
     bus.$on("changeWeeklyHours", () => this.getMossadInfo());
   },
   computed: {
     _mossadName() {
       if (this.$store.state.mossadInfo != null) {
         return this.$store.state.mossadInfo.mossadName;
+      }
+      return "";
+    },
+    _AuthText() {
+      if (this.$store.state.mossadId == 999) {
+        return "(Adimn)";
+      } else if (this.$store.state.mossadId == 998) {
+        return "(חשבות שכר)";
       }
       return "";
     },
@@ -96,11 +110,6 @@ export default {
     },
   },
   methods: {
-    test() {
-      if (this.$store.state.logginAs != null) {
-        this.$store.dispatch("getMossadInfo");
-      }
-    },
     getMossadInfo() {
       axios
         .get("mossadot/byId", {
@@ -147,7 +156,6 @@ p {
   margin-left: 10px;
   margin-top: 15px;
   color: black;
-  font-weight: bold;
 }
 
 .v-btn:not(.v-btn--round).v-size--default {

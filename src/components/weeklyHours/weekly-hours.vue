@@ -2,8 +2,8 @@
   <div v-if="empId != null" class="reformTypeTables">
     <h1 class="center">{{ _reformDiscription }}</h1>
     <div v-for="(table, index) in tablesArray" :key="index">
-      <v-row>
-        <v-col cols="12" md="2">
+      <v-row class="center">
+        <v-col cols="12" md="2" sm="2">
           <v-text-field
             v-model="table.begda"
             label="מתאריך"
@@ -14,7 +14,7 @@
             >מתאריך</v-text-field
           >
         </v-col>
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="2" sm="2">
           <v-text-field
             v-model="table.endda"
             label="עד תאריך"
@@ -34,6 +34,7 @@
           :begda="table.begda"
           :endda="table.endda"
           :codeDescription="codeDescription"
+          :rewardHours="rewardHours"
         />
       </v-row>
     </div>
@@ -58,6 +59,7 @@ export default {
     "selectedYear",
     "codeDescription",
     "existData",
+    "rewardHours",
   ],
   components: { weeklyHoursTable },
   data() {
@@ -70,7 +72,7 @@ export default {
       reformTypes: [],
     };
   },
-  created() {
+  mounted() {
     this.getReformTypes();
     this.setBegdaEndda();
     this.gruopByBegdaEndda();
@@ -184,17 +186,14 @@ export default {
   watch: {
     empId: function (val) {
       this.empId = val;
-      this.getExistData();
     },
     reformType: function (val) {
       this.reformType = val;
-      // this.getExistData();
     },
     selectedYear: function (val) {
       this.selectedYear = val;
       this.tablesArray = [];
       this.setBegdaEndda();
-      // this.getExistData();
     },
     existData: function (val) {
       this.existData = val;
@@ -233,6 +232,6 @@ export default {
 .reformTypeTables {
   margin-right: 1%;
   margin-bottom: 15px;
-  border-bottom: 1px solid black;
+  /* border-bottom: 1px solid black; */
 }
 </style>

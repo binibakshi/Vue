@@ -17,6 +17,7 @@
             single-line
             autocomplete="off"
             hide-details
+            append-icon="mdi-magnify"
           ></v-text-field>
         </v-card-title>
         <v-divider class="mx-4" inset vertical></v-divider>
@@ -168,7 +169,7 @@ export default {
       val || this.close();
     },
   },
-  created() {
+  mounted() {
     this.initialize();
     this.getMossadot();
     this.getAllUsers();
@@ -194,7 +195,10 @@ export default {
         .get("mossadot/all")
         .then((response) => {
           this.mossadotList = response.data;
-          this.mossadotList.push({ mossadName: "מנהלה", mossadId: 999 });
+          this.mossadotList.push(
+            { mossadName: "מנהלה", mossadId: 999 },
+            { mossadName: "חשבות שכר", mossadId: 998 }
+          );
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {

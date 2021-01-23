@@ -70,7 +70,7 @@ export default {
           this.$store.state.logginAs = response.data;
           localStorage.setItem("mossadId", response.data);
         })
-       .catch((error) =>
+        .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
             error,
           })
@@ -84,13 +84,14 @@ export default {
         .then((response) => {
           this.$store.state.mossadInfo = response.data;
           this.$store.commit("setMossadInfo", response.data);
-        }).catch((error) =>
+        })
+        .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
             error,
           })
         );
-       
-      this.$router.push({ name: "employeeInfo" }).catch((error) => {
+
+      this.$router.push({ name: "reportWeeklyHours" }).catch((error) => {
         console.info(error.message);
       });
     },

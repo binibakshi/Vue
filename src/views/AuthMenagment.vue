@@ -20,7 +20,7 @@ export default {
       usersHeaders: [],
     };
   },
-  created() {
+  mounted(){
     this.initilizer();
     this.getAllUsers();
   },

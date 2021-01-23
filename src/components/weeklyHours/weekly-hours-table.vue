@@ -36,8 +36,8 @@
             </div>
           </td>
           <td>{{ convertReformDescription(row.type) }}</td>
-          <td>
-            <v-select
+          <td style="padding-right: 10px">
+            <v-autocomplete
               class="mySelectOption"
               v-if="row.type == frontalConst"
               v-model="row.code"
@@ -45,20 +45,34 @@
               hide-selected
               :item-text="(item) => item.code + ' - ' + item.codeDescription"
               item-value="code"
-              @change="setPrivateAndPauseCodes(row.code)"
-            ></v-select>
-            <span v-if="row.type != frontalConst">{{
-              currCodeDescription(row.code)
-            }}</span>
+              @change="onCodeSelect(row)"
+            ></v-autocomplete>
+            <h4 class="test" v-if="row.type != frontalConst">
+              {{ row.code }} - {{ currCodeDescription(row.code) }}
+            </h4>
           </td>
           <td>
+            <router-link
+              v-if="isRewradHours(row.code)"
+              @click.native="beforeOpenRewards"
+              title="מעבר לגמולי שעות"
+              :to="{ name: 'AdditionalRewards' }"
+              target="_blank"
+            >
+              {{ row.hours }}
+            </router-link>
             <input
+              v-if="!isRewradHours(row.code)"
               id="hours"
               type="number"
               min="0"
               step="0.1"
               v-model="row.hours"
-              :disabled="row.code <= 0 || row.type != frontalConst"
+              :disabled="
+                row.code <= 0 ||
+                row.type != frontalConst ||
+                isRewradHours(row.code)
+              "
               @input="getPauseAndPrivateHours()"
             />
           </td>
@@ -140,6 +154,7 @@ export default {
     "begda",
     "endda",
     "codeDescription",
+    "rewardHours",
   ],
   data() {
     return {
@@ -158,7 +173,7 @@ export default {
       frontalConst: FRONTAL,
     };
   },
-  created() {
+  mounted() {
     this.initilizer();
     this.setFrontalCodes();
     this.setBegdaEndda();
@@ -216,13 +231,32 @@ export default {
             mossadId: this.$store.state.logginAs,
             changedBy: this.$store.state.username,
             empCode: element.code,
-            begda: new Date(this.tableBegda),
-            endda: new Date(this.tableEndda),
+            begda: new Date(this.begda),
+            endda: new Date(this.endda),
             day: index,
             hours: day,
           });
         });
       });
+    },
+    onCodeSelect(row) {
+      row.hours = 0;
+      // if code is bagrut reward check if has and set the hours amount
+      if (this.isRewradHours(row.code)) {
+        row.hours = this.rewardHours.reduce(
+          (sum, e) => (sum += parseFloat(e.hours)),
+          0
+        );
+        this.getPauseAndPrivateHours();
+      }
+      this.setPrivateAndPauseCodes(row.code);
+    },
+    beforeOpenRewards() {
+      this.$store.dispatch("setEmpId", this.empId);
+      this.$store.dispatch(
+        "setSelectedYear",
+        new Date(this.endda).getFullYear()
+      );
     },
     setPrivateAndPauseCodes(code) {
       if ((this.reformType != 2 && this.reformType != 5) || code == "") {
@@ -342,11 +376,6 @@ export default {
       }
       return "";
     },
-    getAllFrontalHours() {
-      return this.newHours
-        .filter((el) => el.type == FRONTAL)
-        .reduce((sum, record) => sum + parseFloat(record.hours), 0);
-    },
     saveHours() {
       //check all data before let user to save
       let isValid = true;
@@ -449,6 +478,12 @@ export default {
           !this.newHours.find((i) => i.code == el.code)
       );
     },
+    isRewradHours(code) {
+      if (code == 9671 || code == 2598) {
+        return true;
+      }
+      return false;
+    },
   },
   watch: {
     empId: function (val) {
@@ -473,8 +508,11 @@ export default {
 </script>
 
 <style scoped>
+.test {
+  text-align: right;
+}
 .mySelectOption {
-  min-width: 200px;
+  /* min-width: 200px; */
   max-width: 250px !important;
   max-height: 32px;
   padding-top: 0;

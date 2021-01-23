@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
 import router from "../router/index";
+import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
 // axios.defaults.baseURL = "http://localhost:9191";
@@ -9,11 +10,14 @@ axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
 export const store = new Vuex.Store({
+  plugins: [createPersistedState()],
   state: {
     token: localStorage.getItem("access_token") || null,
     mossadId: localStorage.getItem("mossadId") || null,
     logginAs: localStorage.getItem("mossadId") || null,
     username: localStorage.getItem("username") || null,
+    empId: 0,
+    selectedYear: 0,
     mossadInfo: {
       mossadName: "",
       mossadId: "",
@@ -47,6 +51,12 @@ export const store = new Vuex.Store({
     setMossadInfo(state, mossadInfo) {
       state.mossadInfo = mossadInfo;
     },
+    setEmpId(state, empId) {
+      state.empId = empId
+    },
+    setSelectedYear(state, selectedYear) {
+      state.selectedYear = selectedYear
+    }
   },
   actions: {
     async retrieveToken(context, credentials) {
@@ -64,10 +74,9 @@ export const store = new Vuex.Store({
           context.commit("retrieveToken", token);
         })
         .catch((error) => {
-          this.$store.dispatch("displayErrorMessage", {
+          context.dispatch("displayErrorMessage", {
             error,
           });
-          alert("שגיאה בפרטי התחברות");
         });
     },
     destroyToken(context) {
@@ -81,44 +90,17 @@ export const store = new Vuex.Store({
         localStorage.removeItem("username");
         localStorage.removeItem("mossadId");
         context.commit("destroyToken");
-
         router.push({ name: "login" });
       }
     },
-
-    // async refreahToken(context) {
-    //   var loadAgian = false;
-    //   // delete only for this request
-    //   delete axios.defaults.headers.Authorization;
-    //   await axios
-    //     .get("/authenticate/refresh", {
-    //       params: {
-    //         token: context.state.token,
-    //         username: context.state.username,
-    //       },
-    //     })
-    //     .then((response) => {
-    //       if (response.data.jwt != undefined && response.data.jwt != null) {
-    //         context.state.token = response.data.jwt;
-    //         localStorage.setItem("access_token", context.state.token);
-    //         axios.defaults.headers.Authorization =
-    //           "Bearer " + context.state.token;
-    //         loadAgian = true;
-    //       } else {
-    //         context.dispatch("destroyToken");
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //       context.dispatch("destroyToken");
-    //     });
-    //   return loadAgian;
-    // },
     displayErrorMessage(context, error) {
+      // eslint-disable-next-line no-debugger
+      debugger;
       if (
         error.error.response.status != undefined &&
         (error.error.response.status == 401 ||
           (error.error.response.status == 500 &&
+            error.error.response.data.message != undefined &&
             error.error.response.data.message.startsWith("JWT")))
       ) {
         if (context.state.token != null) {
@@ -152,6 +134,12 @@ export const store = new Vuex.Store({
           })
         );
     },
+    setEmpId(context, empId) {
+      context.commit('setEmpId', empId);
+    },
+    setSelectedYear(context, selectedYear) {
+      context.commit("setSelectedYear", selectedYear)
+    }
   },
 });
 

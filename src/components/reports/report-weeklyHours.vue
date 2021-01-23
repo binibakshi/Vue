@@ -9,9 +9,10 @@
           item-value="year"
           label="שנה"
           placeholder="בחר שנה"
+          @change="onYearChange()"
         ></v-select>
       </v-col>
-      <v-col cols="12" md="2">
+      <v-col cols="12" md="2" v-if="this.$store.state.mossadId == 999">
         <v-autocomplete
           v-model="selections.mossadId"
           multiple
@@ -53,6 +54,7 @@
         :headers="headers"
         :items="dataToDisplay"
         :search="search"
+        @click:row="onRowClicked"
         :footer-props="{
           'items-per-page-options': [20, 50, 100, -1],
           'items-per-page-text': 'מספר תוצאות  :',
@@ -74,6 +76,7 @@
                       single-line
                       autocomplete="off"
                       hide-details
+                       append-icon="mdi-magnify"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -85,20 +88,12 @@
             >
           </v-toolbar>
         </template>
-        <template v-slot:item="{ item }">
-          <tr>
-            <td>{{ item.empId }}</td>
-            <td>{{ item.firstName }}</td>
-            <td>{{ item.lastName }}</td>
-            <td>{{ item.frontalHours }}</td>
-          </tr>
-        </template>
         <template slot="body.append">
           <tr>
             <td class="title"></td>
             <td class="title"></td>
             <td class="title">עובדים - {{ dataToDisplay.length }}</td>
-            <td class="title">סך שעות - {{ totalHours() }}</td>
+            <td class="title">סך שעות - {{ getTwoDigits(totalHours()) }}</td>
           </tr>
         </template>
       </v-data-table>
@@ -139,33 +134,38 @@ export default {
       },
     };
   },
-  created() {
+  mounted() {
     this.initilize();
-    this.getCodeDescription();
-    this.getMossadot();
-    this.getReformTypes();
-    this.getEmployees();
-    this.getSelectedData();
   },
   methods: {
-    initilize() {
+    async initilize() {
       this.headers = [
         { text: "תעודת זהות", value: "empId" },
         { text: "שם פרטי", value: "firstName" },
         { text: "שם משפחה", value: "lastName" },
         { text: "שעות פרונטליות", value: "frontalHours" },
       ];
-      var currDate = new Date();
-      this.selections.year =
-        currDate.getMonth() >= 8
-          ? currDate.getFullYear() + 1
-          : currDate.getFullYear();
-      if (this.$store.state.logginAs != 999) {
+
+      if (this.$store.state.selectedYear != 0) {
+        this.selections.year = this.$store.state.selectedYear;
+      } else {
+        let currDate = new Date();
+        this.selections.year =
+          currDate.getMonth() >= 8
+            ? currDate.getFullYear() + 1
+            : currDate.getFullYear();
+      }
+      if (this.$store.state.logginAs == this.$store.state.logginAs) {
         this.selections.mossadId.push(this.$store.state.logginAs);
       }
+      await this.getCodeDescription();
+      await this.getMossadot();
+      await this.getReformTypes();
+      await this.getEmployees();
+      this.getSelectedData();
     },
-    getMossadot() {
-      axios
+    async getMossadot() {
+      await axios
         .get("mossadot/all")
         .then((response) => {
           this.mossadot = response.data;
@@ -176,8 +176,8 @@ export default {
           })
         );
     },
-    getEmployees() {
-      axios
+    async getEmployees() {
+      await axios
         .get("/employees/all")
         .then((response) => {
           this.employees = response.data;
@@ -188,8 +188,8 @@ export default {
           })
         );
     },
-    getReformTypes() {
-      axios
+    async getReformTypes() {
+      await axios
         .get("/reformTypes/relevant")
         .then((response) => {
           this.reformTypes = response.data;
@@ -200,8 +200,8 @@ export default {
           })
         );
     },
-    getCodeDescription() {
-      axios
+    async getCodeDescription() {
+      await axios
         .get("/convertHours/all")
         .then((response) => {
           this.codeDescription = response.data;
@@ -215,6 +215,11 @@ export default {
           })
         );
     },
+    onRowClicked(row) {
+      this.$store.dispatch("setEmpId", row.empId);
+      let routeData = this.$router.resolve({ name: "employeeInfo" });
+      window.open(routeData.href);
+    },
     setDataToDispay() {
       this.dataToDisplay = [];
       // set hours
@@ -226,6 +231,7 @@ export default {
           this.dataToDisplay.push({ empId: el.empId, frontalHours: el.hours });
         }
       });
+
       // set personal details
       this.dataToDisplay.forEach((el) => {
         let currEmpId = this.employees.find((e) => e.empId == el.empId);
@@ -239,18 +245,21 @@ export default {
         0
       );
     },
+    getTwoDigits(number) {
+      if (isNaN(number)) {
+        return "";
+      }
+      return parseFloat(number).toFixed(2);
+    },
     getSelectedData() {
-      console.log("try selecting");
-
       var params = {
-        begda: this.formatDate(new Date(this.selections.year - 2, 8, 1)),
-        endda: this.formatDate(new Date(this.selections.year + 2, 5, 20)),
+        begda: this.formatDate(new Date(this.selections.year - 1, 7, 1)),
+        endda: this.formatDate(new Date(this.selections.year + 0, 6, 20)),
         mossadId: this.addSpaceIfNeeded(this.selections.mossadId),
         reformType: this.addSpaceIfNeeded(this.selections.reformType),
         empCode: this.addSpaceIfNeeded(this.selections.code),
         status: this.selections.status,
       };
-      console.log(params);
       axios
         .get("teacherEmploymentDetails/getReport", {
           params: params,
@@ -266,6 +275,9 @@ export default {
             error,
           })
         );
+    },
+    onYearChange() {
+      this.$store.dispatch("setSelectedYear", this.selections.year);
     },
     formatDate(currrDate) {
       var inputDate = new Date(currrDate);

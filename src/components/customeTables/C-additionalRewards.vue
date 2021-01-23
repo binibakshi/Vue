@@ -1,9 +1,9 @@
 <template>
   <div>
     <v-data-table
-      id="mossadotTable"
-      :headers="mossadotHeaders"
-      :items="mossadot"
+      id="additionalrewardsTable"
+      :headers="additionalrewardsHeaders"
+      :items="additionalrewards"
       :search="search"
       :footer-props="{
         'items-per-page-options': [20, 50, 100, -1],
@@ -16,7 +16,7 @@
           <v-toolbar-title>
             <v-card-title>
               <v-row>
-                <v-col cols="12" md="10">
+                <v-col cols="12" md="4">
                   <v-text-field
                     v-model="search"
                     label="Search"
@@ -24,7 +24,7 @@
                     single-line
                     autocomplete="off"
                     hide-details
-                    append-icon="mdi-magnify"
+                     append-icon="mdi-magnify"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -43,34 +43,44 @@
                 <v-row>
                   <v-col cols="12" md="2">
                     <v-text-field
-                      type="number"
-                      v-model="mossadInfo.mossadId"
-                      color="indigo accent-1"
-                      label="מספר מוסד"
+                      v-model="selection.profession"
+                      @change="onProfessionChange()"
+                      label="מקצוע"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="1">
                     <v-text-field
-                      v-model="mossadInfo.mossadName"
-                      color="indigo accent-1"
-                      label="שם מוסד"
+                      label='יח"ל'
+                      v-model="selection.units"
+                      type="number"
+                      min="1"
+                      max="5"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="4">
-                    <v-select
-                      :items="mossadTypes"
-                      v-model="mossadInfo.mossadType"
-                      item-text="typeName"
-                      item-value="typeId"
-                      label="סוג  מוסד"
-                    ></v-select>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      v-model="selection.questionnaire"
+                      label="שאלון"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      label="פנימי/חיצוני"
+                      id="id"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="1">
+                    <v-text-field
+                      label="גמול שעות"
+                      v-model="selection.hoursReward"
+                    ></v-text-field>
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-spacer></v-spacer>
                   <v-btn
                     color="success"
-                    @click="saveMossadInfo()"
+                    @click="saveadditionalRewardInfo()"
                     class="moveRight"
                     >שמור</v-btn
                   >
@@ -80,12 +90,12 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:[`item.mossadType`]="{ item }">
-        {{ getMossadType(item.mossadType) }}
+      <template v-slot:[`item.additionalRewardType`]="{ item }">
+        {{ getadditionalRewardType(item.additionalRewardType) }}
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small class="mr-2" @click="editMossad(item)">mdi-pencil</v-icon>
-        <v-icon small @click="deleteMossad(item)">mdi-delete</v-icon>
+        <v-icon small class="mr-2" @click="editadditionalReward(item)">mdi-pencil</v-icon>
+        <v-icon small @click="deleteadditionalReward(item)">mdi-delete</v-icon>
       </template>
     </v-data-table>
   </div>
@@ -96,39 +106,36 @@ import axios from "axios";
 import XLSX from "xlsx";
 
 export default {
-  name: "mossadotMenagement",
+  name: "additionalrewardsMenagement",
   components: {},
 
   data() {
     return {
       isNew: false,
-      mossadInfo: {},
+      additionalRewardInfo: {},
       search: "",
       dialog: false,
-      mossadot: [],
-      mossadTypes: [],
-      mossadotHeaders: [
-        { text: "מוסד", value: "mossadName" },
-        { text: "סוג מוסד", value: "mossadType" },
+      additionalrewards: [],
+      additionalRewardTypes: [],
+      additionalrewardsHeaders: [
+        { text: "מקצוע", value: "profession" },
+        { text: 'יח"ל', value: "studyUnits" },
+        { text: "שאלון", value: "questionnaire" },
+        { text: "פנימי/חיצוני", value: "isExternal" },
+        { text: "גמול שעות", value: "hoursReward" },
         { text: "פעולות", value: "actions", sortable: false },
       ],
     };
   },
   mounted() {
-    this.getAllMossadot();
-    this.getmossadTypes();
-  },
-  computed: {
-    _mossadotName() {
-      return this.mossadot.map((el) => el.mossadName);
-    },
+    this.getAllAdditionalRewards();
   },
   methods: {
-    getAllMossadot() {
+    getAllAdditionalRewards() {
       axios
-        .get("/mossadot/all")
+        .get("/additionalRewards/all")
         .then((response) => {
-          this.mossadot = response.data;
+          this.additionalrewards = response.data;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -136,28 +143,16 @@ export default {
           })
         );
     },
-    getmossadTypes() {
-      axios
-        .get("/mossadType/all")
-        .then((response) => {
-          this.mossadTypes = response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
-    },
-    createMossad() {
+    createAdditionalReward() {
       this.isNew = true;
-      this.mossadInfo = {};
+      this.additionalRewardInfo = {};
     },
-    saveMossadInfo() {
+    saveAdditionalRewardInfo() {
       let isSaved = false;
       axios({
-        url: "/mossadot/save",
+        url: "/additionalrewards/save",
         method: "post",
-        data: this.mossadInfo,
+        data: this.additionalRewardInfo,
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
@@ -171,16 +166,16 @@ export default {
         });
       return isSaved;
     },
-    editMossad(mossad) {
-      this.editedIndex = this.mossadot.indexOf(mossad);
-      this.mossadInfo = mossad;
+    editAdditionalReward(additionalReward) {
+      this.editedIndex = this.additionalrewards.indexOf(additionalReward);
+      this.additionalRewardInfo = additionalReward;
       this.dialog = true;
     },
-    deleteMossad(item) {
+    deleteAdditionalReward(item) {
       axios
-        .delete("/mossadot/byId", {
+        .delete("/additionalrewards/byId", {
           params: {
-            mossadId: item.mossadId,
+            additionalRewardId: item.additionalRewardId,
           },
         })
         .then(() => {
@@ -193,8 +188,8 @@ export default {
           })
         );
     },
-    getMossadType(mossadType) {
-      const currRecord = this.mossadTypes.find((el) => el.typeId == mossadType);
+    getMossadType(additionalRewardType) {
+      const currRecord = this.additionalRewardTypes.find((el) => el.typeId == additionalRewardType);
       if (currRecord != null) {
         return currRecord.typeName;
       }
@@ -202,15 +197,15 @@ export default {
     },
     onExport() {
       // On Click Excel download button
-      var temp = this.mossadot;
+      var temp = this.additionalrewards;
       temp.unshift({
-        mossadId: "קוד מוסד",
-        mossadName: "שם מוסד",
-        mossadType: "סוג מוסד",
+        additionalRewardId: "קוד מוסד",
+        additionalRewardName: "שם מוסד",
+        additionalRewardType: "סוג מוסד",
       });
       // export json to Worksheet of Excel
       // only array possible
-      var mossadotWs = XLSX.utils.json_to_sheet(temp, {
+      var additionalrewardsWs = XLSX.utils.json_to_sheet(temp, {
         skipHeader: true,
         Views: [{ RTL: true }],
       });
@@ -219,7 +214,7 @@ export default {
 
       // add Worksheet to Workbook
       // Workbook contains one or more worksheets
-      XLSX.utils.book_append_sheet(wb, mossadotWs, "מוסדות"); // sheetAName is name of Worksheet
+      XLSX.utils.book_append_sheet(wb, additionalrewardsWs, "מוסדות"); // sheetAName is name of Worksheet
       this.set_right_to_left(wb);
 
       // export Excel file
@@ -248,7 +243,7 @@ p {
   max-width: 60%;
   margin-bottom: 5%;
 }
-#mossadotTable {
+#additionalrewardsTable {
   padding-top: 20px;
   margin-top: 1%;
   margin-right: auto;

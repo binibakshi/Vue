@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import Vue from "vue";
 import VueRouter from "vue-router";
 import store from "../store/store";
@@ -28,6 +27,7 @@ const routes = [
   },
   {
     path: "/empInfo",
+    alias: "/",
     name: "employeeInfo",
     // route level code-splitting
     // this generates a separate chunk (EmployeeInfo.[hash].js) for this route
@@ -38,7 +38,10 @@ const routes = [
       ),
 
     beforeEnter(to, from, next) {
-      if (to.name == "employeeInfo" && store.state.logginAs == 999) {
+      if (
+        to.name == "employeeInfo" &&
+        (store.state.logginAs == 999 || store.state.logginAs == 998)
+      ) {
         alert("התחבר כמוסד כדי להכנס לדף זה");
         next({ name: "auth" });
       } else {
@@ -47,8 +50,9 @@ const routes = [
     },
   },
   {
-    path: "/AdditionalRewards",
+    path: "/AdditionalRewards/",
     name: "AdditionalRewards",
+    props: true,
     // route level code-splitting
     // this generates a separate chunk (Mossadot.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -56,6 +60,17 @@ const routes = [
       import(
         /* webpackChunkName: "AdditionalRewards" */ "../views/AdditionalRewards.vue"
       ),
+    beforeEnter(to, from, next) {
+      if (
+        to.name == "AdditionalRewards" &&
+        (store.state.logginAs == 999 || store.state.logginAs == 998)
+      ) {
+        alert("התחבר כמוסד כדי להכנס לדף זה");
+        next({ name: "auth" });
+      } else {
+        next();
+      }
+    },
   },
   {
     path: "/mossadot",
@@ -115,10 +130,40 @@ const routes = [
         /* webpackChunkName: "reportWeeklyHours" */ "../views/reportWeeklyHours.vue"
       ),
   },
+  {
+    path: "/reportBagrutRewards",
+    name: "reportBagrutRewards",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(
+        /* webpackChunkName: "reportBagrutRewards" */ "../views/reportBagrutRewards"
+      ),
+  },
+  {
+    path: "/mossadClasses",
+    name: "mossadClasses",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(
+        /* webpackChunkName: "mossadClasses" */ "../views/mossadClasses.vue"
+      ),
+  },
+  {
+    path: "/testPage",
+    name: "testPage",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "testPage" */ "../views/testPage.vue"),
+  },
 ];
 
 const router = new VueRouter({
-  mode: "history",
   routes,
 });
 

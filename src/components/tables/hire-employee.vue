@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="document">
     <v-data-table
       id="employeeTable"
       :headers="headers"
@@ -22,6 +22,7 @@
                 single-line
                 autocomplete="off"
                 hide-details
+                 append-icon="mdi-magnify"
               ></v-text-field>
             </v-card-title>
           </v-toolbar-title>
@@ -166,7 +167,7 @@ export default {
       },
     };
   },
-  created() {
+  mounted(){
     this.getAllTz();
   },
   methods: {

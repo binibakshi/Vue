@@ -2,7 +2,7 @@
   <v-card>
     <div class="littleMargin">
       <v-row id="mossadHoursDetails">
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="2" sm="2">
           <v-select
             style="max-hight: 40px"
             :items="years"
@@ -13,19 +13,21 @@
             label="שנה"
           ></v-select>
         </v-col>
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="2" sm="2">
           <p>מוסד - {{ _mossadInfo.mossadName }}</p>
         </v-col>
-        <v-col cols="12" md="2" @click="test()">
-          <p>שעות מאוישות - {{ _mossadInfo.currHours }}</p>
+        <v-col cols="12" md="2" sm="2">
+          <router-link :to="{ name: 'reportWeeklyHours' }" target="_blank">
+            שעות מאוישות - {{ _mossadInfo.currHours }}
+          </router-link>
         </v-col>
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="2" sm="2">
           <p>יתרת שעות - {{ _mossadInfo.maxHours - _mossadInfo.currHours }}</p>
         </v-col>
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="2" sm="2">
           <p>מגבלת שעות- {{ _mossadInfo.maxHours }}</p>
         </v-col>
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="2" sm="2">
           <p>
             אחוז איוש -
             {{
@@ -38,14 +40,13 @@
       </v-row>
       <div v-show="_mossadInfo.maxHours != null && _mossadInfo.maxHours != 0">
         <v-row id="employeeDetails">
-          <v-col id="serchEmployee" cols="12" md="3">
+          <v-col id="serchEmployee" cols="12" md="2" sm="2" lg="3">
             <v-autocomplete
               :disabled="
                 _mossadInfo.maxHours == null || _mossadInfo.maxHours == 0
               "
               v-model="empId"
               :items="tzArray"
-              color="indigo lighten-5"
               hide-selected
               :item-text="
                 (item) =>
@@ -57,23 +58,23 @@
               @change="getEmployeeInfo()"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="12" md="1">
+          <v-col cols="12" md="1" sm="1">
             <p>שם פרטי</p>
             {{ employeeInfo.firstName }}
           </v-col>
-          <v-col cols="12" md="1">
+          <v-col cols="12" md="1" sm="1">
             <p>שם משפחה</p>
             {{ employeeInfo.lastName }}
           </v-col>
-          <v-col cols="12" md="1">
+          <v-col cols="12" md="1" sm="1">
             <p>גיל</p>
             {{ _getAge }}
           </v-col>
-          <v-col cols="12" md="1">
+          <v-col cols="12" md="1" sm="1">
             <p>משרת אם</p>
             {{ formatIsMother }}
           </v-col>
-          <v-col cols="12" md="1">
+          <v-col cols="12" md="1" sm="1">
             <p>שעות גיל</p>
             {{ _getAgeHours }}
           </v-col>
@@ -112,6 +113,12 @@
                 </tr>
               </tbody>
             </table>
+            <span
+              style="font-weight: bold"
+              v-for="reform in workInReforms"
+              :key="reform"
+              >{{ getRreformDiscription(reform) + ", " }}</span
+            >
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <v-icon
@@ -128,10 +135,10 @@
           </v-col>
         </v-row>
         <v-row v-if="empId != null">
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="3" sm="3">
             <v-select
               v-model="selectedReforms"
-              :items="relevantRreformTypes"
+              :items="filterReformTypeByMossad()"
               item-text="name"
               item-value="reformId"
               label="בחר רפורמה"
@@ -140,8 +147,15 @@
             ></v-select>
           </v-col>
         </v-row>
-        <v-card v-if="employeeInfo != null && selectedReforms != null">
-          <v-card v-for="(reform, index) in selectedReforms" :key="index">
+        <v-card
+          v-if="employeeInfo != null && selectedReforms != null"
+          class="littleSpace"
+        >
+          <v-card
+            v-for="(reform, index) in selectedReforms"
+            :key="index"
+            class="littleSpace"
+          >
             <weeklyHours
               :empId="empId"
               :reformType="reform"
@@ -150,6 +164,7 @@
               :selectedYear="selectedYear"
               :codeDescription="getRelevantCodesDescription(reform)"
               :existData="getRelevantData(reform)"
+              :rewardHours="rewardHours"
             ></weeklyHours>
           </v-card>
         </v-card>
@@ -172,7 +187,7 @@ export default {
   },
   data() {
     return {
-      selectedReforms: null,
+      selectedReforms: [],
       selectedYear: 0,
       empId: null,
       ageHours: 0,
@@ -181,15 +196,17 @@ export default {
       employeeInfo: {},
       existData: [],
       reformTypes: [],
-      relevantRreformTypes: [],
+      workInReforms: [],
       codeDescription: [],
       empHoursTable: [],
+      years: [],
       mossadot: [],
+      rewardHours: [],
       mossadInfo: { mossadId: "", mossadName: "", maxHours: 0, currHours: 0 },
       hoverText: "",
     };
   },
-  created() {
+  mounted() {
     this.initilize();
     this.getAllTz();
     this.getCodeDescription();
@@ -197,8 +214,6 @@ export default {
     this.getReformTypes();
     this.setBegdaEndda();
     this.getMossadHours();
-  },
-  mounted() {
     bus.$on("changeWeeklyHours", async () => {
       this.getAllEmpData();
       await this.getMossadHours();
@@ -275,16 +290,20 @@ export default {
     },
   },
   methods: {
-    test() {
-      let routeData = this.$router.resolve({ name: "reportWeeklyHours" });
-      window.open(routeData.href, "_blank");
-    },
     initilize() {
-      let currDate = new Date();
-      this.selectedYear =
-        currDate.getMonth() >= 8
-          ? currDate.getFullYear() + 1
-          : currDate.getFullYear();
+      if (this.$store.state.selectedYear != 0) {
+        this.selectedYear = this.$store.state.selectedYear;
+      } else {
+        let currDate = new Date();
+        this.selectedYear =
+          currDate.getMonth() >= 8
+            ? currDate.getFullYear() + 1
+            : currDate.getFullYear();
+      }
+      if (this.$store.state.empId != null) {
+        this.empId = this.$store.state.empId;
+        this.getEmployeeInfo();
+      }
       this.mossadInfo.mossadId = this.$store.state.mossadId;
       this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName;
       this.years = [
@@ -308,7 +327,7 @@ export default {
       }
     },
     onYearChanged() {
-      this.initilize();
+      this.$store.dispatch("setSelectedYear", this.selectedYear);
       this.setBegdaEndda();
       this.getMossadHours();
       this.getAllEmpData();
@@ -326,6 +345,7 @@ export default {
         );
     },
     async getEmployeeInfo() {
+      this.$store.dispatch("setEmpId", this.empId);
       await axios
         .get("/employees/byId", {
           params: {
@@ -340,6 +360,22 @@ export default {
             error,
           })
         );
+      await axios
+        .get("/teachersRewards/byEmpIdAndMossadAndYear", {
+          params: {
+            empId: this.empId,
+            mossadId: this.$store.state.logginAs,
+            year: this.selectedYear,
+          },
+        })
+        .then((response) => {
+          this.rewardHours = response.data;
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
       this.calcAgeHours();
       this.getAllEmpData();
     },
@@ -445,7 +481,7 @@ export default {
     },
     filterReformTypeByMossad() {
       if (this.$store.state.mossadInfo.mossadType == 2) {
-        this.relevantRreformTypes = this.reformTypes.filter(
+        return this.reformTypes.filter(
           (el) =>
             el.reformId == 1 ||
             el.reformId == 5 ||
@@ -454,12 +490,12 @@ export default {
             el.reformId == 8
         );
       } else if (this.$store.state.mossadInfo.mossadType == 1) {
-        this.relevantRreformTypes = this.reformTypes.filter(
+        return this.reformTypes.filter(
           (el) => el.reformId == 1 || el.reformId == 5 || el.reformId == 8
         );
       }
+      return this.reformTypes;
     },
-
     getTwoDigits(number) {
       if (isNaN(number)) {
         return "";
@@ -491,6 +527,13 @@ export default {
           el.reformType == reformType &&
           el.mossadId == this.$store.state.logginAs
       );
+    },
+    getRreformDiscription(reform) {
+      var name = this.reformTypes.find((el) => el.reformId == reform);
+      if (name != undefined) {
+        return name.name;
+      }
+      return "";
     },
     getMossadot() {
       axios
@@ -542,6 +585,8 @@ export default {
     calcEmpHoursData() {
       // this function calc all emp hours the
 
+      this.workInReforms = [];
+
       // set initial values in the displayed array
       this.empHoursTable = [
         { week: [], sum: 0, jobPercent: 0, type: 0 },
@@ -569,7 +614,17 @@ export default {
         ) {
           this.empHoursTable[1].week[el.day].mossadot.push(el.mossadId);
         }
+
+        // add current reforms so it will open automaticly
+        if (
+          !this.workInReforms.includes(el.reformType) &&
+          el.mossadId == this.$store.state.logginAs &&
+          el.hours != 0
+        ) {
+          this.workInReforms.push(el.reformType);
+        }
       });
+      this.selectedReforms = this.workInReforms;
 
       // calc job percent devied by curr mossad and all mossadot
       this.reformTypes.forEach((el) => {
@@ -613,6 +668,10 @@ p {
 .littleMargin {
   margin-right: 3%;
   margin-left: 3%;
+}
+.littleSpace {
+  margin: 10px;
+  padding: 10px;
 }
 #serchEmployee {
   max-width: 400px;

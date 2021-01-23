@@ -26,6 +26,7 @@
                     single-line
                     autocomplete="off"
                     hide-details
+                     append-icon="mdi-magnify"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="3">
@@ -129,7 +130,7 @@ export default {
       ],
     };
   },
-  async created() {
+  async mounted(){
     this.initilize();
     await this.getAllMossadot();
     await this.getAllMossadotHours();

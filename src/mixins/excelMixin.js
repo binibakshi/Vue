@@ -13,7 +13,7 @@ export default {
       dataToExport: [],
     };
   },
-  created() {
+  mounted(){
     this.getCodesDescription();
   },
   methods: {
