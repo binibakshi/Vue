@@ -40,6 +40,22 @@
           <v-list-item to="/mossadot">ניהול מוסדות </v-list-item>
           <v-list-item to="/mossadotHours"> מגבלת שעות למוסד </v-list-item>
           <v-list-item to="/mossadClasses">ניהול כיתות במוסד</v-list-item>
+          <v-menu left offset-x>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                text
+                class="align-self-center mr-4"
+                style="magin: 0"
+                v-bind="attrs"
+                v-on="on"
+              >
+                עריכת טבלאות נתונים <v-icon right> mdi-menu-left </v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item to="/cutomizeTables">גמולי בגרות</v-list-item>
+            </v-list>
+          </v-menu>
         </v-list>
       </v-menu>
       <div id="navbarInfo" class="parent">

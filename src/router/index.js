@@ -153,13 +153,13 @@ const routes = [
       ),
   },
   {
-    path: "/testPage",
-    name: "testPage",
+    path: "/cutomizeTables",
+    name: "cutomizeTables",
     // route level code-splitting
     // this generates a separate chunk (Mossadot.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "testPage" */ "../views/testPage.vue"),
+      import(/* webpackChunkName: "cutomizeTables" */ "../views/cutomizeTables.vue"),
   },
 ];
 

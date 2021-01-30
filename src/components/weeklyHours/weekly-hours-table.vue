@@ -1,5 +1,8 @@
 <template>
-  <div v-if="empId != null && reformType != 0" style="margin: auto">
+  <div
+    v-if="empId != null && reformType != 0"
+    style="margin: auto; margin-top: 15px"
+  >
     <table id="t01">
       <thead>
         <tr>
@@ -125,7 +128,7 @@
         </tr>
       </tbody>
     </table>
-    <v-row class="center">
+    <v-row class="center" style="margin-top: auto">
       <v-btn class="myBtn" color="primary" @click="saveHours()"
         >שמור שעות</v-btn
       >
@@ -306,10 +309,29 @@ export default {
           this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
         }
       });
+      this.setExistrRewrds();
       this.setPrivateAndPauseCodes(
         this.newHours.find((el) => el.type == FRONTAL).code
       );
       this.sortTable();
+    },
+    setExistrRewrds() {
+      let currCode = this.reformType == 5 ? 9671 : 2598;
+      let bagrutHours = this.rewardHours
+        .filter((el) => el.reformId == this.reformType)
+        .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
+
+      let currtRewrds = this.newHours.find((el) => el.code == currCode);
+      if (currtRewrds) {
+        currtRewrds.hours = bagrutHours;
+      } else if (bagrutHours != 0) {
+        this.newHours.push({
+          code: currCode,
+          hours: bagrutHours,
+          type: 1,
+          week: [0, 0, 0, 0, 0, 0],
+        });
+      }
     },
     removeRow(index) {
       if (index === 0) {

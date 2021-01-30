@@ -345,9 +345,9 @@ input {
 #employeeTable {
   margin-bottom: 3%;
 }
-#myform {
+/* #myform {
   background-color: #ffffe6;
-}
+} */
 .v-card > *:first-child:not(.v-btn):not(.v-chip) {
   background-color: initial;
 }

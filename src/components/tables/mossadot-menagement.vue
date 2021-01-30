@@ -148,10 +148,6 @@ export default {
           })
         );
     },
-    createMossad() {
-      this.isNew = true;
-      this.mossadInfo = {};
-    },
     saveMossadInfo() {
       let isSaved = false;
       axios({

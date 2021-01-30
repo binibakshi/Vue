@@ -1,16 +1,19 @@
 <template>
   <v-card class="center wrapper">
-    <test />
+    <test v-if="1 == 0" />
+    <test2 />
   </v-card>
 </template>
 
 <script>
 import test from "../components/excels/bagrut-rewards-excel.vue";
+import test2 from "../components/tables/bagrut-rewards-table.vue";
 
 export default {
-  name: "testPage",
+  name: "cutomizeTables",
   components: {
     test,
+    test2,
   },
   data() {
     return {

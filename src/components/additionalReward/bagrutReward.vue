@@ -22,7 +22,7 @@
                   single-line
                   autocomplete="off"
                   hide-details
-                   append-icon="mdi-magnify"
+                  append-icon="mdi-magnify"
                 ></v-text-field>
               </v-card-title>
             </v-toolbar-title>
@@ -38,13 +38,13 @@
             <v-btn dense color="success" @click="saveAll()">שמור הכל</v-btn>
           </div>
         </template>
-        <template v-slot:[`item.profession`]="{ item }">
-          <v-select
-            :items="professions"
-            v-model="item.profession"
-            @change="onProfessionChange(item)"
+        <template v-slot:[`item.studyName`]="{ item }">
+          <v-autocomplete
+            :items="studyNames"
+            v-model="item.studyName"
+            @change="onStudyNameChange(item)"
             label="מקצוע"
-          ></v-select>
+          ></v-autocomplete>
         </template>
         <template v-slot:[`item.units`]="{ item }">
           <v-select
@@ -56,8 +56,8 @@
         </template>
         <template v-slot:[`item.questionnaire`]="{ item }">
           <v-select
-            :items="getQuestionnaires(item.profession)"
-            :disabled="getQuestionnaires(item.profession).length == 0"
+            :items="getQuestionnaires(item.studyName)"
+            :disabled="getQuestionnaires(item.studyName).length == 0"
             v-model="item.questionnaire"
             @change="onQuestionnairesChange(item)"
             label="שאלון"
@@ -68,6 +68,13 @@
             :items="isExternalRange"
             @change="onBagrutTypeChange(item)"
             v-model="item.isExternal"
+            label="סוג"
+          ></v-select>
+        </template>
+        <template v-slot:[`item.reformId`]="{ item }">
+          <v-select
+            :items="reformTypes"
+            v-model="item.reformId"
             label="סוג"
           ></v-select>
         </template>
@@ -140,10 +147,11 @@ export default {
     return {
       search: "",
       headers: [
-        { text: "מקצוע", value: "profession" },
+        { text: "מקצוע", value: "studyName" },
         { text: 'יח"ל', value: "units" },
         { text: "שאלון", value: "questionnaire" },
         { text: "סוג", value: "isExternal" },
+        { text: "רפורמה", value: "reformId" },
         { text: "כיתה", value: "teachingClass" },
         { text: "האם לפצל", value: "isSplit" },
         { text: "תלמידים", value: "students" },
@@ -152,13 +160,23 @@ export default {
         { text: "פעולות", value: "actions" },
       ],
       rewards: [],
-      professions: [],
+      studyNames: [],
       tableData: [],
       classes: [
         { text: "ט", value: 9 },
         { text: "י", value: 10 },
         { text: 'י"א', value: 11 },
         { text: 'י"ב', value: 12 },
+      ],
+      reformTypes: [
+        {
+          text: "עוז לתמורה",
+          value: 5,
+        },
+        {
+          text: "עולם ישן",
+          value: 1,
+        },
       ],
       isExternalRange: [
         {
@@ -184,7 +202,7 @@ export default {
   },
   mounted() {
     this.initilize();
-    this.getProfessions();
+    this.studyName();
     this.setExistData();
   },
   methods: {
@@ -201,6 +219,7 @@ export default {
             empId: this.empId,
             rewardId: el.recordkey,
             mossadId: this.$store.state.logginAs,
+            reformId: el.reformId,
             year: this.selectedYear,
             split: el.isSplit,
             students: el.students,
@@ -229,6 +248,7 @@ export default {
         empId: this.empId,
         rewardId: row.recordkey,
         mossadId: this.$store.state.logginAs,
+        reformId: row.reformId,
         year: this.selectedYear,
         split: row.isSplit,
         students: row.students,
@@ -263,10 +283,11 @@ export default {
         this.rewards.push({
           isSplit: el.split,
           students: el.students,
-          profession: currReward.profession,
+          studyName: currReward.studyName,
           units: currReward.studyUnits,
+          reformId: el.reformId,
           questionnaire: currReward.questionnaire,
-          isExternal: currReward.external,
+          isExternal: el.external,
           hoursReward: el.hours,
           percentReward: el.percent,
           recordkey: el.rewardId,
@@ -278,7 +299,8 @@ export default {
       this.rewards.push({
         isExternal: true,
         teachingClass: 9,
-        profession: null,
+        studyName: null,
+        reformId: 5,
         questionnaire: "",
         isSplit: false,
         units: 0,
@@ -323,7 +345,7 @@ export default {
           });
         });
     },
-    onProfessionChange(row) {
+    onStudyNameChange(row) {
       row.questionnaire = row.units = "";
       row.hoursReward = row.percentReward = 0;
       row.students = 10;
@@ -332,13 +354,13 @@ export default {
       if (
         this.additionalReward.find(
           (el) =>
-            el.profession == row.profession &&
+            el.studyName == row.studyName &&
             el.questionnaire == row.questionnaire
         ) != null
       ) {
         row.units = this.additionalReward.find(
           (el) =>
-            el.profession == row.profession &&
+            el.studyName == row.studyName &&
             el.questionnaire == row.questionnaire
         ).studyUnits;
       }
@@ -371,33 +393,43 @@ export default {
     onHoursRewardChange(row) {
       let temp = this.additionalReward.find(
         (el) =>
-          el.profession == row.profession &&
+          el.studyName == row.studyName &&
           (el.questionnaire == null || el.questionnaire == row.questionnaire) &&
-          el.studyUnits == row.units &&
-          el.external == row.isExternal
+          el.studyUnits == row.units
       );
       if (temp == null) {
         return;
       }
-      if (parseFloat(row.hoursReward) > temp.hoursReward) {
-        row.hoursReward = temp.hoursReward;
-        this.onStudentsChange(row);
+      // check if internal or extrnal hours
+      if (row.external) {
+        if (parseFloat(row.hoursReward) > temp.externalHoursReward) {
+          row.hoursReward = temp.externalHoursReward;
+          this.onStudentsChange(row);
+        } else {
+          row.percentReward =
+            temp.percentReward / (temp.externalHoursReward / row.hoursReward);
+        }
       } else {
-        row.percentReward =
-          temp.percentReward / (temp.hoursReward / row.hoursReward);
+        if (parseFloat(row.hoursReward) > temp.internalHoursReward) {
+          row.hoursReward = temp.internalHoursReward;
+          this.onStudentsChange(row);
+        } else {
+          row.percentReward =
+            temp.percentReward / (temp.internalHoursReward / row.hoursReward);
+        }
       }
     },
-    getProfessions() {
+    studyName() {
       this.additionalReward.forEach((el) => {
-        if (this.professions.includes(el.profession) == false) {
-          this.professions.push(el.profession);
+        if (this.studyNames.includes(el.studyName) == false) {
+          this.studyNames.push(el.studyName);
         }
       });
     },
-    getQuestionnaires(profession) {
+    getQuestionnaires(studyName) {
       var temp = [];
       this.additionalReward
-        .filter((el) => el.profession == profession)
+        .filter((el) => el.studyName == studyName)
         .forEach((el) => {
           if (
             el.questionnaire != null &&
@@ -411,17 +443,22 @@ export default {
     getHoursReward(row) {
       let temp = this.additionalReward.find(
         (el) =>
-          el.profession == row.profession &&
+          el.studyName == row.studyName &&
           (el.questionnaire == null || el.questionnaire == row.questionnaire) &&
-          el.studyUnits == row.units &&
-          el.external == row.isExternal
+          el.studyUnits == row.units
       );
       if (temp == null) {
         row.hoursReward = 0;
         row.percentReward = 0;
       } else {
-        row.hoursReward = temp.hoursReward;
-        row.percentReward = temp.percentReward;
+        row.hoursReward =
+          row.isExternal == true
+            ? temp.internalHoursReward
+            : temp.externalHoursReward;
+        row.percentReward =
+          row.isExternal == true
+            ? temp.internalPercentReward
+            : temp.externalPercentReward;
         row.recordkey = temp.recordkey;
       }
     },
@@ -429,7 +466,7 @@ export default {
       let units = Array.from(
         new Set(
           this.additionalReward
-            .filter((el) => el.profession == row.profession)
+            .filter((el) => el.studyName == row.studyName)
             .map((item) => item.studyUnits)
         )
       );
@@ -446,7 +483,7 @@ export default {
         lastName: "שם משפחה",
         mossadName: "שם מוסד",
         year: "שנה",
-        profession: "מקצוע",
+        studyName: "מקצוע",
         questionnaire: "שאלון",
         studyUnits: 'יח"ל',
         teachingClass: "כיתה",
@@ -465,7 +502,7 @@ export default {
           lastName: this.empData.lastName,
           mossadName: this.$store.state.mossadInfo.mossadName,
           year: this.selectedYear,
-          profession: el.profession,
+          studyName: el.studyName,
           questionnaire: el.questionnaire,
           studyUnits: el.units,
           external: this.isExternalRange.find((e) => e.value == el.isExternal)

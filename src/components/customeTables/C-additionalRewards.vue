@@ -237,7 +237,7 @@ p {
   font-weight: bold;
 }
 .wrapper {
-  background-color: #ffffe6;
+  /* background-color: #ffffe6; */
   margin-right: 150px;
   margin-top: 50px;
   max-width: 60%;

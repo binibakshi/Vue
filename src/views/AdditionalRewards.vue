@@ -123,7 +123,7 @@ export default {
     },
     async getAdditionalRewards() {
       await axios
-        .get("additionalRewards/all")
+        .get("bagrutRewards/all")
         .then((response) => {
           this.additionalReward = response.data;
         })

@@ -13,7 +13,7 @@
           >שמור הכל</v-btn
         >
 
-        <div v-if="bagrutRewardsTable != null">
+        <div v-if="bagrutRewardsTable.length > 0">
           <v-data-table
             dense
             id="myTable"
