@@ -5,8 +5,8 @@ import router from "../router/index";
 import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
-axios.defaults.baseURL = "http://localhost:9191";
-// axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
+// axios.defaults.baseURL = "http://localhost:9191";
+axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
 export const store = new Vuex.Store({

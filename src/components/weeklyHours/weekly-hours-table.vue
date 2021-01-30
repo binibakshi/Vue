@@ -176,11 +176,11 @@ export default {
       frontalConst: FRONTAL,
     };
   },
-  mounted() {
+  async mounted() {
     this.initilizer();
     this.setFrontalCodes();
     this.setBegdaEndda();
-    this.getEmployeeOptions();
+    await this.getEmployeeOptions();
     this.setExistData();
   },
   methods: {
@@ -196,8 +196,7 @@ export default {
 
       if (totalFrontalHours <= 0) {
         return;
-      }
-
+      }  
       this.newHours.find((el) => el.type == PAUSE).hours = this.empOptions.find(
         (el) => el.frontalHours == totalFrontalHours
       ).pauseHours;
@@ -208,8 +207,8 @@ export default {
         (el) => el.frontalHours == totalFrontalHours
       ).privateHours;
     },
-    getEmployeeOptions() {
-      axios
+    async getEmployeeOptions() {
+      await axios
         .get("/calcHours/options", {
           params: {
             reformType: this.reformType,
@@ -309,13 +308,13 @@ export default {
           this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
         }
       });
-      this.setExistrRewrds();
+      this.setExistrRewards();
       this.setPrivateAndPauseCodes(
         this.newHours.find((el) => el.type == FRONTAL).code
       );
       this.sortTable();
     },
-    setExistrRewrds() {
+    setExistrRewards() {
       let currCode = this.reformType == 5 ? 9671 : 2598;
       let bagrutHours = this.rewardHours
         .filter((el) => el.reformId == this.reformType)
@@ -332,6 +331,7 @@ export default {
           week: [0, 0, 0, 0, 0, 0],
         });
       }
+      this.getPauseAndPrivateHours();
     },
     removeRow(index) {
       if (index === 0) {

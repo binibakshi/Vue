@@ -15,15 +15,26 @@
           <v-toolbar flat color="white">
             <v-toolbar-title>
               <v-card-title>
-                <v-text-field
-                  v-model="search"
-                  label="Search"
-                  placeholder="חפש"
-                  single-line
-                  autocomplete="off"
-                  hide-details
-                  append-icon="mdi-magnify"
-                ></v-text-field>
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="search"
+                      label="Search"
+                      placeholder="חפש"
+                      single-line
+                      autocomplete="off"
+                      hide-details
+                      append-icon="mdi-magnify"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-select
+                      :items="reformTypes"
+                      v-model="selectedReformId"
+                      label="סוג"
+                    ></v-select>
+                  </v-col>
+                </v-row>
               </v-card-title>
             </v-toolbar-title>
             <v-spacer></v-spacer>
@@ -68,13 +79,6 @@
             :items="isExternalRange"
             @change="onBagrutTypeChange(item)"
             v-model="item.isExternal"
-            label="סוג"
-          ></v-select>
-        </template>
-        <template v-slot:[`item.reformId`]="{ item }">
-          <v-select
-            :items="reformTypes"
-            v-model="item.reformId"
             label="סוג"
           ></v-select>
         </template>
@@ -151,7 +155,6 @@ export default {
         { text: 'יח"ל', value: "units" },
         { text: "שאלון", value: "questionnaire" },
         { text: "סוג", value: "isExternal" },
-        { text: "רפורמה", value: "reformId" },
         { text: "כיתה", value: "teachingClass" },
         { text: "האם לפצל", value: "isSplit" },
         { text: "תלמידים", value: "students" },
@@ -159,6 +162,7 @@ export default {
         { text: "גמול אחוזים", value: "percentReward" },
         { text: "פעולות", value: "actions" },
       ],
+      selectedReformId: 5,
       rewards: [],
       studyNames: [],
       tableData: [],
@@ -219,7 +223,7 @@ export default {
             empId: this.empId,
             rewardId: el.recordkey,
             mossadId: this.$store.state.logginAs,
-            reformId: el.reformId,
+            reformId: this.selectedReformId,
             year: this.selectedYear,
             split: el.isSplit,
             students: el.students,
@@ -248,7 +252,7 @@ export default {
         empId: this.empId,
         rewardId: row.recordkey,
         mossadId: this.$store.state.logginAs,
-        reformId: row.reformId,
+        reformId: this.selectedReformId,
         year: this.selectedYear,
         split: row.isSplit,
         students: row.students,
@@ -280,12 +284,15 @@ export default {
         currReward = this.additionalReward.find(
           (e) => e.recordkey == el.rewardId
         );
+        if (currReward == undefined) {
+          return
+        }
         this.rewards.push({
           isSplit: el.split,
           students: el.students,
           studyName: currReward.studyName,
           units: currReward.studyUnits,
-          reformId: el.reformId,
+          reformId: this.selectedReformId,
           questionnaire: currReward.questionnaire,
           isExternal: el.external,
           hoursReward: el.hours,
@@ -300,7 +307,6 @@ export default {
         isExternal: true,
         teachingClass: 9,
         studyName: null,
-        reformId: 5,
         questionnaire: "",
         isSplit: false,
         units: 0,

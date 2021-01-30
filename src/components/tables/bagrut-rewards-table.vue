@@ -29,6 +29,9 @@
               <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on"
                 >צור גמול בגרות</v-btn
               >
+              <v-btn color="red" dark class="mb-2" @click="deleteAll()"
+                >מחק הכל</v-btn
+              >
             </template>
             <v-card class="center">
               <h1>גמול בגרות</h1>
@@ -287,6 +290,19 @@ export default {
           });
         });
       this.getAdditionalRewards();
+    },
+    deleteAll() {
+      axios
+        .delete("/bagrutRewards/deleteAll")
+        .then(() => {
+          alert("הנתונים נמחקו בהצלחה");
+          this.getAdditionalRewards();
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
     },
     closeNewRow() {
       this.newRow = {};
