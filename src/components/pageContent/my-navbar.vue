@@ -18,6 +18,9 @@
         <v-list>
           <v-list-item to="/reportBagrutRewards">גמולי בגרות</v-list-item>
         </v-list>
+        <v-list>
+          <v-list-item to="/rewardsGapsReport">דוח פערי שעות-גמולים</v-list-item>
+        </v-list>
       </v-menu>
       <v-menu offset-y v-if="$store.state.mossadId == 999">
         <template v-slot:activator="{ on, attrs }">

@@ -285,7 +285,7 @@ export default {
           (e) => e.recordkey == el.rewardId
         );
         if (currReward == undefined) {
-          return
+          return;
         }
         this.rewards.push({
           isSplit: el.split,
@@ -376,19 +376,38 @@ export default {
       this.getHoursReward(row);
     },
     onStudentsChange(row) {
-      let rewrdsData = this.additionalReward.find(
+      let rewardsData = this.additionalReward.find(
         (el) => el.recordkey == row.recordkey
       );
-      if (parseInt(row.students) > 9) {
-        row.hoursReward = rewrdsData.hoursReward;
-        row.percentReward = rewrdsData.percentReward;
-      } else if (parseInt(row.students) > 5) {
-        row.hoursReward = rewrdsData.hoursReward / 2;
-        row.percentReward = rewrdsData.percentReward / 2;
+      // handle external and internal diffrently (could be done by add some variable but i find it more complex)
+      if (row.isExternal) {
+        if (parseInt(row.students) > 9) {
+          row.hoursReward = rewardsData.externalHoursReward;
+          row.percentReward = rewardsData.externalPercentReward;
+        } else if (parseInt(row.students) > 5) {
+          row.hoursReward = rewardsData.externalHoursReward / 2;
+          row.percentReward = rewardsData.externalPercentReward / 2;
+        } else {
+          row.hoursReward =
+            rewardsData.externalHoursReward != 1.5
+              ? rewardsData.externalHoursReward / 4
+              : 0.33;
+          row.percentReward = rewardsData.externalPercentReward / 4;
+        }
       } else {
-        row.hoursReward =
-          rewrdsData.hoursReward != 1.5 ? rewrdsData.hoursReward / 4 : 0.33;
-        row.percentReward = rewrdsData.percentReward / 4;
+        if (parseInt(row.students) > 9) {
+          row.hoursReward = rewardsData.internalHoursReward;
+          row.percentReward = rewardsData.internalPercentReward;
+        } else if (parseInt(row.students) > 5) {
+          row.hoursReward = rewardsData.internalHoursReward / 2;
+          row.percentReward = rewardsData.internalPercentReward / 2;
+        } else {
+          row.hoursReward =
+            rewardsData.internalHoursReward != 1.5
+              ? rewardsData.internalHoursReward / 4
+              : 0.33;
+          row.percentReward = rewardsData.internalPercentReward / 4;
+        }
       }
     },
     onIsSplitChange(row) {

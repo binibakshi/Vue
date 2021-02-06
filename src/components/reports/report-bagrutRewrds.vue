@@ -55,7 +55,7 @@
                       single-line
                       autocomplete="off"
                       hide-details
-                       append-icon="mdi-magnify"
+                      append-icon="mdi-magnify"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -216,7 +216,7 @@ export default {
     },
     async getAdditionalRewards() {
       await axios
-        .get("additionalRewards/all")
+        .get("bagrutRewards/all")
         .then((response) => {
           this.additionalReward = response.data;
         })
@@ -291,7 +291,7 @@ export default {
         // mossadId: "מוסד",
         mossadName: "שם מוסד",
         year: "שנה",
-        profession: "מקצוע",
+        studyName: "מקצוע",
         questionnaire: "שאלון",
         studyUnits: 'יח"ל',
         teachingClass: "כיתה",
@@ -313,12 +313,11 @@ export default {
           lastName: this.employees.find((e) => e.empId == el.empId).lastName,
           mossadName: this.$store.state.mossadInfo.mossadName,
           year: this.selectedYear,
-          profession: currReward.profession,
+          studyName: currReward.studyName,
           questionnaire: currReward.questionnaire,
           studyUnits: currReward.studyUnits,
-          external: this.isExternalRange.find(
-            (e) => e.value == currReward.external
-          ).text,
+          external: this.isExternalRange.find((e) => e.value == el.external)
+            .text,
           teachingClass: this.classes.find((e) => e.value == el.teachingClass)
             .text,
           split: this.isSplitedRange.find((e) => e.value == el.split).text,

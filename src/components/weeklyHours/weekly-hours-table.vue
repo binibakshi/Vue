@@ -196,7 +196,7 @@ export default {
 
       if (totalFrontalHours <= 0) {
         return;
-      }  
+      }
       this.newHours.find((el) => el.type == PAUSE).hours = this.empOptions.find(
         (el) => el.frontalHours == totalFrontalHours
       ).pauseHours;

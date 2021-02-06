@@ -161,6 +161,15 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "cutomizeTables" */ "../views/cutomizeTables.vue"),
   },
+  {
+    path: "/rewardsGapsReport",
+    name: "rewardsGapsReport",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "cutomizeTables" */ "../views/rewardsGapsReport.vue"),
+  },
 ];
 
 const router = new VueRouter({

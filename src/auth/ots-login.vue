@@ -1,7 +1,6 @@
 <template id="login-form">
   <div class="login-wrapper">
     <div class="login-left">
-      <!-- <img height="150" src="https://upload.wikimedia.org/wikipedia/he/3/36/Ohr_torah_stone.jpg" /> -->
       <img height="150" src="../assets/Ohr_torah_stone.jpg" />
     </div>
     <form class="login-right" @submit.prevent>
