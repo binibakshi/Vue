@@ -22,7 +22,10 @@
           </router-link>
         </v-col>
         <v-col cols="12" md="2" sm="2">
-          <p>יתרת שעות - {{ _mossadInfo.maxHours - _mossadInfo.currHours }}</p>
+          <p>
+            יתרת שעות -
+            {{ getTwoDigits(_mossadInfo.maxHours - _mossadInfo.currHours) }}
+          </p>
         </v-col>
         <v-col cols="12" md="2" sm="2">
           <p>מגבלת שעות- {{ _mossadInfo.maxHours }}</p>

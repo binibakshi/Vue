@@ -143,6 +143,7 @@
 
 <script>
 import axios from "axios";
+import { bus } from "../../main";
 import excelMixin from "../../mixins/excelMixin";
 export default {
   props: ["empId", "empData", "selectedYear", "additionalReward", "existData"],
@@ -239,6 +240,7 @@ export default {
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
+          bus.$emit("reloadBagrutDataPerMossad");
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
@@ -426,13 +428,14 @@ export default {
         return;
       }
       // check if internal or extrnal hours
-      if (row.external) {
+      if (row.isExternal) {
         if (parseFloat(row.hoursReward) > temp.externalHoursReward) {
           row.hoursReward = temp.externalHoursReward;
           this.onStudentsChange(row);
         } else {
           row.percentReward =
-            temp.percentReward / (temp.externalHoursReward / row.hoursReward);
+            temp.externalPercentReward /
+            (temp.externalHoursReward / row.hoursReward);
         }
       } else {
         if (parseFloat(row.hoursReward) > temp.internalHoursReward) {
@@ -440,7 +443,8 @@ export default {
           this.onStudentsChange(row);
         } else {
           row.percentReward =
-            temp.percentReward / (temp.internalHoursReward / row.hoursReward);
+            temp.internalPercentReward /
+            (temp.internalHoursReward / row.hoursReward);
         }
       }
     },
@@ -477,11 +481,11 @@ export default {
         row.percentReward = 0;
       } else {
         row.hoursReward =
-          row.isExternal == true
+          row.isExternal == false
             ? temp.internalHoursReward
             : temp.externalHoursReward;
         row.percentReward =
-          row.isExternal == true
+          row.isExternal == false
             ? temp.internalPercentReward
             : temp.externalPercentReward;
         row.recordkey = temp.recordkey;

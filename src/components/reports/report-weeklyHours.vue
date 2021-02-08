@@ -76,7 +76,7 @@
                       single-line
                       autocomplete="off"
                       hide-details
-                       append-icon="mdi-magnify"
+                      append-icon="mdi-magnify"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -217,6 +217,7 @@ export default {
     },
     onRowClicked(row) {
       this.$store.dispatch("setEmpId", row.empId);
+      this.$store.dispatch("setLoggedAs", row.mossadId);
       let routeData = this.$router.resolve({ name: "employeeInfo" });
       window.open(routeData.href);
     },

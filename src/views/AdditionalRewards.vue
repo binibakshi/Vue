@@ -16,7 +16,7 @@
         <p>מוסד - {{ _mossadInfo.mossadName }}</p>
       </v-col>
       <v-col cols="12" md="3">
-        <p>סך גמול שעות:{{ _mossadInfo.hoursReward }}</p>
+        <p>סך גמול שעות:{{ getTwoDigits(_mossadInfo.hoursReward) }}</p>
       </v-col>
       <v-col cols="12" md="3">
         <p>סך גמולים אחוזיים:{{ getTwoDigits(_mossadInfo.percentReward) }}%</p>
@@ -37,13 +37,6 @@
           @change="onEmpIdChange()"
         ></v-autocomplete>
       </v-col>
-
-      <!-- <v-col cols="12" md="2">
-        <p>סך גמול שעות:{{ _hoursSum }}</p>
-      </v-col>
-      <v-col cols="12" md="2">
-        <p>סך גמולים אחוזיים:{{ getTwoDigits(_percentSum) }}%</p>
-      </v-col> -->
     </v-row>
     <bagrutReward
       v-if="empId != null && additionalReward.length > 0"
@@ -58,6 +51,7 @@
 
 <script>
 import axios from "axios";
+import { bus } from "../main";
 import bagrutReward from "../components/additionalReward/bagrutReward";
 export default {
   name: "AdditionalRewards",
@@ -66,7 +60,7 @@ export default {
   },
   data() {
     return {
-      mossadInfo: {},
+      mossadInfo: { mossadName: "", percentReward: 0, hoursReward: 0 },
       empData: {},
       selectedYear: 0,
       tzArray: [],
@@ -90,6 +84,10 @@ export default {
       this.getExistData();
     }
     this.getMossadSum();
+    bus.$on("reloadBagrutDataPerMossad", async () => {
+      console.log("hello im here");
+      this.getMossadSum();
+    });
   },
   computed: {
     _hoursSum() {
@@ -107,7 +105,7 @@ export default {
   },
   methods: {
     initilize() {
-      this.mossadInfo = this.$store.state.mossadInfo;
+      this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName ;
       if (this.$store.state.selectedYear != 0) {
         this.selectedYear = this.$store.state.selectedYear;
       } else {

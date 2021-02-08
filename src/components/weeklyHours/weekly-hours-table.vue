@@ -50,7 +50,7 @@
               item-value="code"
               @change="onCodeSelect(row)"
             ></v-autocomplete>
-            <h4 class="test" v-if="row.type != frontalConst">
+            <h4 style="text-align: right" v-if="row.type != frontalConst">
               {{ row.code }} - {{ currCodeDescription(row.code) }}
             </h4>
           </td>
@@ -530,9 +530,6 @@ export default {
 </script>
 
 <style scoped>
-.test {
-  text-align: right;
-}
 .mySelectOption {
   /* min-width: 200px; */
   max-width: 250px !important;

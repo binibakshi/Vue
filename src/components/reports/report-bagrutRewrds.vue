@@ -276,6 +276,7 @@ export default {
     },
     onRowClicked(row) {
       this.$store.dispatch("setEmpId", row.empId);
+      this.$store.dispatch("setLoggedAs", this.selectedMossadId);
       let routeData = this.$router.resolve({ name: "AdditionalRewards" });
       window.open(routeData.href);
     },

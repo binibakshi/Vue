@@ -56,6 +56,9 @@ export const store = new Vuex.Store({
     },
     setSelectedYear(state, selectedYear) {
       state.selectedYear = selectedYear
+    },
+    setLoggedAs(state, mossadId) {
+      state.logginAs = mossadId
     }
   },
   actions: {
@@ -139,6 +142,9 @@ export const store = new Vuex.Store({
     },
     setSelectedYear(context, selectedYear) {
       context.commit("setSelectedYear", selectedYear)
+    },
+    setLoggedAs(context, mossadId) {
+      context.commit("setLoggedAs", mossadId)
     }
   },
 });
