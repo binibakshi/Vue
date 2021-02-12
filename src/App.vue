@@ -21,6 +21,11 @@ export default {
   created() {
     this.onStart();
   },
+  mounted(){
+    console.log("hello wolrd")
+      console.log(process.env.NODE_ENV)
+
+  },
   methods: {
     onStart() {
       if (this.$store.state.token != null) {

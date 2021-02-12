@@ -86,6 +86,12 @@
             <v-btn color="success" @click="exportDataToExcel()"
               >ייצא לקסל</v-btn
             >
+            <v-btn
+              v-if="$store.state.mossadId != 999"
+              color="success"
+              @click="exportExpandExcel()"
+              >ייצא אקסל לשכר</v-btn
+            >
           </v-toolbar>
         </template>
         <template slot="body.append">
@@ -120,6 +126,7 @@ export default {
         { year: 2025, hebrewYear: 'תשפ"ה' },
       ],
       mossadot: [],
+      datesRange: { min: "", max: "" },
       employees: [],
       reformTypes: [],
       codeDescription: [],
@@ -163,6 +170,12 @@ export default {
       await this.getReformTypes();
       await this.getEmployees();
       this.getSelectedData();
+    },
+    setBegdaEndda() {
+      this.datesRange.min = this.FormatDate(
+        new Date(this.selectedYear - 1, 8, 1)
+      );
+      this.datesRange.max = this.FormatDate(new Date(this.selectedYear, 5, 20));
     },
     async getMossadot() {
       await axios
@@ -214,6 +227,13 @@ export default {
             error,
           })
         );
+    },
+    exportExpandExcel() {
+      this.createWeeklyHoursToMossad(
+        this.$store.state.logginAs,
+        this.datesRange.min,
+        this.datesRange.max
+      );
     },
     onRowClicked(row) {
       this.$store.dispatch("setEmpId", row.empId);

@@ -2,7 +2,25 @@
   <nav>
     <v-tabs class="grey lighten-3">
       <v-tab to="/empInfo"> איוש שעות </v-tab>
-      <v-tab to="/AdditionalRewards">גמולים</v-tab>
+      <v-menu left offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            text
+            class="align-self-center mr-4"
+            style="magin: 0"
+            v-bind="attrs"
+            v-on="on"
+          >
+            גמולים <v-icon right> mdi-menu-down </v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item to="/AdditionalRewards">גמולי בגרות</v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item to="/testPage">גמולי תפקיד</v-list-item>
+        </v-list>
+      </v-menu>
       <v-tab to="/calcHours"> רפורמות עובד </v-tab>
       <v-tab to="/HireEmp"> עובדים </v-tab>
       <v-menu offset-y>
@@ -19,7 +37,9 @@
           <v-list-item to="/reportBagrutRewards">גמולי בגרות</v-list-item>
         </v-list>
         <v-list>
-          <v-list-item to="/rewardsGapsReport">דוח פערי שעות-גמולים</v-list-item>
+          <v-list-item to="/rewardsGapsReport"
+            >דוח פערי שעות-גמולים</v-list-item
+          >
         </v-list>
       </v-menu>
       <v-menu offset-y v-if="$store.state.mossadId == 999">

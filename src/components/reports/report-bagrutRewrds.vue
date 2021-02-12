@@ -71,7 +71,7 @@
           </v-toolbar>
         </template>
         <template v-slot:[`item.percent`]="{ item }"
-          >{{ item.percent }}%</template
+          >{{ getTwoDigits(item.percent) }}%</template
         >
       </v-data-table>
     </div>
@@ -334,6 +334,12 @@ export default {
         "גמולי בגרות.xlsx",
         "גמולי בגרות"
       );
+    },
+    getTwoDigits(number) {
+      if (isNaN(number)) {
+        return 0.0;
+      }
+      return parseFloat(number).toFixed(2);
     },
   },
   mixins: [excelMixin],

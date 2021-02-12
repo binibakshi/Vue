@@ -47,7 +47,7 @@
 
 <script>
 /* eslint-disable no-unused-vars */
-import XLSX from "xlsx";
+// import XLSX from "xlsx";
 import axios from "axios";
 import excelMixin from "../../mixins/excelMixin";
 const FRONTAL = 1;

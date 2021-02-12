@@ -66,13 +66,13 @@
           ></v-select>
         </template>
         <template v-slot:[`item.questionnaire`]="{ item }">
-          <v-select
+          <v-autocomplete
             :items="getQuestionnaires(item.studyName)"
             :disabled="getQuestionnaires(item.studyName).length == 0"
             v-model="item.questionnaire"
             @change="onQuestionnairesChange(item)"
             label="שאלון"
-          ></v-select>
+          ></v-autocomplete>
         </template>
         <template v-slot:[`item.isExternal`]="{ item }">
           <v-select
@@ -116,7 +116,7 @@
           ></v-text-field>
         </template>
         <template v-slot:[`item.percentReward`]="{ item }">
-          <p id="rewardHours">{{ item.percentReward }}%</p>
+          <p id="rewardHours">{{ getTwoDigits(item.percentReward) }}%</p>
         </template>
         <template v-slot:[`item.actions`]="{ item }">
           <v-tooltip top>
@@ -359,6 +359,11 @@ export default {
       row.students = 10;
     },
     onQuestionnairesChange(row) {
+      if (!row.studyName) {
+        row.studyName = this.additionalReward.find(
+          (el) => el.questionnaire == row.questionnaire
+        ).studyName;
+      }
       if (
         this.additionalReward.find(
           (el) =>
@@ -458,7 +463,7 @@ export default {
     getQuestionnaires(studyName) {
       var temp = [];
       this.additionalReward
-        .filter((el) => el.studyName == studyName)
+        .filter((el) => el.studyName == studyName || !studyName)
         .forEach((el) => {
           if (
             el.questionnaire != null &&
@@ -551,6 +556,13 @@ export default {
         "גמולי בגרות.xlsx",
         "גמולי בגרות"
       );
+    },
+
+    getTwoDigits(number) {
+      if (isNaN(number)) {
+        return 0.0;
+      }
+      return parseFloat(number).toFixed(2);
     },
   },
   watch: {
