@@ -1,10 +1,9 @@
 <template>
-  <v-container grid-list-xs>
-    <v-card>
+  <div>
+    <v-card >
       <v-data-table
         v-if="empId != null"
         dense
-        id="rewardsTable"
         :headers="headers"
         :items="rewards"
         :search="search"
@@ -53,12 +52,15 @@
           <v-autocomplete
             :items="studyNames"
             v-model="item.studyName"
+            :item-text="(i) => i.studyId + ' - ' + i.studyName"
+            item-value="studyName"
             @change="onStudyNameChange(item)"
             label="מקצוע"
           ></v-autocomplete>
         </template>
         <template v-slot:[`item.units`]="{ item }">
           <v-select
+            style="max-width: 50px"
             label='יח"ל'
             v-model="item.units"
             :items="getUnits(item)"
@@ -76,6 +78,7 @@
         </template>
         <template v-slot:[`item.isExternal`]="{ item }">
           <v-select
+            style="max-width: min-content"
             :items="isExternalRange"
             @change="onBagrutTypeChange(item)"
             v-model="item.isExternal"
@@ -84,6 +87,7 @@
         </template>
         <template v-slot:[`item.teachingClass`]="{ item }">
           <v-select
+            style="max-width: 50px"
             :items="classes"
             v-model="item.teachingClass"
             label="כיתה"
@@ -91,6 +95,7 @@
         </template>
         <template v-slot:[`item.students`]="{ item }">
           <v-text-field
+            style="max-width: 40px"
             label="תלמידים"
             v-model="item.students"
             type="number"
@@ -100,14 +105,16 @@
         </template>
         <template v-slot:[`item.isSplit`]="{ item }">
           <v-select
+            style="max-width: 50px"
             :items="isSplitedRange"
             v-model="item.isSplit"
-            label="האם לפצל"
+            label="מורה נוסף"
             @change="onIsSplitChange(item)"
           ></v-select>
         </template>
         <template v-slot:[`item.hoursReward`]="{ item }">
           <v-text-field
+            style="max-width: 130px"
             :disabled="item.isSplit == false"
             type="number"
             min="0"
@@ -138,7 +145,7 @@
         </template>
       </v-data-table>
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -157,7 +164,7 @@ export default {
         { text: "שאלון", value: "questionnaire" },
         { text: "סוג", value: "isExternal" },
         { text: "כיתה", value: "teachingClass" },
-        { text: "האם לפצל", value: "isSplit" },
+        { text: "מורה נוסף", value: "isSplit" },
         { text: "תלמידים", value: "students" },
         { text: "גמול שעות", value: "hoursReward" },
         { text: "גמול אחוזים", value: "percentReward" },
@@ -429,6 +436,9 @@ export default {
           (el.questionnaire == null || el.questionnaire == row.questionnaire) &&
           el.studyUnits == row.units
       );
+
+      // eslint-disable-next-line no-debugger
+      debugger;
       if (temp == null) {
         return;
       }
@@ -456,7 +466,10 @@ export default {
     studyName() {
       this.additionalReward.forEach((el) => {
         if (this.studyNames.includes(el.studyName) == false) {
-          this.studyNames.push(el.studyName);
+          this.studyNames.push({
+            studyName: el.studyName,
+            studyId: el.studyId,
+          });
         }
       });
     },
@@ -579,12 +592,6 @@ export default {
 </script>
 
 <style scoped>
-#rewardsTable {
-  margin-bottom: 10%;
-  margin-left: 20px;
-  margin-right: 20px;
-  padding: 15px;
-}
 .text-xs-right {
   white-space: nowrap;
   /* To help visualize the fact that the container is too small */

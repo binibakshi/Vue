@@ -150,7 +150,7 @@ export default {
     };
   },
   async mounted() {
-    await this.initilize();
+    this.initilize();
     await this.getEmployees();
     await this.getMossadot();
     await this.getAdditionalRewards();
@@ -304,10 +304,12 @@ export default {
       };
       var excelData = [];
       var currReward = {};
+
       this.rewards.forEach((el) => {
         currReward = this.additionalReward.find(
           (e) => e.recordkey == el.rewardId
         );
+
         excelData.push({
           empId: el.empId,
           firstName: this.employees.find((e) => e.empId == el.empId).firstName,

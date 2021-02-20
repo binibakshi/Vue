@@ -91,14 +91,15 @@ export default {
       dataToTable: [],
     };
   },
-
-  mounted(){
-    this.initilizer();
+  created() {
     this.getReforms();
     this.getEmploymentcodes();
   },
+  mounted() {
+    this.initilize();
+  },
   methods: {
-    initilizer() {
+    initilize() {
       this.headers = [
         { text: "שעות גיל", value: "ageHours" },
         { text: "משרת אם", value: "mother" },

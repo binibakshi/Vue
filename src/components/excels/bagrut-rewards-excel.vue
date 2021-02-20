@@ -9,9 +9,11 @@
           id="btn"
           color="primary"
           dark
+          dense
           @click="saveAll()"
           >שמור הכל</v-btn
         >
+        <v-btn color="primary" dark dense @click="downloadDemoFile()">מבנה אקסל</v-btn>
 
         <div v-if="bagrutRewardsTable.length > 0">
           <v-data-table
@@ -81,8 +83,8 @@ export default {
       this.downloadFile(
         emptyForDemo,
         this.excelHeaders,
-        "עובדים.xlsx",
-        "מבנה קליטת עובדים"
+        "מבנה גמולי בגרות.xlsx",
+        "מבנה גמולי בגרות"
       );
     },
     downloadFile(dataToExport, headers, excelName, sheetName) {

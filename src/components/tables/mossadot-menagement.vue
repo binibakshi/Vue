@@ -114,7 +114,7 @@ export default {
       ],
     };
   },
-  mounted() {
+  created() {
     this.getAllMossadot();
     this.getmossadTypes();
   },

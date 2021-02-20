@@ -116,11 +116,47 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:[`item.internalHoursReward`]="{ item }">
+      <template v-slot:[`item.studyId`]="{ item }">
+        <v-text-field
+          dense
+          :disabled="item.disabled"
+          class="inputNumberSize"
+          type="text"
+          v-model="item.studyId"
+        ></v-text-field
+      ></template>
+      <template v-slot:[`item.studyName`]="{ item }">
         <v-text-field
           dense
           :disabled="item.disabled"
           class="inputSize"
+          type="text"
+          v-model="item.studyName"
+        ></v-text-field
+      ></template>
+      <template v-slot:[`item.studyUnits`]="{ item }">
+        <v-text-field
+          dense
+          :disabled="item.disabled"
+          class="inputNumberSize"
+          type="number"
+          v-model="item.studyUnits"
+        ></v-text-field
+      ></template>
+      <template v-slot:[`item.questionnaire`]="{ item }">
+        <v-text-field
+          dense
+          :disabled="item.disabled"
+          class="inputSize"
+          type="text"
+          v-model="item.questionnaire"
+        ></v-text-field
+      ></template>
+      <template v-slot:[`item.internalHoursReward`]="{ item }">
+        <v-text-field
+          dense
+          :disabled="item.disabled"
+          class="inputNumberSize"
           type="number"
           v-model="item.internalHoursReward"
         ></v-text-field
@@ -129,7 +165,7 @@
         <v-text-field
           dense
           :disabled="item.disabled"
-          class="inputSize"
+          class="inputNumberSize"
           type="number"
           v-model="item.externalPercentReward"
         ></v-text-field
@@ -138,7 +174,7 @@
         ><v-text-field
           dense
           :disabled="item.disabled"
-          class="inputSize"
+          class="inputNumberSize"
           type="number"
           v-model="item.externalHoursReward"
         ></v-text-field
@@ -147,36 +183,46 @@
         ><v-text-field
           dense
           :disabled="item.disabled"
-          class="inputSize"
+          class="inputNumberSize"
           type="number"
           v-model="item.internalPercentReward"
         ></v-text-field
       ></template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-tooltip top>
-          <template #activator="{ on }">
-            <v-icon size="16" v-on="on" @click="editRow(item)"
-              >mdi-pencil</v-icon
-            >
-          </template>
-          <span>ערוך שורה</span>
-        </v-tooltip>
-        <v-tooltip top>
-          <template #activator="{ on }">
-            <v-icon size="16" v-on="on" @click="deleteRow(item)"
-              >mdi-delete</v-icon
-            >
-          </template>
-          <span>מחק שורה</span>
-        </v-tooltip>
-        <v-tooltip top>
-          <template #activator="{ on }">
-            <v-icon size="16" v-on="on" @click="saveRow(item)"
-              >mdi-content-save</v-icon
-            >
-          </template>
-          <span>שמור שורה</span>
-        </v-tooltip>
+        <div style="width: 100px">
+          <v-tooltip top>
+            <template #activator="{ on }">
+              <v-icon size="16" v-on="on" @click="editRow(item)"
+                >mdi-pencil</v-icon
+              >
+            </template>
+            <span>ערוך שורה</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template #activator="{ on }">
+              <v-icon size="16" v-on="on" @click="duplicateRow(item)"
+                >mdi-file-multiple</v-icon
+              >
+            </template>
+            <span>שכפל שורה</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template #activator="{ on }">
+              <v-icon size="16" v-on="on" @click="deleteRow(item)"
+                >mdi-delete</v-icon
+              >
+            </template>
+            <span>מחק שורה</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template #activator="{ on }">
+              <v-icon size="16" v-on="on" @click="saveRow(item)"
+                >mdi-content-save</v-icon
+              >
+            </template>
+            <span>שמור שורה</span>
+          </v-tooltip>
+        </div>
       </template>
     </v-data-table>
   </div>
@@ -199,7 +245,7 @@ export default {
         { text: "אחוזים פנימי", value: "internalPercentReward" },
         { text: "שעות חיצוני", value: "externalHoursReward" },
         { text: "אחוזים חיצוני", value: "externalPercentReward" },
-        { text: "פעולות", value: "actions" },
+        { text: "פעולות", value: "actions", sortable: false },
       ],
       excelHeaders: {
         studyId: "קוד מקצוע",
@@ -251,9 +297,29 @@ export default {
           disabled: true,
         });
       });
+
+      this.tableToDisplay.sort(
+        (a, b) =>
+          a.studyId - b.studyId || a.studyName.localeCompare(b.studyName)
+      );
     },
     editRow(row) {
       row.disabled = !row.disabled;
+    },
+    duplicateRow(row) {
+      let newRow = {
+        studyId: row.studyId,
+        studyName: row.studyName,
+        studyUnits: row.studyUnits,
+        questionnaire: row.questionnaire,
+        internalHoursReward: this.getTwoDigits(row.internalHoursReward),
+        internalPercentReward: this.getTwoDigits(row.internalPercentReward),
+        externalHoursReward: this.getTwoDigits(row.externalHoursReward),
+        externalPercentReward: this.getTwoDigits(row.externalPercentReward),
+        disabled: false,
+      };
+      let currIndex = this.tableToDisplay.indexOf(row);
+      this.tableToDisplay.splice(currIndex + 1, 0, newRow);
     },
     saveRow(row) {
       axios({
@@ -323,7 +389,12 @@ input {
   border: 1px solid;
 }
 .inputSize {
-  max-width: 45px;
+  width: fit-content;
+  max-height: 25px;
+}
+.inputNumberSize {
+  width: 50px;
+  padding: 0;
   max-height: 25px;
 }
 .giveSomeSpace {
@@ -335,9 +406,9 @@ input {
   margin-right: 10px;
 }
 #myTable {
-  margin-top: 5%;
+  margin-bottom: 5%;
   margin-right: 5%;
-  max-width: 80%;
+  max-width: 88%;
 }
 
 #btn {

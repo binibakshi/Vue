@@ -67,10 +67,12 @@ export default {
       selectedYear: 0,
     };
   },
-  mounted(){
-    this.initilize();
+  created() {
     this.getCodesDescription();
     this.getAllMossadot();
+  },
+  mounted() {
+    this.initilize();
     this.setBegdaEndda();
   },
   mixins: [excelMixin],

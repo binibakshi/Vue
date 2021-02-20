@@ -24,7 +24,7 @@
                     single-line
                     autocomplete="off"
                     hide-details
-                     append-icon="mdi-magnify"
+                    append-icon="mdi-magnify"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -64,10 +64,7 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="2">
-                    <v-text-field
-                      label="פנימי/חיצוני"
-                      id="id"
-                    ></v-text-field>
+                    <v-text-field label="פנימי/חיצוני" id="id"></v-text-field>
                   </v-col>
                   <v-col cols="12" md="1">
                     <v-text-field
@@ -94,7 +91,9 @@
         {{ getadditionalRewardType(item.additionalRewardType) }}
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small class="mr-2" @click="editadditionalReward(item)">mdi-pencil</v-icon>
+        <v-icon small class="mr-2" @click="editadditionalReward(item)"
+          >mdi-pencil</v-icon
+        >
         <v-icon small @click="deleteadditionalReward(item)">mdi-delete</v-icon>
       </template>
     </v-data-table>
@@ -127,7 +126,7 @@ export default {
       ],
     };
   },
-  mounted() {
+  created() {
     this.getAllAdditionalRewards();
   },
   methods: {
@@ -189,7 +188,9 @@ export default {
         );
     },
     getMossadType(additionalRewardType) {
-      const currRecord = this.additionalRewardTypes.find((el) => el.typeId == additionalRewardType);
+      const currRecord = this.additionalRewardTypes.find(
+        (el) => el.typeId == additionalRewardType
+      );
       if (currRecord != null) {
         return currRecord.typeName;
       }

@@ -72,8 +72,10 @@ export default {
       reformTypes: [],
     };
   },
-  mounted() {
+  created() {
     this.getReformTypes();
+  },
+  mounted() {
     this.setBegdaEndda();
     this.gruopByBegdaEndda();
   },
@@ -184,22 +186,23 @@ export default {
     },
   },
   watch: {
-    empId: function (val) {
-      this.empId = val;
-    },
-    reformType: function (val) {
-      this.reformType = val;
-    },
-    selectedYear: function (val) {
-      this.selectedYear = val;
-      this.tablesArray = [];
-      this.setBegdaEndda();
-    },
-    existData: function (val) {
-      this.existData = val;
-      this.setBegdaEndda();
-      this.gruopByBegdaEndda();
-    },
+    // empId: function (val) {
+    //   this.empId = val;
+    // },
+    // reformType: function (val) {
+    //   this.reformType = val;
+    // },
+    // selectedYear: function (val) {
+    //   this.selectedYear = val;
+    //   this.tablesArray = [];
+    //   this.setBegdaEndda();
+    // },
+    // existData: function (val) {
+    //   console.log("this is 1" + val);
+    //   this.existData = val;
+    //   this.setBegdaEndda();
+    //   this.gruopByBegdaEndda();
+    // },
   },
 };
 </script>

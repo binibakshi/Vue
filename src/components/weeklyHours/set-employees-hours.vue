@@ -43,7 +43,7 @@
       </v-row>
       <div v-show="_mossadInfo.maxHours != null && _mossadInfo.maxHours != 0">
         <v-row id="employeeDetails">
-          <v-col id="serchEmployee" cols="12" md="2" sm="2" lg="3">
+          <v-col id="searchEmployee" cols="12" md="2" sm="2" lg="3">
             <v-autocomplete
               :disabled="
                 _mossadInfo.maxHours == null || _mossadInfo.maxHours == 0
@@ -157,17 +157,25 @@
           <v-card
             v-for="(reform, index) in selectedReforms"
             :key="index"
-            class="littleSpace"
+            class="littleSpace center"
           >
+            <v-progress-circular
+              :size="100"
+              color="primary"
+              indeterminate
+              v-show="circleProgress"
+            ></v-progress-circular>
             <weeklyHours
+              v-show="!circleProgress"
+              :key="compId"
               :empId="empId"
+              :selectedYear="selectedYear"
               :reformType="reform"
               :isMother="employeeInfo.mother"
               :ageHours="ageHours"
-              :selectedYear="selectedYear"
               :codeDescription="getRelevantCodesDescription(reform)"
-              :existData="getRelevantData(reform)"
               :rewardHours="rewardHours"
+              :existData="getRelevantData(reform)"
             ></weeklyHours>
           </v-card>
         </v-card>
@@ -207,16 +215,20 @@ export default {
       rewardHours: [],
       mossadInfo: { mossadId: "", mossadName: "", maxHours: 0, currHours: 0 },
       hoverText: "",
+      compId: 0,
+      circleProgress: false,
     };
   },
-  mounted() {
+  created() {
     this.initilize();
     this.getAllTz();
     this.getCodeDescription();
     this.getMossadot();
     this.getReformTypes();
-    this.setBegdaEndda();
     this.getMossadHours();
+  },
+  mounted() {
+    this.initilize();
     bus.$on("changeWeeklyHours", async () => {
       this.getAllEmpData();
       await this.getMossadHours();
@@ -328,12 +340,14 @@ export default {
         });
         this.empHoursTable[1].week.push({ day: index, hours: 0, mossadot: [] });
       }
+      this.setBegdaEndda();
+      this.compId = 0;
     },
     onYearChanged() {
       this.$store.dispatch("setSelectedYear", this.selectedYear);
+      this.getEmployeeInfo();
       this.setBegdaEndda();
       this.getMossadHours();
-      this.getAllEmpData();
     },
     getAllTz() {
       axios
@@ -348,6 +362,7 @@ export default {
         );
     },
     async getEmployeeInfo() {
+      this.circleProgress = true;
       this.$store.dispatch("setEmpId", this.empId);
       await axios
         .get("/employees/byId", {
@@ -380,7 +395,8 @@ export default {
           });
         });
       this.calcAgeHours();
-      this.getAllEmpData();
+      await this.getAllEmpData();
+      setTimeout(() => (this.circleProgress = false), 1000);
     },
     getMossadHours() {
       axios
@@ -442,6 +458,7 @@ export default {
         .then((response) => {
           this.existData = response.data;
           this.calcEmpHoursData();
+          this.compId += 1;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -587,7 +604,6 @@ export default {
     },
     calcEmpHoursData() {
       // this function calc all emp hours the
-
       this.workInReforms = [];
 
       // set initial values in the displayed array
@@ -676,7 +692,7 @@ p {
   margin: 10px;
   padding: 10px;
 }
-#serchEmployee {
+#searchEmployee {
   max-width: 400px;
 }
 table,

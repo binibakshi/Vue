@@ -60,7 +60,7 @@
           <v-toolbar-title>
             <v-card-title>
               <v-row>
-                <v-col cols="12" md="10">
+                <v-col cols="12" md="8">
                   <v-text-field
                     v-model="search"
                     label="Search"
@@ -70,6 +70,9 @@
                     hide-details
                     append-icon="mdi-magnify"
                   ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-btn @click="handleFilterGaps()">{{ buttomText() }}</v-btn>
                 </v-col>
               </v-row>
             </v-card-title>
@@ -83,6 +86,9 @@
       <template v-slot:[`item.actualHours`]="{ item }">{{
         getTwoDigits(item.actualHours)
       }}</template>
+      <template v-slot:[`item.gaps`]="{ item }">{{
+        getTwoDigits(getPsitiveNumber(item.actualHours - item.hours))
+      }}</template>
     </v-data-table>
   </div>
 </template>
@@ -94,6 +100,7 @@ export default {
     return {
       gapsTable: [],
       tableToDisplay: [],
+      onlyGaps: false,
       search: "",
       headers: [
         {
@@ -116,8 +123,13 @@ export default {
           text: "שעות מנוצלות",
           value: "actualHours",
         },
+        {
+          text: "הפרש",
+          value: "gaps",
+        },
       ],
       mossadot: [],
+      tableData: [],
       reformTable: [
         { text: "עוז לתמורה", value: 5 },
         { text: "עולם ישן", value: 2 },
@@ -164,6 +176,7 @@ export default {
           },
         })
         .then((response) => {
+          this.tableData = response.data;
           this.tableToDisplay = response.data;
         })
         .catch((error) =>
@@ -184,17 +197,36 @@ export default {
           })
         );
     },
+    buttomText() {
+      return !this.onlyGaps ? "רק חריגות" : "הצג הכל";
+    },
     onRowClicked(row) {
       this.$store.dispatch("setEmpId", row.empId);
       this.$store.dispatch("setLoggedAs", this.selectedMossadId);
       let routeData = this.$router.resolve({ name: "employeeInfo" });
       window.open(routeData.href);
     },
+    getPsitiveNumber(val) {
+      if (val < 0) {
+        return val * -1;
+      }
+    },
     getTwoDigits(number) {
       if (isNaN(number) || number == null) {
         return 0.0;
       }
       return parseFloat(number).toFixed(2);
+    },
+    handleFilterGaps() {
+      this.onlyGaps = !this.onlyGaps;
+      if (this.onlyGaps) {
+        this.tableToDisplay = this.tableToDisplay.filter(
+          (el) =>
+            this.getTwoDigits(el.hours) != this.getTwoDigits(el.actualHours)
+        );
+      } else {
+        this.tableToDisplay = this.tableData;
+      }
     },
     onYearChange() {
       this.$store.dispatch("setSelectedYear", this.selectedYear);

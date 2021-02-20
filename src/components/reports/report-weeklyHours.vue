@@ -47,10 +47,18 @@
         <v-btn color="primary" @click="getSelectedData()">חפש</v-btn>
       </v-col>
     </v-row>
-
+    <div class="center">
+      <v-progress-circular
+        :size="100"
+        color="primary"
+        indeterminate
+        v-show="circleProgress"
+      ></v-progress-circular>
+    </div>
     <div id="weeklyHoursReport">
       <v-data-table
         dense
+        v-show="!circleProgress"
         :headers="headers"
         :items="dataToDisplay"
         :search="search"
@@ -139,13 +147,19 @@ export default {
         code: [],
         status: [],
       },
+      circleProgress: false,
     };
   },
-  mounted() {
+  async mounted() {
     this.initilize();
+    await this.getCodeDescription();
+    await this.getMossadot();
+    await this.getReformTypes();
+    await this.getEmployees();
+    await this.getSelectedData();
   },
   methods: {
-    async initilize() {
+    initilize() {
       this.headers = [
         { text: "תעודת זהות", value: "empId" },
         { text: "שם פרטי", value: "firstName" },
@@ -165,11 +179,7 @@ export default {
       if (this.$store.state.logginAs == this.$store.state.logginAs) {
         this.selections.mossadId.push(this.$store.state.logginAs);
       }
-      await this.getCodeDescription();
-      await this.getMossadot();
-      await this.getReformTypes();
-      await this.getEmployees();
-      this.getSelectedData();
+      this.circleProgress = true;
     },
     setBegdaEndda() {
       this.datesRange.min = this.FormatDate(
@@ -217,7 +227,6 @@ export default {
       await axios
         .get("/convertHours/all")
         .then((response) => {
-          this.codeDescription = response.data;
           this.codeDescription = response.data.filter(
             (el) => el.hourType == FRONTAL || el.hourType == 0
           );
@@ -272,7 +281,8 @@ export default {
       }
       return parseFloat(number).toFixed(2);
     },
-    getSelectedData() {
+    async getSelectedData() {
+      this.circleProgress = true;
       var params = {
         begda: this.formatDate(new Date(this.selections.year - 1, 7, 1)),
         endda: this.formatDate(new Date(this.selections.year + 0, 6, 20)),
@@ -281,7 +291,7 @@ export default {
         empCode: this.addSpaceIfNeeded(this.selections.code),
         status: this.selections.status,
       };
-      axios
+      await axios
         .get("teacherEmploymentDetails/getReport", {
           params: params,
         })
@@ -290,6 +300,7 @@ export default {
             this.codeDescription.some((e) => e.code == el.empCode)
           );
           this.setDataToDispay();
+          setTimeout(() => (this.circleProgress = false), 1000);
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {

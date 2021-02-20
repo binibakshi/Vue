@@ -26,15 +26,17 @@
             <div id="additionalActions">
               <v-icon
                 id="myPlusIcon"
+                dense
                 @click="addNewRow()"
                 v-if="row.type == frontalConst"
-                >mdi-plus</v-icon
+                >mdi-plus-circle-outline</v-icon
               >
               <v-icon
                 id="myMinusIcon"
+                dense
                 @click="removeRow(index)"
-                v-if="row.type == frontalConst && index != 0"
-                >mdi-minus</v-icon
+                v-if="row.type == frontalConst"
+                >mdi-minus-circle-outline</v-icon
               >
             </div>
           </td>
@@ -176,11 +178,12 @@ export default {
       frontalConst: FRONTAL,
     };
   },
+
   async mounted() {
     this.initilizer();
+    await this.getEmployeeOptions();
     this.setFrontalCodes();
     this.setBegdaEndda();
-    await this.getEmployeeOptions();
     this.setExistData();
   },
   methods: {
@@ -193,7 +196,6 @@ export default {
           .filter((el) => el.type == FRONTAL)
           .reduce((sum, record) => sum + parseFloat(record.hours), 0)
       );
-
       if (totalFrontalHours <= 0) {
         return;
       }
@@ -278,6 +280,9 @@ export default {
     setExistData() {
       let tempHourType;
       let newRow = {};
+
+      // eslint-disable-next-line no-debugger
+      debugger;
       this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
@@ -308,13 +313,13 @@ export default {
           this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
         }
       });
-      this.setExistrRewards();
+      this.setExistRewards();
       this.setPrivateAndPauseCodes(
         this.newHours.find((el) => el.type == FRONTAL).code
       );
       this.sortTable();
     },
-    setExistrRewards() {
+    setExistRewards() {
       let currCode = this.reformType == 5 ? 9671 : 2598;
       let bagrutHours = this.rewardHours
         .filter((el) => el.reformId == this.reformType)
@@ -508,22 +513,23 @@ export default {
     },
   },
   watch: {
-    empId: function (val) {
-      this.empId = val;
-      this.initilizer();
-      this.getEmployeeOptions();
-    },
-    reformType: function (val) {
-      this.reformType = val;
-      this.initilizer();
-      this.setFrontalCodes();
-      this.getEmployeeOptions();
-    },
-    existData: function (val) {
-      this.existData = val;
-      this.initilizer();
-      this.setExistData();
-    },
+    // empId: function (val) {
+    //   this.empId = val;
+    //   this.initilizer();
+    //   this.getEmployeeOptions();
+    // },
+    // reformType: function (val) {
+    //   this.reformType = val;
+    //   this.initilizer();
+    //   this.setFrontalCodes();
+    //   this.getEmployeeOptions();
+    // },
+    // existData: async function (val) {
+    //   this.existData = val;
+    //   this.initilizer();
+    //   await this.getEmployeeOptions();
+    //   this.setExistData();
+    // },
   },
   mixins: [calcHoursMixin],
 };
@@ -607,9 +613,9 @@ input[type="number"] {
   display: flex;
 }
 #myPlusIcon {
-  color: blue;
+  color: rgb(26, 26, 107);
 }
 #myMinusIcon {
-  color: red;
+  color: rgb(190, 30, 30);
 }
 </style>

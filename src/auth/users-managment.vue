@@ -169,10 +169,12 @@ export default {
       val || this.close();
     },
   },
-  mounted() {
-    this.initialize();
+  created() {
     this.getMossadot();
     this.getAllUsers();
+  },
+  mounted() {
+    this.initialize();
   },
   methods: {
     formatMossadId(mossadId) {

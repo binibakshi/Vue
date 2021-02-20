@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xs>
+  <div id="bagrutRewardsContainer">
     <v-row id="mossadHoursDetails">
       <v-col cols="12" md="2">
         <v-select
@@ -46,7 +46,7 @@
       :additionalReward="additionalReward"
       :existData="existData"
     />
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -77,7 +77,7 @@ export default {
     };
   },
   async mounted() {
-    await this.initilize();
+    this.initilize();
     await this.getAdditionalRewards();
     await this.getAllTz();
     if (this.empId != null) {
@@ -105,7 +105,7 @@ export default {
   },
   methods: {
     initilize() {
-      this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName ;
+      this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName;
       if (this.$store.state.selectedYear != 0) {
         this.selectedYear = this.$store.state.selectedYear;
       } else {
@@ -208,6 +208,12 @@ export default {
 </script>
 
 <style scoped>
+#bagrutRewardsContainer {
+  margin-bottom: 10%;
+  margin-left: 5%;
+  margin-right: 5%;
+  padding: 15px;
+}
 .v-icon.v-icon {
   max-width: 10px;
   max-height: 10px;
