@@ -10,7 +10,7 @@
 
 <script>
 import bagrutRewardsExcel from "../components/excels/bagrut-rewards-excel.vue";
-import bagrutRewardsTable from "../components/tables/bagrut-rewards-table.vue";
+import bagrutRewardsTable from "../components/customeTables/bagrut-rewards-table.vue";
 
 export default {
   name: "cutomizeTables",

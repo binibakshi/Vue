@@ -153,7 +153,7 @@ export default {
     this.initilize();
     await this.getEmployees();
     await this.getMossadot();
-    await this.getAdditionalRewards();
+    await this.getBagrutRewards();
     await this.getRewards();
   },
   methods: {
@@ -214,7 +214,7 @@ export default {
           })
         );
     },
-    async getAdditionalRewards() {
+    async getBagrutRewards() {
       await axios
         .get("bagrutRewards/all")
         .then((response) => {

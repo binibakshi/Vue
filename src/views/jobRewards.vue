@@ -1,5 +1,5 @@
 <template>
-  <div id="bagrutRewardsContainer">
+  <div id="jobRewardsContainer">
     <v-row id="mossadHoursDetails">
       <v-col cols="12" md="2">
         <v-select
@@ -38,7 +38,7 @@
         ></v-autocomplete>
       </v-col>
     </v-row>
-    <bagrutReward
+    <jobReward
       v-if="empId != null && additionalReward.length > 0"
       :empId="empId"
       :empData="empData"
@@ -51,11 +51,11 @@
 <script>
 import axios from "axios";
 import { bus } from "../main";
-import bagrutReward from "../components/additionalReward/bagrutReward";
+import jobReward from "../components/additionalReward/jobReward";
 export default {
   name: "AdditionalRewards",
   components: {
-    bagrutReward,
+    jobReward,
   },
   data() {
     return {
@@ -83,7 +83,7 @@ export default {
       this.getExistData();
     }
     this.getMossadSum();
-    bus.$on("reloadBagrutDataPerMossad", async () => {
+    bus.$on("reloadJobDataPerMossad", async () => {
       console.log("hello im here");
       this.getMossadSum();
     });
@@ -120,7 +120,7 @@ export default {
     },
     async getAdditionalRewards() {
       await axios
-        .get("bagrutRewards/all")
+        .get("jobRewards/all")
         .then((response) => {
           this.additionalReward = response.data;
         })
@@ -207,7 +207,7 @@ export default {
 </script>
 
 <style scoped>
-#bagrutRewardsContainer {
+#jobRewardsContainer {
   margin-bottom: 10%;
   margin-left: 5%;
   margin-right: 5%;

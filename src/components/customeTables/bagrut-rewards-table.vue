@@ -14,20 +14,22 @@
       <template v-slot:top>
         <v-toolbar flat color="white">
           <v-toolbar-title>
-            <v-card-title>
-              <v-text-field
-                v-model="search"
-                label="חפש"
-                placeholder="חפש"
-                append-icon="mdi-magnify"
-              ></v-text-field>
-            </v-card-title>
+            <v-card-title class="center title"> טבלת גמולי בגרות </v-card-title>
           </v-toolbar-title>
           <v-spacer></v-spacer>
+
+          <v-text-field
+            class="giveSomeSpace"
+            style="max-width: 250px"
+            v-model="search"
+            label="חפש"
+            placeholder="חפש"
+            append-icon="mdi-magnify"
+          ></v-text-field>
           <v-dialog v-model="dialog" max-width="50%">
             <template v-slot:activator="{ on, attrs }">
               <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on"
-                >צור גמול בגרות</v-btn
+                >צור גמול תפקיד</v-btn
               >
               <v-btn color="red" dark class="mb-2" @click="deleteAll()"
                 >מחק הכל</v-btn
@@ -265,10 +267,10 @@ export default {
     };
   },
   created() {
-    this.getAdditionalRewards();
+    this.getBagrutRewards();
   },
   methods: {
-    getAdditionalRewards() {
+    getBagrutRewards() {
       axios
         .get("bagrutRewards/all")
         .then((response) => {
@@ -329,7 +331,7 @@ export default {
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
-          this.getAdditionalRewards();
+          this.getBagrutRewards();
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
@@ -355,14 +357,14 @@ export default {
             error,
           });
         });
-      this.getAdditionalRewards();
+      this.getBagrutRewards();
     },
     deleteAll() {
       axios
         .delete("/bagrutRewards/deleteAll")
         .then(() => {
           alert("הנתונים נמחקו בהצלחה");
-          this.getAdditionalRewards();
+          this.getBagrutRewards();
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
@@ -393,7 +395,7 @@ input {
   max-height: 25px;
 }
 .inputNumberSize {
-  width: 50px;
+  width: fit-content;
   padding: 0;
   max-height: 25px;
 }
@@ -401,6 +403,11 @@ input {
   margin: 5px;
   margin-top: 15px;
   margin-right: 2%;
+}
+.title {
+  font-weight: bold;
+  font-size: x-large !important;
+  text-decoration: underline;
 }
 .btn {
   margin-right: 10px;

@@ -18,7 +18,7 @@
           <v-list-item to="/AdditionalRewards">גמולי בגרות</v-list-item>
         </v-list>
         <v-list>
-          <v-list-item to="/testPage">גמולי תפקיד</v-list-item>
+          <v-list-item to="/jobRewards">גמולי תפקיד</v-list-item>
         </v-list>
       </v-menu>
       <v-tab to="/calcHours"> רפורמות עובד </v-tab>
@@ -76,7 +76,8 @@
               </v-btn>
             </template>
             <v-list>
-              <v-list-item to="/cutomizeTables">גמולי בגרות</v-list-item>
+              <v-list-item to="/bagrutRewardsCust">גמולי בגרות</v-list-item>
+              <v-list-item to="/jobRewardsCust">גמולי תפקיד</v-list-item>
             </v-list>
           </v-menu>
         </v-list>

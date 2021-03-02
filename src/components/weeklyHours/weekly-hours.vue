@@ -2,8 +2,8 @@
   <div v-if="empId != null" class="reformTypeTables">
     <h1 class="center">{{ _reformDiscription }}</h1>
     <div v-for="(table, index) in tablesArray" :key="index">
-      <v-row class="center">
-        <v-col cols="12" md="2" sm="2">
+      <div class="sideBySide" >
+        <div id="right">
           <v-text-field
             v-model="table.begda"
             label="מתאריך"
@@ -13,8 +13,6 @@
             @change="setDatesIfChange(table)"
             >מתאריך</v-text-field
           >
-        </v-col>
-        <v-col cols="12" md="2" sm="2">
           <v-text-field
             v-model="table.endda"
             label="עד תאריך"
@@ -24,19 +22,21 @@
             @change="setDatesIfChange(table)"
             >עד תאריך</v-text-field
           >
-        </v-col>
-        <weeklyHoursTable
-          :empId="empId"
-          :reformType="reformType"
-          :isMother="isMother"
-          :ageHours="ageHours"
-          :existData="table.data"
-          :begda="table.begda"
-          :endda="table.endda"
-          :codeDescription="codeDescription"
-          :rewardHours="rewardHours"
-        />
-      </v-row>
+        </div>
+        <div id="left">
+          <weeklyHoursTable
+            :empId="empId"
+            :reformType="reformType"
+            :isMother="isMother"
+            :ageHours="ageHours"
+            :existData="table.data"
+            :begda="table.begda"
+            :endda="table.endda"
+            :codeDescription="codeDescription"
+            :rewardHours="rewardHours"
+          />
+        </div>
+      </div>
     </div>
     <!-- <v-row>
       <v-icon id="myPlusIcon" @click="addWeeklHoursTable()">mdi-plus</v-icon>
@@ -217,6 +217,17 @@ export default {
 .flex-item {
   flex-grow: 1;
 }
+.sideBySide {
+  width: 100%;
+  overflow: hidden;
+}
+#right {
+  width: 200px;
+  float: right;
+}
+/* #left{
+  margin-left: 100px;
+} */
 #myPlusIcon {
   color: blue;
 }

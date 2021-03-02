@@ -73,6 +73,29 @@ const routes = [
     },
   },
   {
+    path: "/jobRewards",
+    name: "jobRewards",
+    props: true,
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(
+        /* webpackChunkName: "jobRewards" */ "../views/jobRewards.vue"
+      ),
+    beforeEnter(to, from, next) {
+      if (
+        to.name == "jobRewards" &&
+        (store.state.logginAs == 999 || store.state.logginAs == 998)
+      ) {
+        alert("התחבר כמוסד כדי להכנס לדף זה");
+        next({ name: "auth" });
+      } else {
+        next();
+      }
+    },
+  },
+  {
     path: "/mossadot",
     name: "mossadot",
     // route level code-splitting
@@ -153,13 +176,22 @@ const routes = [
       ),
   },
   {
-    path: "/cutomizeTables",
-    name: "cutomizeTables",
+    path: "/bagrutRewardsCust",
+    name: "bagrutRewardsCust",
     // route level code-splitting
     // this generates a separate chunk (Mossadot.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "cutomizeTables" */ "../views/cutomizeTables.vue"),
+      import(/* webpackChunkName: "cutomizeTables" */ "../views/bagrutRewardsCust.vue"),
+  },
+  {
+    path: "/jobRewardsCust",
+    name: "jobRewardsCust",
+    // route level code-splitting
+    // this generates a separate chunk (Mossadot.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "cutomizeTables" */ "../views/jobRewardsCust.vue"),
   },
   {
     path: "/rewardsGapsReport",

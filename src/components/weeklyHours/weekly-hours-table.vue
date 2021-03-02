@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="empId != null && reformType != 0"
-    style="margin: auto; margin-top: 15px"
-  >
+  <div v-if="empId != null && reformType != 0">
     <table id="t01">
       <thead>
         <tr>
@@ -130,7 +127,7 @@
         </tr>
       </tbody>
     </table>
-    <v-row class="center" style="margin-top: auto">
+    <v-row class="center" style="margin-top: auto; margin-bottom:auto">
       <v-btn class="myBtn" color="primary" @click="saveHours()"
         >שמור שעות</v-btn
       >
@@ -281,8 +278,6 @@ export default {
       let tempHourType;
       let newRow = {};
 
-      // eslint-disable-next-line no-debugger
-      debugger;
       this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;

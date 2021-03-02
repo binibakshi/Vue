@@ -179,13 +179,16 @@ export default {
       if (this.$store.state.logginAs == this.$store.state.logginAs) {
         this.selections.mossadId.push(this.$store.state.logginAs);
       }
+      this.setBegdaEndda();
       this.circleProgress = true;
     },
     setBegdaEndda() {
-      this.datesRange.min = this.FormatDate(
-        new Date(this.selectedYear - 1, 8, 1)
+      this.datesRange.min = this.formatDate(
+        new Date(this.selections.year - 1, 8, 1)
       );
-      this.datesRange.max = this.FormatDate(new Date(this.selectedYear, 5, 20));
+      this.datesRange.max = this.formatDate(
+        new Date(this.selections.year, 5, 20)
+      );
     },
     async getMossadot() {
       await axios

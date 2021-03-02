@@ -117,7 +117,7 @@
               </tbody>
             </table>
             <span
-              style="font-weight: bold"
+              id="mossadotWorkAt"
               v-for="reform in workInReforms"
               :key="reform"
               >{{ getRreformDiscription(reform) + ", " }}</span
@@ -150,10 +150,7 @@
             ></v-select>
           </v-col>
         </v-row>
-        <v-card
-          v-if="employeeInfo != null && selectedReforms != null"
-          class="littleSpace"
-        >
+        <div v-if="employeeInfo != null && selectedReforms != null">
           <v-card
             v-for="(reform, index) in selectedReforms"
             :key="index"
@@ -178,7 +175,7 @@
               :existData="getRelevantData(reform)"
             ></weeklyHours>
           </v-card>
-        </v-card>
+        </div>
       </div>
     </div>
   </v-card>
@@ -724,19 +721,25 @@ th {
   text-align: center;
 }
 #detailsTable {
-  text-align: center;
+  position: relative;
+  /* text-align: center;
   justify-content: center;
   align-items: center;
-  margin-right: auto;
+  margin-right: auto; */
   margin-bottom: 20px;
+}
+#mossadotWorkAt {
+  font-weight: bold;
+  position: absolute;
+  /* right: 1%; */
 }
 #mossadHoursDetails {
   border-bottom: 1px solid;
 }
 .excelMDI {
   color: green;
-  position: absolute;
-  left: 3%;
+  position: relative;
+  right: 340px;
   background-color: lightgray;
 }
 .v-icon:hover {

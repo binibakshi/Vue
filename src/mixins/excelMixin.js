@@ -13,7 +13,7 @@ export default {
       dataToExport: [],
     };
   },
-  mounted(){
+  mounted() {
     this.getCodesDescription();
   },
   methods: {
@@ -49,6 +49,7 @@ export default {
             error,
           })
         );
+
       this.allEmpsInfo.forEach((el) => {
         this.setExistHours(
           el,
@@ -94,10 +95,10 @@ export default {
         .then((response) => {
           this.allEmpsInfo.push(response.data);
         }).catch((error) =>
-        this.$store.dispatch("displayErrorMessage", {
-          error,
-        })
-      );
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     async getAllEmpInfo(mossadId, begda, endda) {
       await axios
@@ -111,10 +112,10 @@ export default {
         .then((response) => {
           this.allEmpsInfo = response.data;
         }).catch((error) =>
-        this.$store.dispatch("displayErrorMessage", {
-          error,
-        })
-      );
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     async getAllEmpHours(mossadId, begda, endda) {
       await axios
@@ -128,10 +129,10 @@ export default {
         .then((response) => {
           this.empsHours = response.data;
         }).catch((error) =>
-        this.$store.dispatch("displayErrorMessage", {
-          error,
-        })
-      );
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     getCodesDescription() {
       axios
@@ -177,12 +178,10 @@ export default {
         (wb.Workbook.Views[0] = {}), (wb.Workbook.Views[0].RTL = true);
     },
     setExistHours(empInfo, hoursToFormat, mossadId, mossadName) {
-      let tempHourType;
+
       let newRow = {};
       let hoursToDisplay = [];
       hoursToFormat.forEach((el) => {
-        tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
-          .hourType;
         // after first insert check whether create new row or add to existing one
         if (
           hoursToDisplay.find(

@@ -1,7 +1,7 @@
 <template>
   <v-card class="wrapper">
     <v-card>
-      <v-card-title>אקסלים לקליטה</v-card-title>
+      <v-card-title>אקסל גמול בגרות</v-card-title>
       <v-row class="giveSomeSpace">
         <input type="file" id="file" ref="file" @change="loadFile" />
         <v-btn

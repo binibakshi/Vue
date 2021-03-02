@@ -436,9 +436,6 @@ export default {
           (el.questionnaire == null || el.questionnaire == row.questionnaire) &&
           el.studyUnits == row.units
       );
-
-      // eslint-disable-next-line no-debugger
-      debugger;
       if (temp == null) {
         return;
       }
