@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card >
+    <v-card>
       <v-data-table
         v-if="empId != null"
         dense
@@ -164,8 +164,8 @@ export default {
         { text: "שאלון", value: "questionnaire" },
         { text: "סוג", value: "isExternal" },
         { text: "כיתה", value: "teachingClass" },
-        { text: "מורה נוסף", value: "isSplit" },
         { text: "תלמידים", value: "students" },
+        { text: "מורה נוסף", value: "isSplit" },
         { text: "גמול שעות", value: "hoursReward" },
         { text: "גמול אחוזים", value: "percentReward" },
         { text: "פעולות", value: "actions" },
@@ -238,6 +238,7 @@ export default {
             hours: el.hoursReward,
             percent: el.percentReward,
             teachingClass: el.teachingClass,
+            rewardType: 1,
           });
         });
       axios({
@@ -268,6 +269,7 @@ export default {
         hours: row.hoursReward,
         percent: row.percentReward,
         teachingClass: row.teachingClass,
+        rewardType: 1,
       });
       axios({
         url: "/teachersRewards/saveAll",
@@ -345,6 +347,7 @@ export default {
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
             class: row.teachingClass,
+            rewardType: 1,
           },
         })
         .then(() => {

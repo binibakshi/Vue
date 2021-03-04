@@ -58,11 +58,11 @@ export default {
         { text: "תיאור", value: "description" },
         { text: "מינימום שעות", value: "minHours" },
         { text: "מקסימום שעות", value: "maxHours" },
-        { text: "שעות1", value: "hours1" },
-        { text: "שעות2", value: "hours2" },
-        { text: "שעות3", value: "hours3" },
-        { text: "שעות4", value: "hours4" },
-        { text: "שעות5", value: "hours5" },
+        { text: "אחוזים1", value: "percent1" },
+        { text: "אחוזים2", value: "percent2" },
+        { text: "אחוזים3", value: "percent3" },
+        { text: "אחוזים4", value: "percent4" },
+        { text: "אחוזים5", value: "percent5" },
         { text: "מינימום אחוזים", value: "minPercent" },
         { text: "מקסימום אחוזים", value: "maxPercent" },
         { text: "קישור", value: "descLink" },
@@ -72,11 +72,11 @@ export default {
         description: "תיאור",
         minHours: "מינימום שעות",
         maxHours: "מקסימום שעות",
-        hours1: "שעות1",
-        hours2: "שעות2",
-        hours3: "שעות3",
-        hours4: "שעות4",
-        hours5: "שעות5",
+        percent1: "אחוזים1",
+        percent2: "אחוזים2",
+        percent3: "אחוזים3",
+        percent4: "אחוזים4",
+        percent5: "אחוזים5",
         minPercent: "מינימום אחוזים",
         maxPercent: "מקסימום אחוזים",
         descLink: "קישור",
@@ -141,21 +141,21 @@ export default {
         workbook.Sheets[sheetName].D1.h = "maxHours";
         workbook.Sheets[sheetName].D1.v = "maxHours";
         workbook.Sheets[sheetName].D1.w = "maxHours";
-        workbook.Sheets[sheetName].E1.h = "hours1";
-        workbook.Sheets[sheetName].E1.v = "hours1";
-        workbook.Sheets[sheetName].E1.w = "hours1";
-        workbook.Sheets[sheetName].F1.h = "hours2";
-        workbook.Sheets[sheetName].F1.v = "hours2";
-        workbook.Sheets[sheetName].F1.w = "hours2";
-        workbook.Sheets[sheetName].G1.h = "hours3";
-        workbook.Sheets[sheetName].G1.v = "hours3";
-        workbook.Sheets[sheetName].G1.w = "hours3";
-        workbook.Sheets[sheetName].H1.h = "hours4";
-        workbook.Sheets[sheetName].H1.v = "hours4";
-        workbook.Sheets[sheetName].H1.w = "hours4";
-        workbook.Sheets[sheetName].I1.h = "hours5";
-        workbook.Sheets[sheetName].I1.v = "hours5";
-        workbook.Sheets[sheetName].I1.w = "hours5";
+        workbook.Sheets[sheetName].E1.h = "percent1";
+        workbook.Sheets[sheetName].E1.v = "percent1";
+        workbook.Sheets[sheetName].E1.w = "percent1";
+        workbook.Sheets[sheetName].F1.h = "percent2";
+        workbook.Sheets[sheetName].F1.v = "percent2";
+        workbook.Sheets[sheetName].F1.w = "percent2";
+        workbook.Sheets[sheetName].G1.h = "percent3";
+        workbook.Sheets[sheetName].G1.v = "percent3";
+        workbook.Sheets[sheetName].G1.w = "percent3";
+        workbook.Sheets[sheetName].H1.h = "percent4";
+        workbook.Sheets[sheetName].H1.v = "percent4";
+        workbook.Sheets[sheetName].H1.w = "percent4";
+        workbook.Sheets[sheetName].I1.h = "percent5";
+        workbook.Sheets[sheetName].I1.v = "percent5";
+        workbook.Sheets[sheetName].I1.w = "percent5";
         workbook.Sheets[sheetName].J1.h = "minPercent";
         workbook.Sheets[sheetName].J1.v = "minPercent";
         workbook.Sheets[sheetName].J1.w = "minPercent";

@@ -40,6 +40,7 @@
     </v-row>
     <jobReward
       v-if="empId != null && additionalReward.length > 0"
+      :key="empId + selectedYear"
       :empId="empId"
       :empData="empData"
       :selectedYear="selectedYear"
@@ -77,14 +78,13 @@ export default {
   },
   async mounted() {
     this.initilize();
+    if (this.empId != null) {
+      await this.getExistData();
+    }
     await this.getAdditionalRewards();
     await this.getAllTz();
-    if (this.empId != null) {
-      this.getExistData();
-    }
     this.getMossadSum();
     bus.$on("reloadJobDataPerMossad", async () => {
-      console.log("hello im here");
       this.getMossadSum();
     });
   },
@@ -143,13 +143,14 @@ export default {
           })
         );
     },
-    getExistData() {
-      axios
+    async getExistData() {
+      await axios
         .get("/teachersRewards/byEmpIdAndMossadAndYear", {
           params: {
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
+            rewardType: 2,
           },
         })
         .then((response) => {
@@ -168,6 +169,7 @@ export default {
           params: {
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
+            rewardType: 2,
           },
         })
         .then((response) => {
@@ -197,9 +199,9 @@ export default {
     onYearChanged() {
       this.$store.dispatch("setSelectedYear", this.selectedYear);
     },
-    onEmpIdChange() {
+    async onEmpIdChange() {
       this.$store.dispatch("setEmpId", this.empId);
-      this.getExistData();
+      await this.getExistData();
       this.empData = this.tzArray.find((el) => el.empId == this.empId);
     },
   },

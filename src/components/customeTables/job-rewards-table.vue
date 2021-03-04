@@ -17,7 +17,6 @@
             <v-card-title class="center title"> טבלת גמולי תפקיד </v-card-title>
           </v-toolbar-title>
           <v-spacer></v-spacer>
-
           <v-text-field
             class="giveSomeSpace"
             style="max-width: 250px"
@@ -80,51 +79,6 @@
                   <v-col cols="12" md="2">
                     <v-text-field
                       dense
-                      placeholder="שעות1"
-                      min="0"
-                      type="number"
-                      v-model="newRow.hours1"
-                    ></v-text-field
-                  ></v-col>
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      dense
-                      placeholder="שעות2"
-                      min="0"
-                      type="number"
-                      v-model="newRow.hours2"
-                    ></v-text-field
-                  ></v-col>
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      dense
-                      placeholder="שעות3"
-                      min="0"
-                      type="number"
-                      v-model="newRow.hours3"
-                    ></v-text-field
-                  ></v-col>
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      dense
-                      placeholder="שעות4"
-                      min="0"
-                      type="number"
-                      v-model="newRow.hours4"
-                    ></v-text-field
-                  ></v-col>
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      dense
-                      placeholder="שעות5"
-                      min="0"
-                      type="number"
-                      v-model="newRow.hours5"
-                    ></v-text-field
-                  ></v-col>
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      dense
                       placeholder="מינימום אחוזים"
                       min="0"
                       type="number"
@@ -138,6 +92,51 @@
                       min="0"
                       type="number"
                       v-model="newRow.maxPercent"
+                    ></v-text-field
+                  ></v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      dense
+                      placeholder="אחוזים1"
+                      min="0"
+                      type="number"
+                      v-model="newRow.percent1"
+                    ></v-text-field
+                  ></v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      dense
+                      placeholder="אחוזים2"
+                      min="0"
+                      type="number"
+                      v-model="newRow.percent2"
+                    ></v-text-field
+                  ></v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      dense
+                      placeholder="אחוזים3"
+                      min="0"
+                      type="number"
+                      v-model="newRow.percent3"
+                    ></v-text-field
+                  ></v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      dense
+                      placeholder="אחוזים4"
+                      min="0"
+                      type="number"
+                      v-model="newRow.percent4"
+                    ></v-text-field
+                  ></v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      dense
+                      placeholder="אחוזים5"
+                      min="0"
+                      type="number"
+                      v-model="newRow.percent5"
                     ></v-text-field
                   ></v-col>
                   <v-col cols="12" md="4">
@@ -193,49 +192,49 @@
           v-model="item.maxHours"
         ></v-text-field
       ></template>
-      <template v-slot:[`item.hours1`]="{ item }">
+      <template v-slot:[`item.percent1`]="{ item }">
         <v-text-field
           dense
           :disabled="item.disabled"
           class="inputNumberSize"
           type="number"
-          v-model="item.hours1"
+          v-model="item.percent1"
         ></v-text-field
       ></template>
-      <template v-slot:[`item.hours2`]="{ item }">
+      <template v-slot:[`item.percent2`]="{ item }">
         <v-text-field
           dense
           :disabled="item.disabled"
           class="inputNumberSize"
           type="number"
-          v-model="item.hours2"
+          v-model="item.percent2"
         ></v-text-field
       ></template>
-      <template v-slot:[`item.hours3`]="{ item }">
+      <template v-slot:[`item.percent3`]="{ item }">
         <v-text-field
           dense
           :disabled="item.disabled"
           class="inputNumberSize"
           type="number"
-          v-model="item.hours3"
+          v-model="item.percent3"
         ></v-text-field
       ></template>
-      <template v-slot:[`item.hours4`]="{ item }">
+      <template v-slot:[`item.percent4`]="{ item }">
         <v-text-field
           dense
           :disabled="item.disabled"
           class="inputNumberSize"
           type="number"
-          v-model="item.hours4"
+          v-model="item.percent4"
         ></v-text-field
       ></template>
-      <template v-slot:[`item.hours5`]="{ item }">
+      <template v-slot:[`item.percent5`]="{ item }">
         <v-text-field
           dense
           :disabled="item.disabled"
           class="inputNumberSize"
           type="number"
-          v-model="item.hours5"
+          v-model="item.percent5"
         ></v-text-field
       ></template>
       <template v-slot:[`item.minPercent`]="{ item }"
@@ -318,13 +317,13 @@ export default {
         { text: "תיאור", value: "description" },
         { text: "מינימום שעות", value: "minHours" },
         { text: "מקסימום שעות", value: "maxHours" },
-        { text: "שעות1", value: "hours1" },
-        { text: "שעות2", value: "hours2" },
-        { text: "שעות3", value: "hours3" },
-        { text: "שעות4", value: "hours4" },
-        { text: "שעות5", value: "hours5" },
         { text: "מינימום אחוזים", value: "minPercent" },
         { text: "מקסימום אחוזים", value: "maxPercent" },
+        { text: "אחוזים1", value: "percent1" },
+        { text: "אחוזים2", value: "percent2" },
+        { text: "אחוזים3", value: "percent3" },
+        { text: "אחוזים4", value: "percent4" },
+        { text: "אחוזים5", value: "percent5" },
         { text: "קישור", value: "descLink" },
         { text: "פעולות", value: "actions", sortable: false },
       ],
@@ -333,13 +332,13 @@ export default {
         description: "תיאור",
         minHours: "מינימום שעות",
         maxHours: "מקסימום שעות",
-        hours1: "שעות1",
-        hours2: "שעות2",
-        hours3: "שעות3",
-        hours4: "שעות4",
-        hours5: "שעות5",
         minPercent: "מינימום אחוזים",
         maxPercent: "מקסימום אחוזים",
+        percent1: "אחוזים1",
+        percent2: "אחוזים2",
+        percent3: "אחוזים3",
+        percent4: "אחוזים4",
+        percent5: "אחוזים5",
         descLink: "קישור",
       },
       codeDescription: [],
@@ -376,13 +375,13 @@ export default {
           description: el.description,
           minHours: el.minHours,
           maxHours: el.maxHours,
-          hours1: el.hours1,
-          hours2: el.hours2,
-          hours3: el.hours3,
-          hours4: el.hours4,
-          hours5: el.hours5,
           maxPercent: this.getTwoDigits(el.maxPercent),
           minPercent: this.getTwoDigits(el.minPercent),
+          percent1: el.percent1,
+          percent2: el.percent2,
+          percent3: el.percent3,
+          percent4: el.percent4,
+          percent5: el.percent5,
           descLink: el.descLink,
           recordkey: el.recordkey,
           disabled: true,
@@ -404,11 +403,11 @@ export default {
         description: row.description,
         minHours: row.minHours,
         maxHours: row.maxHours,
-        hours1: row.hours1,
-        hours2: row.hours2,
-        hours3: row.hours3,
-        hours4: row.hours4,
-        hours5: row.hours5,
+        percent1: row.percent1,
+        percent2: row.percent2,
+        percent3: row.percent3,
+        percent4: row.percent4,
+        percent5: row.percent5,
         maxPercent: this.getTwoDigits(row.maxPercent),
         minPercent: this.getTwoDigits(row.minPercent),
         disabled: false,
@@ -506,7 +505,7 @@ input {
   padding: 0;
   max-height: 25px;
 }
-.title{
+.title {
   font-weight: bold;
   font-size: x-large !important;
   text-decoration: underline;

@@ -22,7 +22,7 @@
                 single-line
                 autocomplete="off"
                 hide-details
-                 append-icon="mdi-magnify"
+                append-icon="mdi-magnify"
               ></v-text-field>
             </v-card-title>
           </v-toolbar-title>
@@ -91,7 +91,7 @@
                       />
                     </v-col>
                   </v-row>
-                  <v-btn color="primary" @click="saveEmployer()"
+                  <v-btn color="primary" @click="saveEmployee()"
                     >שמור עובד</v-btn
                   >
                   <v-btn color="grey" @click="close()">סגור</v-btn>
@@ -167,7 +167,7 @@ export default {
       },
     };
   },
-  created(){
+  created() {
     this.getAllTz();
   },
   methods: {
@@ -220,8 +220,7 @@ export default {
         new Date(this.editedEmployee.birthDate)
       );
     },
-    saveEmployer() {
-      const index = this.editedIndex;
+    saveEmployee() {
       if (
         this.editedEmployee.empId == null ||
         this.editedEmployee.firstName == null ||
@@ -242,13 +241,9 @@ export default {
           gender: this.editedEmployee.gender,
           mother: this.editedEmployee.mother,
         })
-        .then((response) => {
+        .then(() => {
+          this.getAllTz();
           alert("פרטי העובד נשמרו בהצלחה");
-          if (index > -1) {
-            Object.assign(this.employeesData[index], response.data);
-          } else {
-            this.employeesData.push(response.data);
-          }
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {

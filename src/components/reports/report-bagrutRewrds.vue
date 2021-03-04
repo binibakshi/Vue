@@ -190,6 +190,7 @@ export default {
           params: {
             mossadId: this.selectedMossadId,
             year: this.selectedYear,
+            rewardType:1
           },
         })
         .then((response) => {

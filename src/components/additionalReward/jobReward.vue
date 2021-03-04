@@ -14,26 +14,15 @@
           <v-toolbar flat color="white">
             <v-toolbar-title>
               <v-card-title>
-                <v-row>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="search"
-                      label="Search"
-                      placeholder="חפש"
-                      single-line
-                      autocomplete="off"
-                      hide-details
-                      append-icon="mdi-magnify"
-                    ></v-text-field>
-                  </v-col>
-                  <!-- <v-col cols="12" md="3">
-                    <v-select
-                      :items="reformTypes"
-                      v-model="selectedReformId"
-                      label="סוג"
-                    ></v-select>
-                  </v-col> -->
-                </v-row>
+                <v-text-field
+                  v-model="search"
+                  label="Search"
+                  placeholder="חפש"
+                  single-line
+                  autocomplete="off"
+                  hide-details
+                  append-icon="mdi-magnify"
+                ></v-text-field>
               </v-card-title>
             </v-toolbar-title>
             <v-spacer></v-spacer>
@@ -48,28 +37,42 @@
             <v-btn dense color="success" @click="saveAll()">שמור הכל</v-btn>
           </div>
         </template>
-        <template v-slot:[`item.employmentCode`]="{ item }">
+        <template v-slot:[`item.rewardId`]="{ item }">
           <v-autocomplete
-            :items="studyNames"
-            v-model="item.studyName"
-            :item-text="(i) => i.studyId + ' - ' + i.studyName"
-            item-value="studyName"
-            @change="onStudyNameChange(item)"
-            label="מקצוע"
+            :items="additionalReward"
+            v-model="item.rewardId"
+            :item-text="(i) => i.employmentCode + ' - ' + i.description"
+            item-value="recordkey"
+            label="גמול"
+            @change="handleRewardSelected(item)"
           ></v-autocomplete>
         </template>
         <template v-slot:[`item.hoursReward`]="{ item }">
           <v-text-field
-            style="max-width: 130px"
-            :disabled="item.isSplit == false"
+            :disabled="item.rewardId == null"
             type="number"
             min="0"
             v-model="item.hoursReward"
-            @change="onHoursRewardChange(item)"
+            v-bind:label="item.hoursLabel"
+            @change="handleHoursChanged(item)"
           ></v-text-field>
         </template>
         <template v-slot:[`item.percentReward`]="{ item }">
-          <p id="rewardHours">{{ getTwoDigits(item.percentReward) }}%</p>
+          <v-select
+            v-if="item.minPercent == 0"
+            :items="getPercentOptions(item)"
+            v-model="item.percentReward"
+            label="בחר"
+          ></v-select>
+          <v-text-field
+            v-else
+            :disabled="item.rewardId == null"
+            type="number"
+            min="0"
+            v-bind:label="item.percentLabel"
+            v-model="item.percentReward"
+            @change="handlePercentChanged(item)"
+          ></v-text-field>
         </template>
         <template v-slot:[`item.actions`]="{ item }">
           <v-tooltip top>
@@ -105,21 +108,16 @@ export default {
     return {
       search: "",
       headers: [
-        { text: "מקצוע", value: "studyName" },
-        { text: 'יח"ל', value: "units" },
-        { text: "שאלון", value: "questionnaire" },
-        { text: "סוג", value: "isExternal" },
-        { text: "כיתה", value: "teachingClass" },
-        { text: "מורה נוסף", value: "isSplit" },
-        { text: "תלמידים", value: "students" },
+        { text: "מקצוע", value: "rewardId" },
         { text: "גמול שעות", value: "hoursReward" },
         { text: "גמול אחוזים", value: "percentReward" },
         { text: "פעולות", value: "actions" },
       ],
       selectedReformId: 5,
       rewards: [],
-      studyNames: [],
       tableData: [],
+      hoursLabel: "",
+      percentLabel: "",
       reformTypes: [
         {
           text: "עוז לתמורה",
@@ -134,7 +132,6 @@ export default {
   },
   mounted() {
     this.initilize();
-    this.studyName();
     this.setExistData();
   },
   methods: {
@@ -145,19 +142,17 @@ export default {
     saveAll() {
       var teachersRewards = [];
       this.rewards
-        .filter((el) => el.recordkey != 0)
+        .filter((el) => el.rewardId != 0)
         .forEach((el) => {
           teachersRewards.push({
             empId: this.empId,
-            rewardId: el.recordkey,
+            rewardId: el.rewardId,
             mossadId: this.$store.state.logginAs,
             reformId: this.selectedReformId,
             year: this.selectedYear,
-            split: el.isSplit,
-            students: el.students,
             hours: el.hoursReward,
             percent: el.percentReward,
-            teachingClass: el.teachingClass,
+            rewardType: 2,
           });
         });
       axios({
@@ -179,15 +174,13 @@ export default {
       var teachersRewards = [];
       teachersRewards.push({
         empId: this.empId,
-        rewardId: row.recordkey,
+        rewardId: row.rewardId,
         mossadId: this.$store.state.logginAs,
         reformId: this.selectedReformId,
         year: this.selectedYear,
-        split: row.isSplit,
-        students: row.students,
         hours: row.hoursReward,
         percent: row.percentReward,
-        teachingClass: row.teachingClass,
+        rewardType: 2,
       });
       axios({
         url: "/teachersRewards/saveAll",
@@ -208,7 +201,9 @@ export default {
         return;
       }
       var currReward = {};
+      var newRow = {};
       this.rewards = [];
+
       this.existData.forEach((el) => {
         currReward = this.additionalReward.find(
           (e) => e.recordkey == el.rewardId
@@ -216,38 +211,42 @@ export default {
         if (currReward == undefined) {
           return;
         }
-        this.rewards.push({
-          isSplit: el.split,
-          students: el.students,
-          studyName: currReward.studyName,
-          units: currReward.studyUnits,
-          reformId: this.selectedReformId,
-          questionnaire: currReward.questionnaire,
-          isExternal: el.external,
+        newRow = {
           hoursReward: el.hours,
           percentReward: el.percent,
-          recordkey: el.rewardId,
-          teachingClass: el.teachingClass,
-        });
+          rewardId: el.rewardId,
+          minHours: currReward.minHours,
+          maxHours: currReward.maxHours,
+          minPercent: currReward.minPercent,
+          maxPercent: currReward.maxPercent,
+        };
+        this.changeLabelText(newRow);
+        this.rewards.push(newRow);
       });
+    },
+    changeLabelText(row) {
+      const currReward = this.additionalReward.find(
+        (el) => el.recordkey == row.rewardId
+      );
+      row.hoursLabel =
+        " אפשר להזין " + currReward.minHours + " - " + currReward.maxHours;
+      row.percentLabel =
+        " אפשר להזין " + currReward.minPercent + " - " + currReward.maxPercent;
     },
     addNewRow() {
       this.rewards.push({
-        isExternal: true,
-        teachingClass: 9,
-        studyName: null,
-        questionnaire: "",
-        isSplit: false,
-        units: 0,
-        students: 0,
         hoursReward: 0,
         percentReward: 0,
-        recordkey: null,
+        rewardId: null,
+        minHours: 0,
+        maxHours: 0,
+        minPercent: 0,
+        maxPercent: 0,
       });
     },
     removeRow(row) {
       const index = this.rewards.indexOf(row);
-      if (!this.existData.map((el) => el.rewardId).includes(row.recordkey)) {
+      if (!this.existData.map((el) => el.rewardId).includes(row.rewardId)) {
         this.rewards.splice(index, 1);
         if (index === 0) {
           this.addNewRow();
@@ -261,10 +260,11 @@ export default {
         .delete("/teachersRewards/delete", {
           params: {
             empId: this.empId,
-            rewardId: row.recordkey,
+            rewardId: row.rewardId,
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
-            class: row.teachingClass,
+            class: 0,
+            rewardType: 2,
           },
         })
         .then(() => {
@@ -280,6 +280,39 @@ export default {
           });
         });
     },
+    handleRewardSelected(row) {
+      const currReward = this.additionalReward.find(
+        (el) => el.recordkey == row.rewardId
+      );
+      row.minHours = currReward.minHours;
+      row.maxHours = currReward.maxHours;
+      row.minPercent = currReward.minPercent;
+      row.maxPercent = currReward.maxPercent;
+
+      this.changeLabelText(row);
+    },
+    handleHoursChanged(row) {
+      const currReward = this.additionalReward.find(
+        (el) => el.recordkey == row.rewardId
+      );
+      if (row.hoursReward < currReward.minHours) {
+        row.hoursReward = currReward.minHours;
+      }
+      if (row.hoursReward > currReward.maxHours) {
+        row.hoursReward = currReward.maxHours;
+      }
+    },
+    handlePercentChanged(row) {
+      const currReward = this.additionalReward.find(
+        (el) => el.recordkey == row.rewardId
+      );
+      if (row.percentReward < currReward.minPercent) {
+        row.percentReward = currReward.minPercent;
+      }
+      if (row.percentReward > currReward.maxPercent) {
+        row.percentReward = currReward.maxPercent;
+      }
+    },
     exportToExcel() {
       var excelHeaders = {
         empId: "תעודת זהות",
@@ -287,34 +320,25 @@ export default {
         lastName: "שם משפחה",
         mossadName: "שם מוסד",
         year: "שנה",
-        studyName: "מקצוע",
-        questionnaire: "שאלון",
-        studyUnits: 'יח"ל',
-        teachingClass: "כיתה",
-        external: "סוג",
-        split: "מפוצל",
-        students: "תלמידים",
+        employmentCode: "קוד פיצול",
+        description: "תיאור",
         hoursReward: "גמול שעות",
         percentReward: "גמול אחוזים",
       };
       var excelData = [];
 
       this.rewards.forEach((el) => {
+        let currReward = this.additionalReward.find(
+          (e) => e.recordkey == el.rewardId
+        );
         excelData.push({
           empId: this.empId,
           firstName: this.empData.firstName,
           lastName: this.empData.lastName,
           mossadName: this.$store.state.mossadInfo.mossadName,
           year: this.selectedYear,
-          studyName: el.studyName,
-          questionnaire: el.questionnaire,
-          studyUnits: el.units,
-          external: this.isExternalRange.find((e) => e.value == el.isExternal)
-            .text,
-          teachingClass: this.classes.find((e) => e.value == el.teachingClass)
-            .text,
-          split: this.isSplitedRange.find((e) => e.value == el.isSplit).text,
-          students: el.students,
+          employmentCode: currReward.employmentCode,
+          description: currReward.description,
           hoursReward: el.hoursReward,
           percentReward: el.percentReward,
         });
@@ -333,15 +357,21 @@ export default {
       }
       return parseFloat(number).toFixed(2);
     },
-  },
-  watch: {
-    empId: function (val) {
-      this.empId = val;
-      this.initilize();
-    },
-    existData: function () {
-      this.initilize();
-      this.setExistData();
+    getPercentOptions(row) {
+      if (!row.rewardId) {
+        return;
+      }
+      const currReward = this.additionalReward.find(
+        (el) => el.recordkey == row.rewardId
+      );
+      let range = [
+        currReward.percent1,
+        currReward.percent2,
+        currReward.percent3,
+        currReward.percent4,
+        currReward.percent5,
+      ];
+      return range.filter((el) => el != 0);
     },
   },
 };

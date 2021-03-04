@@ -381,6 +381,7 @@ export default {
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
+            rewardType: 1,
           },
         })
         .then((response) => {

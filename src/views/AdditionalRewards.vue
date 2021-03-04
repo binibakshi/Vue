@@ -84,7 +84,6 @@ export default {
     }
     this.getMossadSum();
     bus.$on("reloadBagrutDataPerMossad", async () => {
-      console.log("hello im here");
       this.getMossadSum();
     });
   },
@@ -150,6 +149,7 @@ export default {
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
+            rewardType: 1,
           },
         })
         .then((response) => {
@@ -168,6 +168,7 @@ export default {
           params: {
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
+            rewardType: 1,
           },
         })
         .then((response) => {
