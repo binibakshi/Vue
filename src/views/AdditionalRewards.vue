@@ -40,6 +40,7 @@
     </v-row>
     <bagrutReward
       v-if="empId != null && additionalReward.length > 0"
+      :key="empId + selectedYear"
       :empId="empId"
       :empData="empData"
       :selectedYear="selectedYear"
@@ -89,13 +90,13 @@ export default {
   },
   computed: {
     _hoursSum() {
-      return this.existData.reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
+      return this.existData.reduce((sum, e) => (sum += parseFloat(e.hours)), 0).toFixed(2);
     },
     _percentSum() {
       return this.existData.reduce(
         (sum, e) => (sum += parseFloat(e.percent)),
         0
-      );
+      ).toFixed(2);
     },
     _mossadInfo() {
       return this.mossadInfo;
@@ -135,6 +136,11 @@ export default {
         .then((response) => {
           this.tzArray = response.data;
           this.empData = this.tzArray.find((el) => el.empId == this.empId);
+          if (this.$store.state.empId != null) {
+            this.empId = this.tzArray.find(
+              (el) => el.empId == this.$store.state.empId
+            ).empId;
+          }
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {

@@ -173,6 +173,7 @@ export default {
             year: this.selectedYear,
             mossadId: this.selectedMossadId,
             reformId: this.selectedReformType,
+            rewardType: 1,
           },
         })
         .then((response) => {

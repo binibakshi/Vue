@@ -190,7 +190,7 @@ export default {
           params: {
             mossadId: this.selectedMossadId,
             year: this.selectedYear,
-            rewardType:1
+            rewardType: 1,
           },
         })
         .then((response) => {
@@ -241,10 +241,12 @@ export default {
           lastName: empData.lastName,
           hours: this.rewards
             .filter((el) => el.empId == currEmpId)
-            .reduce((sum, e) => (sum += parseFloat(e.hours)), 0),
+            .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
+            .toFixed(2),
           percent: this.rewards
             .filter((el) => el.empId == currEmpId)
-            .reduce((sum, e) => (sum += parseFloat(e.percent)), 0),
+            .reduce((sum, e) => (sum += parseFloat(e.percent)), 0)
+            .toFixed(2),
         });
       }
     },

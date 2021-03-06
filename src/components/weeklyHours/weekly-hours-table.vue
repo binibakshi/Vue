@@ -127,7 +127,7 @@
         </tr>
       </tbody>
     </table>
-    <v-row class="center" style="margin-top: auto; margin-bottom:auto">
+    <v-row class="center" style="margin-top: auto; margin-bottom: auto">
       <v-btn class="myBtn" color="primary" @click="saveHours()"
         >שמור שעות</v-btn
       >
@@ -277,7 +277,8 @@ export default {
     setExistData() {
       let tempHourType;
       let newRow = {};
-
+      // eslint-disable-next-line no-debugger
+      debugger;
       this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
@@ -318,18 +319,27 @@ export default {
       let currCode = this.reformType == 5 ? 9671 : 2598;
       let bagrutHours = this.rewardHours
         .filter((el) => el.reformId == this.reformType)
-        .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
+        .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
+        .toFixed(2);
 
       let currtRewrds = this.newHours.find((el) => el.code == currCode);
       if (currtRewrds) {
         currtRewrds.hours = bagrutHours;
+        //check no empy data
       } else if (bagrutHours != 0) {
-        this.newHours.push({
-          code: currCode,
-          hours: bagrutHours,
-          type: 1,
-          week: [0, 0, 0, 0, 0, 0],
-        });
+        //check if first row
+        if (this.newHours.find((e) => e.type == FRONTAL).code != "") {
+          this.newHours.push({
+            code: currCode,
+            hours: bagrutHours,
+            type: 1,
+            week: [0, 0, 0, 0, 0, 0],
+          });
+        } else {
+          this.newHours.find((e) => e.type == FRONTAL).hours +=
+            bagrutHours * 1.0; //parse to float
+          this.newHours.find((e) => e.type == FRONTAL).code = currCode;
+        }
       }
       this.getPauseAndPrivateHours();
     },

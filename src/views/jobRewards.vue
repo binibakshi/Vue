@@ -93,10 +93,9 @@ export default {
       return this.existData.reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
     },
     _percentSum() {
-      return this.existData.reduce(
-        (sum, e) => (sum += parseFloat(e.percent)),
-        0
-      );
+      return this.existData
+        .reduce((sum, e) => (sum += parseFloat(e.percent)), 0)
+        .toFixed(2);
     },
     _mossadInfo() {
       return this.mossadInfo;
@@ -136,6 +135,11 @@ export default {
         .then((response) => {
           this.tzArray = response.data;
           this.empData = this.tzArray.find((el) => el.empId == this.empId);
+          if (this.$store.state.empId != null) {
+            this.empId = this.tzArray.find(
+              (el) => el.empId == this.$store.state.empId
+            ).empId;
+          }
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -185,10 +189,9 @@ export default {
         (sum, e) => (sum += parseFloat(e.hours)),
         0
       );
-      this.mossadInfo.percentReward = temp.reduce(
-        (sum, e) => (sum += parseFloat(e.percent)),
-        0
-      );
+      this.mossadInfo.percentReward = temp
+        .reduce((sum, e) => (sum += parseFloat(e.percent)), 0)
+        .toFixed(2);
     },
     getTwoDigits(number) {
       if (isNaN(number)) {

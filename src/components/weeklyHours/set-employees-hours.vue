@@ -50,7 +50,6 @@
               "
               v-model="empId"
               :items="tzArray"
-              hide-selected
               :item-text="
                 (item) =>
                   item.firstName + ' ' + item.lastName + ' - ' + item.empId
@@ -58,6 +57,7 @@
               item-value="empId"
               label="תעודת זהות"
               placeholder="חפש"
+              hide-selected
               @change="getEmployeeInfo()"
             ></v-autocomplete>
           </v-col>
@@ -196,6 +196,7 @@ export default {
   data() {
     return {
       selectedReforms: [],
+      test: 301301301,
       selectedYear: 0,
       empId: null,
       ageHours: 0,
@@ -351,6 +352,11 @@ export default {
         .get("/employees/all")
         .then((response) => {
           this.tzArray = response.data;
+          if (this.$store.state.empId != null) {
+            this.empId = this.tzArray.find(
+              (el) => el.empId == this.$store.state.empId
+            ).empId;
+          }
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -375,23 +381,6 @@ export default {
             error,
           })
         );
-      await axios
-        .get("/teachersRewards/byEmpIdAndMossadAndYear", {
-          params: {
-            empId: this.empId,
-            mossadId: this.$store.state.logginAs,
-            year: this.selectedYear,
-            rewardType: 1,
-          },
-        })
-        .then((response) => {
-          this.rewardHours = response.data;
-        })
-        .catch((error) => {
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          });
-        });
       this.calcAgeHours();
       await this.getAllEmpData();
       setTimeout(() => (this.circleProgress = false), 1000);
@@ -441,11 +430,11 @@ export default {
           })
         );
     },
-    getAllEmpData() {
+    async getAllEmpData() {
       if (this.empId == null || this.empId == "") {
         return;
       }
-      axios
+      await axios
         .get("/teacherEmploymentDetails/byId", {
           params: {
             empId: this.empId,
@@ -455,14 +444,32 @@ export default {
         })
         .then((response) => {
           this.existData = response.data;
-          this.calcEmpHoursData();
-          this.compId += 1;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
             error,
           })
         );
+      await axios
+        .get("/teachersRewards/byEmpIdAndMossadAndYear", {
+          params: {
+            empId: this.empId,
+            mossadId: this.$store.state.logginAs,
+            year: this.selectedYear,
+            rewardType: 1,
+          },
+        })
+        .then((response) => {
+          this.rewardHours = response.data;
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
+
+      this.calcEmpHoursData();
+      this.compId += 1;
     },
     setBegdaEndda() {
       this.datesRange.min = this.formatDate(
@@ -587,7 +594,7 @@ export default {
       if (week != null) {
         let sum = 0;
         for (let index = 0; index < 6; index++) {
-          sum = sum + parseFloat(week[index]);
+          sum = sum + parseFloat(week[index]).toFixed(2).toFixed(2);
         }
         return sum;
       } else {
@@ -641,6 +648,13 @@ export default {
           this.workInReforms.push(el.reformType);
         }
       });
+
+      // Add rewards to existing reforms work in
+      this.rewardHours.forEach((el) => {
+        if (!this.workInReforms.includes(el.reformId)) {
+          this.workInReforms.push(el.reformId);
+        }
+      });
       this.selectedReforms = this.workInReforms;
 
       // calc job percent devied by curr mossad and all mossadot
@@ -651,7 +665,7 @@ export default {
               e.reformType == el.reformId &&
               e.mossadId == this.$store.state.logginAs
           )
-          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0).toFixed(2);
         this.empHoursTable[0].jobPercent += this.calcJobPercent(
           el.reformId,
           currReformPerMossadSum,
@@ -660,7 +674,7 @@ export default {
         );
         let currReformSum = this.existData
           .filter((e) => e.reformType == el.reformId)
-          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0).toFixed(2);
         this.empHoursTable[1].jobPercent += this.calcJobPercent(
           el.reformId,
           currReformSum,

@@ -122,9 +122,9 @@
             @change="onHoursRewardChange(item)"
           ></v-text-field>
         </template>
-        <template v-slot:[`item.percentReward`]="{ item }">
+        <!-- <template v-slot:[`item.percentReward`]="{ item }">
           <p id="rewardHours">{{ getTwoDigits(item.percentReward) }}%</p>
-        </template>
+        </template> -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-tooltip top>
             <template #activator="{ on }">
@@ -530,6 +530,7 @@ export default {
         lastName: "שם משפחה",
         mossadName: "שם מוסד",
         year: "שנה",
+        studyId: "קוד מקצוע",
         studyName: "מקצוע",
         questionnaire: "שאלון",
         studyUnits: 'יח"ל',
@@ -549,6 +550,9 @@ export default {
           lastName: this.empData.lastName,
           mossadName: this.$store.state.mossadInfo.mossadName,
           year: this.selectedYear,
+          studyId: this.additionalReward.find(
+            (e) => e.recordkey == el.recordkey
+          ).studyId,
           studyName: el.studyName,
           questionnaire: el.questionnaire,
           studyUnits: el.units,
@@ -576,16 +580,6 @@ export default {
         return 0.0;
       }
       return parseFloat(number).toFixed(2);
-    },
-  },
-  watch: {
-    empId: function (val) {
-      this.empId = val;
-      this.initilize();
-    },
-    existData: function () {
-      this.initilize();
-      this.setExistData();
     },
   },
 };

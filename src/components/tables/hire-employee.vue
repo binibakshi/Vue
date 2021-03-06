@@ -29,7 +29,13 @@
           <v-spacer></v-spacer>
           <v-dialog v-model="dialog" max-width="50%">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on"
+              <v-btn
+                @click="() => (createNew = true)"
+                color="primary"
+                dark
+                class="mb-2"
+                v-bind="attrs"
+                v-on="on"
                 >צור עובד</v-btn
               >
             </template>
@@ -232,6 +238,16 @@ export default {
         alert("נא להזין את כל השדות");
         return;
       }
+      if (
+        this.createNew == true &&
+        this.employeesData.some(
+          (el) => el.empId == this.editedEmployee.empId
+        ) &&
+        !confirm("קיים עובד עם תעודת זהות זו האם אתה בטוח שברצונך להמשיך ?")
+      ) {
+        this.close();
+        return;
+      }
       axios
         .post(`/employees/save`, {
           empId: this.editedEmployee.empId,
@@ -289,6 +305,7 @@ export default {
       this.editedIndex = this.employeesData.indexOf(item);
       this.setEmployeeInfo(item);
       this.dialog = true;
+      this.createNew = false;
     },
     _getAgeHours(date) {
       var birthDate = new Date(date);

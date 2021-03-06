@@ -276,7 +276,7 @@ export default {
       return this.dataToDisplay.reduce(
         (sum, el) => (sum += parseFloat(el.frontalHours)),
         0
-      );
+      ).toFixed(2);
     },
     getTwoDigits(number) {
       if (isNaN(number)) {
