@@ -40,7 +40,7 @@
     </v-row>
     <jobReward
       v-if="empId != null && additionalReward.length > 0"
-      :key="empId + selectedYear"
+      :key="compKey"
       :empId="empId"
       :empData="empData"
       :selectedYear="selectedYear"
@@ -66,6 +66,7 @@ export default {
       tzArray: [],
       existData: [],
       empId: null,
+      compKey: 0,
       additionalReward: [],
       years: [
         { year: 2021, hebrewYear: 'תשפ"א' },
@@ -149,7 +150,7 @@ export default {
     },
     async getExistData() {
       await axios
-        .get("/teachersRewards/byEmpIdAndMossadAndYear", {
+        .get("/teachersRewards/byEmpIdAndMossadAndYearAndType", {
           params: {
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
@@ -159,6 +160,7 @@ export default {
         })
         .then((response) => {
           this.existData = response.data;
+          this.compKey += 1;
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
@@ -169,7 +171,7 @@ export default {
     async getMossadSum() {
       var temp = [];
       await axios
-        .get("/teachersRewards/byMossadAndYear", {
+        .get("/teachersRewards/byMossadAndYearAndType", {
           params: {
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,

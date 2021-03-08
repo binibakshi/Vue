@@ -2,7 +2,7 @@
   <div v-if="empId != null" class="reformTypeTables">
     <h1 class="center">{{ _reformDiscription }}</h1>
     <div v-for="(table, index) in tablesArray" :key="index">
-      <div class="sideBySide" >
+      <div class="sideBySide">
         <div id="right">
           <v-text-field
             v-model="table.begda"
@@ -33,7 +33,8 @@
             :begda="table.begda"
             :endda="table.endda"
             :codeDescription="codeDescription"
-            :rewardHours="rewardHours"
+            :jobRewardTypes="jobRewardTypes"
+            :rewardsHours="rewardsHours"
           />
         </div>
       </div>
@@ -59,7 +60,8 @@ export default {
     "selectedYear",
     "codeDescription",
     "existData",
-    "rewardHours",
+    "jobRewardTypes",
+    "rewardsHours",
   ],
   components: { weeklyHoursTable },
   data() {
@@ -184,25 +186,6 @@ export default {
       }
       return "";
     },
-  },
-  watch: {
-    // empId: function (val) {
-    //   this.empId = val;
-    // },
-    // reformType: function (val) {
-    //   this.reformType = val;
-    // },
-    // selectedYear: function (val) {
-    //   this.selectedYear = val;
-    //   this.tablesArray = [];
-    //   this.setBegdaEndda();
-    // },
-    // existData: function (val) {
-    //   console.log("this is 1" + val);
-    //   this.existData = val;
-    //   this.setBegdaEndda();
-    //   this.gruopByBegdaEndda();
-    // },
   },
 };
 </script>

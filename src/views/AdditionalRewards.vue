@@ -40,7 +40,7 @@
     </v-row>
     <bagrutReward
       v-if="empId != null && additionalReward.length > 0"
-      :key="empId + selectedYear"
+      :key="compKey"
       :empId="empId"
       :empData="empData"
       :selectedYear="selectedYear"
@@ -66,6 +66,7 @@ export default {
       tzArray: [],
       existData: [],
       empId: null,
+      compKey: 0,
       additionalReward: [],
       years: [
         { year: 2021, hebrewYear: 'תשפ"א' },
@@ -90,13 +91,14 @@ export default {
   },
   computed: {
     _hoursSum() {
-      return this.existData.reduce((sum, e) => (sum += parseFloat(e.hours)), 0).toFixed(2);
+      return this.existData
+        .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
+        .toFixed(2);
     },
     _percentSum() {
-      return this.existData.reduce(
-        (sum, e) => (sum += parseFloat(e.percent)),
-        0
-      ).toFixed(2);
+      return this.existData
+        .reduce((sum, e) => (sum += parseFloat(e.percent)), 0)
+        .toFixed(2);
     },
     _mossadInfo() {
       return this.mossadInfo;
@@ -150,7 +152,7 @@ export default {
     },
     getExistData() {
       axios
-        .get("/teachersRewards/byEmpIdAndMossadAndYear", {
+        .get("/teachersRewards/byEmpIdAndMossadAndYearAndType", {
           params: {
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
@@ -160,6 +162,7 @@ export default {
         })
         .then((response) => {
           this.existData = response.data;
+          this.compKey += 1;
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
@@ -170,7 +173,7 @@ export default {
     async getMossadSum() {
       var temp = [];
       await axios
-        .get("/teachersRewards/byMossadAndYear", {
+        .get("/teachersRewards/byMossadAndYearAndType", {
           params: {
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,

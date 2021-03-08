@@ -186,7 +186,7 @@ export default {
     async getRewards() {
       this.rewards = [];
       await axios
-        .get("/teachersRewards/byMossadAndYear", {
+        .get("/teachersRewards/byMossadAndYearAndType", {
           params: {
             mossadId: this.selectedMossadId,
             year: this.selectedYear,

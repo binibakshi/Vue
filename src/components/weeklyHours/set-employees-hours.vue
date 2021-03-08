@@ -171,7 +171,8 @@
               :isMother="employeeInfo.mother"
               :ageHours="ageHours"
               :codeDescription="getRelevantCodesDescription(reform)"
-              :rewardHours="rewardHours"
+              :jobRewardTypes="jobRewardTypes"
+              :rewardsHours="rewardsHours"
               :existData="getRelevantData(reform)"
             ></weeklyHours>
           </v-card>
@@ -208,9 +209,10 @@ export default {
       workInReforms: [],
       codeDescription: [],
       empHoursTable: [],
+      jobRewardTypes: [],
       years: [],
       mossadot: [],
-      rewardHours: [],
+      rewardsHours: [],
       mossadInfo: { mossadId: "", mossadName: "", maxHours: 0, currHours: 0 },
       hoverText: "",
       compId: 0,
@@ -224,6 +226,7 @@ export default {
     this.getMossadot();
     this.getReformTypes();
     this.getMossadHours();
+    this.getBagrutRewardsTypes();
   },
   mounted() {
     this.initilize();
@@ -456,11 +459,10 @@ export default {
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
-            rewardType: 1,
           },
         })
         .then((response) => {
-          this.rewardHours = response.data;
+          this.rewardsHours = response.data;
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
@@ -470,6 +472,18 @@ export default {
 
       this.calcEmpHoursData();
       this.compId += 1;
+    },
+    getBagrutRewardsTypes() {
+      axios
+        .get("jobRewards/all")
+        .then((response) => {
+          this.jobRewardTypes = response.data;
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
     },
     setBegdaEndda() {
       this.datesRange.min = this.formatDate(
@@ -590,17 +604,6 @@ export default {
         this.ageHours = 2;
       }
     },
-    totalHours(week) {
-      if (week != null) {
-        let sum = 0;
-        for (let index = 0; index < 6; index++) {
-          sum = sum + parseFloat(week[index]).toFixed(2).toFixed(2);
-        }
-        return sum;
-      } else {
-        return 0;
-      }
-    },
     getRowType(type) {
       if (type === 0) {
         return "במוסד";
@@ -648,9 +651,10 @@ export default {
           this.workInReforms.push(el.reformType);
         }
       });
-
+      this.empHoursTable[0].sum = this.empHoursTable[0].sum.toFixed(2);
+      this.empHoursTable[1].sum = this.empHoursTable[1].sum.toFixed(2);
       // Add rewards to existing reforms work in
-      this.rewardHours.forEach((el) => {
+      this.rewardsHours.forEach((el) => {
         if (!this.workInReforms.includes(el.reformId)) {
           this.workInReforms.push(el.reformId);
         }
@@ -665,7 +669,8 @@ export default {
               e.reformType == el.reformId &&
               e.mossadId == this.$store.state.logginAs
           )
-          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0).toFixed(2);
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
+          .toFixed(2);
         this.empHoursTable[0].jobPercent += this.calcJobPercent(
           el.reformId,
           currReformPerMossadSum,
@@ -674,7 +679,8 @@ export default {
         );
         let currReformSum = this.existData
           .filter((e) => e.reformType == el.reformId)
-          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0).toFixed(2);
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
+          .toFixed(2);
         this.empHoursTable[1].jobPercent += this.calcJobPercent(
           el.reformId,
           currReformSum,

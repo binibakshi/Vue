@@ -55,10 +55,19 @@
           </td>
           <td>
             <router-link
-              v-if="isRewradHours(row.code)"
+              v-if="isBagrutReward(row.code)"
+              @click.native="beforeOpenRewards"
+              title="מעבר לגמולי בגרות"
+              :to="{ name: 'AdditionalRewards' }"
+              target="_blank"
+            >
+              {{ row.hours }}
+            </router-link>
+            <router-link
+              v-if="isJobReward(row.code)"
               @click.native="beforeOpenRewards"
               title="מעבר לגמולי שעות"
-              :to="{ name: 'AdditionalRewards' }"
+              :to="{ name: 'jobRewards' }"
               target="_blank"
             >
               {{ row.hours }}
@@ -156,7 +165,8 @@ export default {
     "begda",
     "endda",
     "codeDescription",
-    "rewardHours",
+    "jobRewardTypes",
+    "rewardsHours",
   ],
   data() {
     return {
@@ -244,7 +254,7 @@ export default {
       row.hours = 0;
       // if code is bagrut reward check if has and set the hours amount
       if (this.isRewradHours(row.code)) {
-        row.hours = this.rewardHours.reduce(
+        row.hours = this.rewardsHours.reduce(
           (sum, e) => (sum += parseFloat(e.hours)),
           0
         );
@@ -277,8 +287,6 @@ export default {
     setExistData() {
       let tempHourType;
       let newRow = {};
-      // eslint-disable-next-line no-debugger
-      debugger;
       this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
@@ -316,31 +324,56 @@ export default {
       this.sortTable();
     },
     setExistRewards() {
-      let currCode = this.reformType == 5 ? 9671 : 2598;
-      let bagrutHours = this.rewardHours
-        .filter((el) => el.reformId == this.reformType)
-        .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
-        .toFixed(2);
-
-      let currtRewrds = this.newHours.find((el) => el.code == currCode);
-      if (currtRewrds) {
-        currtRewrds.hours = bagrutHours;
-        //check no empy data
-      } else if (bagrutHours != 0) {
-        //check if first row
-        if (this.newHours.find((e) => e.type == FRONTAL).code != "") {
-          this.newHours.push({
-            code: currCode,
-            hours: bagrutHours,
-            type: 1,
-            week: [0, 0, 0, 0, 0, 0],
-          });
+      var currRewardHours = 0.0;
+      Array.from(
+        new Set(this.rewardsHours.map((el) => el.employmentCode))
+      ).forEach((el) => {
+        currRewardHours = this.rewardsHours
+          .filter((e) => e.employmentCode == el)
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
+          .toFixed(2);
+        if (currRewardHours == 0) {
+          // return
         } else {
-          this.newHours.find((e) => e.type == FRONTAL).hours +=
-            bagrutHours * 1.0; //parse to float
-          this.newHours.find((e) => e.type == FRONTAL).code = currCode;
+          if (this.newHours.find((e) => e.type == FRONTAL).code != "") {
+            this.newHours.push({
+              code: el,
+              hours: currRewardHours,
+              type: 1,
+              week: [0, 0, 0, 0, 0, 0],
+            });
+          } else {
+            this.newHours.find((e) => e.type == FRONTAL).hours +=
+              currRewardHours * 1.0; //parse to float
+            this.newHours.find((e) => e.type == FRONTAL).code = el;
+          }
         }
-      }
+      });
+      // let currCode = this.reformType == 5 ? 9671 : 2598;
+      // let bagrutHours = this.rewardsHours
+      //   .filter((el) => el.reformId == this.reformType)
+      //   .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
+      //   .toFixed(2);
+
+      // let currtRewrds = this.newHours.find((el) => el.code == currCode);
+      // if (currtRewrds) {
+      //   currtRewrds.hours = bagrutHours;
+      //   //check no empy data
+      // } else if (bagrutHours != 0) {
+      //   //check if first row
+      //   if (this.newHours.find((e) => e.type == FRONTAL).code != "") {
+      //     this.newHours.push({
+      //       code: currCode,
+      //       hours: bagrutHours,
+      //       type: 1,
+      //       week: [0, 0, 0, 0, 0, 0],
+      //     });
+      //   } else {
+      //     this.newHours.find((e) => e.type == FRONTAL).hours +=
+      //       bagrutHours * 1.0; //parse to float
+      //     this.newHours.find((e) => e.type == FRONTAL).code = currCode;
+      //   }
+      // }
       this.getPauseAndPrivateHours();
     },
     removeRow(index) {
@@ -511,30 +544,22 @@ export default {
       );
     },
     isRewradHours(code) {
+      // eslint-disable-next-line no-debugger
+      debugger
+      return this.isBagrutReward(code) || this.isJobReward(code);
+    },
+    isBagrutReward(code) {
       if (code == 9671 || code == 2598) {
         return true;
       }
       return false;
     },
-  },
-  watch: {
-    // empId: function (val) {
-    //   this.empId = val;
-    //   this.initilizer();
-    //   this.getEmployeeOptions();
-    // },
-    // reformType: function (val) {
-    //   this.reformType = val;
-    //   this.initilizer();
-    //   this.setFrontalCodes();
-    //   this.getEmployeeOptions();
-    // },
-    // existData: async function (val) {
-    //   this.existData = val;
-    //   this.initilizer();
-    //   await this.getEmployeeOptions();
-    //   this.setExistData();
-    // },
+    isJobReward(code) {
+      let jobRewardType = this.jobRewardTypes.find(
+        (el) => el.employmentCode == code
+      );
+      return jobRewardType == undefined ? false : true;
+    },
   },
   mixins: [calcHoursMixin],
 };

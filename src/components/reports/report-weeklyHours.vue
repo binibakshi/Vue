@@ -265,18 +265,18 @@ export default {
         }
       });
 
-      // set personal details
+      // set personal details and .toFixed
       this.dataToDisplay.forEach((el) => {
         let currEmpId = this.employees.find((e) => e.empId == el.empId);
         el.firstName = currEmpId.firstName;
         el.lastName = currEmpId.lastName;
+        el.frontalHours = el.frontalHours.toFixed(2);
       });
     },
     totalHours() {
-      return this.dataToDisplay.reduce(
-        (sum, el) => (sum += parseFloat(el.frontalHours)),
-        0
-      ).toFixed(2);
+      return this.dataToDisplay
+        .reduce((sum, el) => (sum += parseFloat(el.frontalHours)), 0)
+        .toFixed(2);
     },
     getTwoDigits(number) {
       if (isNaN(number)) {

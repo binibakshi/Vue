@@ -47,21 +47,30 @@
             @change="handleRewardSelected(item)"
           ></v-autocomplete>
         </template>
-        <template v-slot:[`item.hoursReward`]="{ item }">
+        <template v-slot:[`item.hoursNormal`]="{ item }">
           <v-text-field
             :disabled="item.rewardId == null"
             type="number"
             min="0"
-            v-model="item.hoursReward"
+            v-model="item.hoursNormal"
             v-bind:label="item.hoursLabel"
             @change="handleHoursChanged(item)"
           ></v-text-field>
         </template>
-        <template v-slot:[`item.percentReward`]="{ item }">
+        <template v-slot:[`item.hoursOTS`]="{ item }">
+          <v-text-field
+            :disabled="item.rewardId == null"
+            type="number"
+            v-model="item.hoursOTS"
+            @change="handleHoursOTSChanged(item)"
+          ></v-text-field>
+        </template>
+        <template v-slot:[`item.percentNormal`]="{ item }">
           <v-select
             v-if="item.minPercent == 0"
             :items="getPercentOptions(item)"
-            v-model="item.percentReward"
+            v-model="item.percentNormal"
+            @input="handlePercentOTSChanged(item)"
             label="בחר"
           ></v-select>
           <v-text-field
@@ -70,8 +79,16 @@
             type="number"
             min="0"
             v-bind:label="item.percentLabel"
-            v-model="item.percentReward"
+            v-model="item.percentNormal"
             @change="handlePercentChanged(item)"
+          ></v-text-field>
+        </template>
+        <template v-slot:[`item.percentOTS`]="{ item }">
+          <v-text-field
+            :disabled="item.rewardId == null"
+            type="number"
+            v-model="item.percentOTS"
+            @change="handlePercentOTSChanged(item)"
           ></v-text-field>
         </template>
         <template v-slot:[`item.actions`]="{ item }">
@@ -109,8 +126,12 @@ export default {
       search: "",
       headers: [
         { text: "מקצוע", value: "rewardId" },
-        { text: "גמול שעות", value: "hoursReward" },
-        { text: "גמול אחוזים", value: "percentReward" },
+        { text: "גמול שעות", value: "hoursNormal" },
+        { text: "שעות אור תורה", value: "hoursOTS" },
+        { text: 'ס"ה שעות', value: "hoursReward" },
+        { text: "גמול אחוזים", value: "percentNormal" },
+        { text: "אחוזים אור תורה", value: "percentOTS" },
+        { text: 'ס"ה אחוזים', value: "percentReward" },
         { text: "פעולות", value: "actions" },
       ],
       selectedReformId: 5,
@@ -141,6 +162,8 @@ export default {
     },
     saveAll() {
       var teachersRewards = [];
+      // eslint-disable-next-line no-debugger
+      debugger;
       this.rewards
         .filter((el) => el.rewardId != 0)
         .forEach((el) => {
@@ -150,8 +173,15 @@ export default {
             mossadId: this.$store.state.logginAs,
             reformId: this.selectedReformId,
             year: this.selectedYear,
+            employmentCode: this.additionalReward.find(
+              (e) => e.recordkey == el.rewardId
+            ).employmentCode,
             hours: el.hoursReward,
+            hoursOTS: el.hoursOTS,
+            hoursNormal: el.hoursNormal,
             percent: el.percentReward,
+            percentOTS: el.percentOTS,
+            percentNormal: el.percentNormal,
             rewardType: 2,
           });
         });
@@ -177,9 +207,16 @@ export default {
         rewardId: row.rewardId,
         mossadId: this.$store.state.logginAs,
         reformId: this.selectedReformId,
+        employmentCode: this.additionalReward.find(
+          (el) => el.recordkey == row.rewardId
+        ).employmentCode,
         year: this.selectedYear,
         hours: row.hoursReward,
+        hoursOTS: row.hoursOTS,
+        hoursNormal: row.hoursNormal,
         percent: row.percentReward,
+        percentOTS: row.percentOTS,
+        percentNormal: row.percentNormal,
         rewardType: 2,
       });
       axios({
@@ -213,7 +250,11 @@ export default {
         }
         newRow = {
           hoursReward: el.hours,
+          hoursOTS: el.hoursOTS,
+          hoursNormal: el.hoursNormal,
           percentReward: el.percent,
+          percentOTS: el.percentOTS,
+          percentNormal: el.percentNormal,
           rewardId: el.rewardId,
           minHours: currReward.minHours,
           maxHours: currReward.maxHours,
@@ -236,7 +277,11 @@ export default {
     addNewRow() {
       this.rewards.push({
         hoursReward: 0,
+        hoursOTS: 0,
+        hoursNormal: 0,
         percentReward: 0,
+        percentOTS: 0,
+        percentNormal: 0,
         rewardId: null,
         minHours: 0,
         maxHours: 0,
@@ -295,22 +340,44 @@ export default {
       const currReward = this.additionalReward.find(
         (el) => el.recordkey == row.rewardId
       );
-      if (row.hoursReward < currReward.minHours) {
-        row.hoursReward = currReward.minHours;
+      if (row.hoursNormal < currReward.minHours) {
+        row.hoursNormal = currReward.minHours;
       }
-      if (row.hoursReward > currReward.maxHours) {
-        row.hoursReward = currReward.maxHours;
+      if (row.hoursNormal > currReward.maxHours) {
+        row.hoursNormal = currReward.maxHours;
+      }
+      row.hoursReward = parseFloat(row.hoursNormal) + parseFloat(row.hoursOTS);
+    },
+    handleHoursOTSChanged(row) {
+      let tempHors = parseFloat(row.hoursNormal) + parseFloat(row.hoursOTS);
+      if (tempHors < 0) {
+        row.hoursOTS = parseFloat(row.hoursNormal) * -1.0;
+        row.hoursReward = 0;
+      } else {
+        row.hoursReward = tempHors;
       }
     },
     handlePercentChanged(row) {
       const currReward = this.additionalReward.find(
         (el) => el.recordkey == row.rewardId
       );
-      if (row.percentReward < currReward.minPercent) {
-        row.percentReward = currReward.minPercent;
+      if (row.percentNormal < currReward.minPercent) {
+        row.percentNormal = currReward.minPercent;
       }
-      if (row.percentReward > currReward.maxPercent) {
-        row.percentReward = currReward.maxPercent;
+      if (row.percentNormal > currReward.maxPercent) {
+        row.percentNormal = currReward.maxPercent;
+      }
+      row.percentReward =
+        parseFloat(row.percentNormal) + parseFloat(row.percentOTS);
+    },
+    handlePercentOTSChanged(row) {
+      let tempPercent =
+        parseFloat(row.percentNormal) + parseFloat(row.percentOTS);
+      if (tempPercent < 0) {
+        row.percentOTS = row.percentNormal * -1.0;
+        row.percentReward = 0;
+      } else {
+        row.percentReward = tempPercent;
       }
     },
     exportToExcel() {
@@ -322,8 +389,12 @@ export default {
         year: "שנה",
         employmentCode: "קוד פיצול",
         description: "תיאור",
-        hoursReward: "גמול שעות",
-        percentReward: "גמול אחוזים",
+        hoursNormal: "גמול שעות",
+        hoursOTS: "שעות אור תורה",
+        hours: 'ס"ה שעות',
+        percentNormal: "גמול אחוזים",
+        percentOTS: "אחוזים אור תורה",
+        percent: 'ס"ה אחוזים',
       };
       var excelData = [];
 
@@ -339,16 +410,20 @@ export default {
           year: this.selectedYear,
           employmentCode: currReward.employmentCode,
           description: currReward.description,
-          hoursReward: el.hoursReward,
-          percentReward: el.percentReward,
+          hours: el.hoursReward,
+          hoursOTS: el.hoursOTS,
+          hoursNormal: el.hoursNormal,
+          percent: el.percentReward,
+          percentOTS: el.percentOTS,
+          percentNormal: el.percentNormal,
         });
       });
 
       this.downloadFile(
         excelData,
         excelHeaders,
-        "גמולי בגרות.xlsx",
-        "גמולי בגרות"
+        "גמולי תפקיד.xlsx",
+        "גמולי תפקיד"
       );
     },
     getTwoDigits(number) {
