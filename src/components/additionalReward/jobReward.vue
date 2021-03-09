@@ -162,8 +162,6 @@ export default {
     },
     saveAll() {
       var teachersRewards = [];
-      // eslint-disable-next-line no-debugger
-      debugger;
       this.rewards
         .filter((el) => el.rewardId != 0)
         .forEach((el) => {
@@ -171,7 +169,6 @@ export default {
             empId: this.empId,
             rewardId: el.rewardId,
             mossadId: this.$store.state.logginAs,
-            reformId: this.selectedReformId,
             year: this.selectedYear,
             employmentCode: this.additionalReward.find(
               (e) => e.recordkey == el.rewardId
@@ -206,7 +203,6 @@ export default {
         empId: this.empId,
         rewardId: row.rewardId,
         mossadId: this.$store.state.logginAs,
-        reformId: this.selectedReformId,
         employmentCode: this.additionalReward.find(
           (el) => el.recordkey == row.rewardId
         ).employmentCode,

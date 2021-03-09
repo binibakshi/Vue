@@ -172,7 +172,7 @@
               :ageHours="ageHours"
               :codeDescription="getRelevantCodesDescription(reform)"
               :jobRewardTypes="jobRewardTypes"
-              :rewardsHours="rewardsHours"
+              :rewardsHours="getRelevantRewardHours(reform)"
               :existData="getRelevantData(reform)"
             ></weeklyHours>
           </v-card>
@@ -255,20 +255,6 @@ export default {
         tempMonth = "0" + tempMonth;
       }
       return tempYears + "." + tempMonth;
-    },
-    formatGender() {
-      if (this.isNotEmpty(this.employeeInfo)) {
-        return;
-      }
-
-      if (this.employeeInfo.gender != undefined) {
-        if (this.employeeInfo.gender === "M") {
-          return "זכר";
-        } else {
-          return "נקבה";
-        }
-      }
-      return undefined;
     },
     formatIsMother() {
       if (this.isNotEmpty(this.employeeInfo)) {
@@ -567,6 +553,9 @@ export default {
           el.mossadId == this.$store.state.logginAs
       );
     },
+    getRelevantRewardHours(reform) {
+      return this.rewardsHours.filter((el) => el.reformId == reform);
+    },
     getRreformDiscription(reform) {
       var name = this.reformTypes.find((el) => el.reformId == reform);
       if (name != undefined) {
@@ -655,7 +644,7 @@ export default {
       this.empHoursTable[1].sum = this.empHoursTable[1].sum.toFixed(2);
       // Add rewards to existing reforms work in
       this.rewardsHours.forEach((el) => {
-        if (!this.workInReforms.includes(el.reformId)) {
+        if (!this.workInReforms.includes(el.reformId) && el.hours != 0) {
           this.workInReforms.push(el.reformId);
         }
       });

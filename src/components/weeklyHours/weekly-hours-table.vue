@@ -43,7 +43,7 @@
               class="mySelectOption"
               v-if="row.type == frontalConst"
               v-model="row.code"
-              :items="frontalCodes"
+              :items="relevantCodes(row)"
               hide-selected
               :item-text="(item) => item.code + ' - ' + item.codeDescription"
               item-value="code"
@@ -252,12 +252,11 @@ export default {
     },
     onCodeSelect(row) {
       row.hours = 0;
-      // if code is bagrut reward check if has and set the hours amount
+      // if code is bagrut/job reward check if has and set the hours amount
       if (this.isRewradHours(row.code)) {
-        row.hours = this.rewardsHours.reduce(
-          (sum, e) => (sum += parseFloat(e.hours)),
-          0
-        );
+        row.hours = this.rewardsHours
+          .filter((el) => el.employmentCode == row.code)
+          .reduce((sum, e) => (sum += parseFloat(e.hours)), 0);
         this.getPauseAndPrivateHours();
       }
       this.setPrivateAndPauseCodes(row.code);
@@ -332,7 +331,10 @@ export default {
           .filter((e) => e.employmentCode == el)
           .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
           .toFixed(2);
-        if (currRewardHours == 0) {
+        if (
+          currRewardHours == 0 ||
+          this.newHours.map((e) => e.code).includes(el)
+        ) {
           // return
         } else {
           if (this.newHours.find((e) => e.type == FRONTAL).code != "") {
@@ -349,32 +351,14 @@ export default {
           }
         }
       });
-      // let currCode = this.reformType == 5 ? 9671 : 2598;
-      // let bagrutHours = this.rewardsHours
-      //   .filter((el) => el.reformId == this.reformType)
-      //   .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
-      //   .toFixed(2);
-
-      // let currtRewrds = this.newHours.find((el) => el.code == currCode);
-      // if (currtRewrds) {
-      //   currtRewrds.hours = bagrutHours;
-      //   //check no empy data
-      // } else if (bagrutHours != 0) {
-      //   //check if first row
-      //   if (this.newHours.find((e) => e.type == FRONTAL).code != "") {
-      //     this.newHours.push({
-      //       code: currCode,
-      //       hours: bagrutHours,
-      //       type: 1,
-      //       week: [0, 0, 0, 0, 0, 0],
-      //     });
-      //   } else {
-      //     this.newHours.find((e) => e.type == FRONTAL).hours +=
-      //       bagrutHours * 1.0; //parse to float
-      //     this.newHours.find((e) => e.type == FRONTAL).code = currCode;
-      //   }
-      // }
       this.getPauseAndPrivateHours();
+    },
+    relevantCodes(row) {
+      return this.frontalCodes.filter(
+        (el) =>
+          !this.newHours.map((e) => e.code).includes(el.code) ||
+          el.code == row.code
+      );
     },
     removeRow(index) {
       if (index === 0) {
@@ -544,8 +528,6 @@ export default {
       );
     },
     isRewradHours(code) {
-      // eslint-disable-next-line no-debugger
-      debugger
       return this.isBagrutReward(code) || this.isJobReward(code);
     },
     isBagrutReward(code) {
