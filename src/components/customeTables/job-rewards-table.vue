@@ -313,6 +313,7 @@ export default {
       dialog: false,
       newRow: {},
       headers: [
+        { text: "פעולות", value: "actions", sortable: false },
         { text: "קוד מקצוע", value: "employmentCode" },
         { text: "תיאור", value: "description" },
         { text: "מינימום שעות", value: "minHours" },
@@ -325,7 +326,6 @@ export default {
         { text: "אחוזים4", value: "percent4" },
         { text: "אחוזים5", value: "percent5" },
         { text: "קישור", value: "descLink" },
-        { text: "פעולות", value: "actions", sortable: false },
       ],
       excelHeaders: {
         employmentCode: "קוד מקצוע",

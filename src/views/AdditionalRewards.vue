@@ -1,6 +1,6 @@
 <template>
   <div id="bagrutRewardsContainer">
-    <v-row id="mossadHoursDetails">
+    <v-row id="mossadHoursDetails" @click="navToReport()">
       <v-col cols="12" md="2">
         <v-select
           style="max-hight: 40px"
@@ -87,6 +87,7 @@ export default {
     this.getMossadSum();
     bus.$on("reloadBagrutDataPerMossad", async () => {
       this.getMossadSum();
+      this.getExistData();
     });
   },
   computed: {
@@ -198,6 +199,12 @@ export default {
         0
       );
     },
+    navToReport() {
+      let routeData = this.$router.resolve({
+        path: "/report/reportBagrutRewards",
+      });
+      window.open(routeData.href);
+    },
     getTwoDigits(number) {
       if (isNaN(number)) {
         return "";
@@ -222,6 +229,9 @@ export default {
   margin-left: 5%;
   margin-right: 5%;
   padding: 15px;
+}
+#mossadHoursDetails:hover {
+  cursor: pointer;
 }
 .v-icon.v-icon {
   max-width: 10px;

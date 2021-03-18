@@ -143,25 +143,14 @@ const routes = [
       ),
   },
   {
-    path: "/reportWeeklyHours",
-    name: "reportWeeklyHours",
+    path: "/report/:id",
+    name: "report",
     // route level code-splitting
     // this generates a separate chunk (Mossadot.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(
-        /* webpackChunkName: "reportWeeklyHours" */ "../views/reportWeeklyHours.vue"
-      ),
-  },
-  {
-    path: "/reportBagrutRewards",
-    name: "reportBagrutRewards",
-    // route level code-splitting
-    // this generates a separate chunk (Mossadot.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(
-        /* webpackChunkName: "reportBagrutRewards" */ "../views/reportBagrutRewards"
+        /* webpackChunkName: "reportWeeklyHours" */ "../views/report.vue"
       ),
   },
   {
@@ -192,15 +181,6 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "cutomizeTables" */ "../views/jobRewardsCust.vue"),
-  },
-  {
-    path: "/rewardsGapsReport",
-    name: "rewardsGapsReport",
-    // route level code-splitting
-    // this generates a separate chunk (Mossadot.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "cutomizeTables" */ "../views/rewardsGapsReport.vue"),
   },
 ];
 

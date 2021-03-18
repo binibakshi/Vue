@@ -31,13 +31,18 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item to="/reportWeeklyHours">איוש שעות</v-list-item>
+          <v-list-item to="/report/reportWeeklyHours">איוש שעות</v-list-item>
         </v-list>
         <v-list>
-          <v-list-item to="/reportBagrutRewards">גמולי בגרות</v-list-item>
+          <v-list-item to="/report/reportBagrutRewards"
+            >גמולי בגרות</v-list-item
+          >
         </v-list>
         <v-list>
-          <v-list-item to="/rewardsGapsReport"
+          <v-list-item to="/report/reportJobRewards">גמולי תפקיד</v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item to="/report/reportRewardGaps"
             >דוח פערי שעות-גמולים</v-list-item
           >
         </v-list>

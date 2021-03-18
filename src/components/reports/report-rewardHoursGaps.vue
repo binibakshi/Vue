@@ -51,7 +51,6 @@
         'items-per-page-text': 'מספר תוצאות  :',
       }"
       no-data-text="לא נמצאו נתונים עבור החיפוש המבוקש"
-      item-key="empId"
       class="elevation-1 center"
       id="gapsTable"
     >
@@ -82,12 +81,14 @@
       <template v-slot:[`item.hours`]="{ item }">{{
         getTwoDigits(item.hours)
       }}</template>
-
       <template v-slot:[`item.actualHours`]="{ item }">{{
         getTwoDigits(item.actualHours)
       }}</template>
       <template v-slot:[`item.gaps`]="{ item }">{{
-        getTwoDigits(getPsitiveNumber(item.actualHours - item.hours))
+        getTwoDigits(item.hours - item.actualHours)
+      }}</template>
+      <template v-slot:[`item.rewardType`]="{ item }">{{
+        getRewardType(item.rewardType)
       }}</template>
     </v-data-table>
   </div>
@@ -126,6 +127,10 @@ export default {
         {
           text: "הפרש",
           value: "gaps",
+        },
+        {
+          text: "סוג גמול",
+          value: "rewardType",
         },
       ],
       mossadot: [],
@@ -198,6 +203,10 @@ export default {
           })
         );
     },
+    onYearChange() {
+      this.$store.dispatch("setSelectedYear", this.selectedYear);
+      this.getGaps();
+    },
     buttomText() {
       return !this.onlyGaps ? "רק חריגות" : "הצג הכל";
     },
@@ -218,6 +227,13 @@ export default {
       }
       return parseFloat(number).toFixed(2);
     },
+    getRewardType(type) {
+      if (type == 1) {
+        return " בגרות";
+      } else {
+        return " תפקיד";
+      }
+    },
     handleFilterGaps() {
       this.onlyGaps = !this.onlyGaps;
       if (this.onlyGaps) {
@@ -228,10 +244,6 @@ export default {
       } else {
         this.tableToDisplay = this.tableData;
       }
-    },
-    onYearChange() {
-      this.$store.dispatch("setSelectedYear", this.selectedYear);
-      this.getGaps();
     },
   },
 };

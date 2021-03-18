@@ -14,41 +14,7 @@ export default {
     mossadHours,
   },
   data() {
-    return {
-      expanded: [],
-      singleExpand: false,
-      cSel: "A",
-      res: [
-        {
-          fullName: "name 1",
-          med: "med 1",
-          startDate: "start  date 1",
-          path: ["A", "B", "C", "D"],
-          selected: "",
-        },
-        {
-          fullName: "name 2",
-          med: "med 22",
-          startDate: "start  date 2",
-          path: ["A", "B", "C", "D"],
-          selected: "",
-        },
-      ],
-      totalRes: 0,
-      search: "",
-      loading: false,
-      options: {
-        page: 1,
-        itemsPerPage: 40,
-      },
-      headers: [
-        { text: "Name", value: "fullName" },
-        { text: "Med", value: "med" },
-        { text: "Start Date", value: "startDate" },
-        { text: "Create  ", value: "path", width: "200" },
-        { text: "selected  ", value: "selected" },
-      ],
-    };
+    return {};
   },
 };
 </script>

@@ -194,6 +194,20 @@ export default {
     this.setExistData();
   },
   methods: {
+    initilizer() {
+      this.newHours = [];
+      if (this.reformType == 5 || this.reformType == 2) {
+        this.newHours = [
+          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+          { type: PRIVATE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+          { type: PAUSE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+        ];
+      } else {
+        this.newHours = [
+          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
+        ];
+      }
+    },
     getPauseAndPrivateHours() {
       if (this.reformType != 2 && this.reformType != 5) {
         return;
@@ -499,20 +513,6 @@ export default {
         (acc, item) => parseFloat(acc) + parseFloat(item.week[day]),
         0
       );
-    },
-    initilizer() {
-      this.newHours = [];
-      if (this.reformType == 5 || this.reformType == 2) {
-        this.newHours = [
-          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
-          { type: PRIVATE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
-          { type: PAUSE, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
-        ];
-      } else {
-        this.newHours = [
-          { type: FRONTAL, hours: 0, code: "", week: [0, 0, 0, 0, 0, 0] },
-        ];
-      }
     },
     cleanWeeklyData() {
       this.newHours.forEach((el) => {

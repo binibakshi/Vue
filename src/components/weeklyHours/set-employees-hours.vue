@@ -197,7 +197,6 @@ export default {
   data() {
     return {
       selectedReforms: [],
-      test: 301301301,
       selectedYear: 0,
       empId: null,
       ageHours: 0,

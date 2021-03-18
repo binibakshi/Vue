@@ -239,6 +239,7 @@ export default {
       dialog: false,
       newRow: {},
       headers: [
+        { text: "פעולות", value: "actions", sortable: false },
         { text: "קוד מקצוע", value: "studyId" },
         { text: "מקצוע", value: "studyName" },
         { text: 'יח"ל', value: "studyUnits" },
@@ -247,7 +248,6 @@ export default {
         { text: "אחוזים פנימי", value: "internalPercentReward" },
         { text: "שעות חיצוני", value: "externalHoursReward" },
         { text: "אחוזים חיצוני", value: "externalPercentReward" },
-        { text: "פעולות", value: "actions", sortable: false },
       ],
       excelHeaders: {
         studyId: "קוד מקצוע",

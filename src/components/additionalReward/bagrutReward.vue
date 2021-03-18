@@ -134,14 +134,14 @@
             </template>
             <span>מחק שורה</span>
           </v-tooltip>
-          <v-tooltip top>
+          <!-- <v-tooltip top>
             <template #activator="{ on }">
               <v-icon size="16" v-on="on" @click="saveRow(item)"
                 >mdi-content-save</v-icon
               >
             </template>
             <span>שמור שורה</span>
-          </v-tooltip>
+          </v-tooltip> -->
         </template>
       </v-data-table>
     </v-card>
@@ -235,6 +235,7 @@ export default {
             year: this.selectedYear,
             employmentCode: this.selectedReformId == 5 ? 9671 : 2598,
             split: el.isSplit,
+            external: el.isExternal,
             students: el.students,
             hours: el.hoursReward,
             percent: el.percentReward,
@@ -257,36 +258,37 @@ export default {
           });
         });
     },
-    saveRow(row) {
-      var teachersRewards = [];
-      teachersRewards.push({
-        empId: this.empId,
-        rewardId: row.recordkey,
-        mossadId: this.$store.state.logginAs,
-        reformId: this.selectedReformId,
-        year: this.selectedYear,
-        split: row.isSplit,
-        employmentCode: this.selectedReformId == 5 ? 9671 : 2598,
-        students: row.students,
-        hours: row.hoursReward,
-        percent: row.percentReward,
-        teachingClass: row.teachingClass,
-        rewardType: 1,
-      });
-      axios({
-        url: "/teachersRewards/saveAll",
-        method: "post",
-        data: teachersRewards,
-      })
-        .then(() => {
-          alert("הנתונים נשמרו בהצלחה");
-        })
-        .catch((error) => {
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          });
-        });
-    },
+    // saveRow(row) {
+    //   var teachersRewards = [];
+    //   teachersRewards.push({
+    //     empId: this.empId,
+    //     rewardId: row.recordkey,
+    //     mossadId: this.$store.state.logginAs,
+    //     reformId: this.selectedReformId,
+    //     year: this.selectedYear,
+    //     split: row.isSplit,
+    //     employmentCode: this.selectedReformId == 5 ? 9671 : 2598,
+    //     external: row.isExternal,
+    //     students: row.students,
+    //     hours: row.hoursReward,
+    //     percent: row.percentReward,
+    //     teachingClass: row.teachingClass,
+    //     rewardType: 1,
+    //   });
+    //   axios({
+    //     url: "/teachersRewards/saveAll",
+    //     method: "post",
+    //     data: teachersRewards,
+    //   })
+    //     .then(() => {
+    //       alert("הנתונים נשמרו בהצלחה");
+    //     })
+    //     .catch((error) => {
+    //       this.$store.dispatch("displayErrorMessage", {
+    //         error,
+    //       });
+    //     });
+    // },
     setExistData() {
       if (this.existData.length == 0 || this.additionalReward.length == 0) {
         return;
