@@ -9,6 +9,10 @@ Vue.use(Vuex);
 axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
+if( process.env.NODE_ENV != 'development' ){
+    axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
+}
+
 export const store = new Vuex.Store({
   plugins: [createPersistedState()],
   state: {

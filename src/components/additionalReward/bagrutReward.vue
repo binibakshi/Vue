@@ -12,34 +12,59 @@
       >
         <template v-slot:top>
           <v-toolbar flat color="white">
-            <v-toolbar-title>
-              <v-card-title>
-                <v-row>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="search"
-                      label="Search"
-                      placeholder="חפש"
-                      single-line
-                      autocomplete="off"
-                      hide-details
-                      append-icon="mdi-magnify"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="3">
-                    <v-select
-                      :items="reformTypes"
-                      v-model="selectedReformId"
-                      label="סוג"
-                    ></v-select>
-                  </v-col>
-                </v-row>
-              </v-card-title>
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn dense color="success" @click="exportToExcel()"
-              >ייצא לאקסל</v-btn
-            >
+            <div style="display: inline-flex">
+              <v-text-field
+                v-model="search"
+                label="Search"
+                placeholder="חפש"
+                single-line
+                autocomplete="off"
+                hide-details
+                append-icon="mdi-magnify"
+                class="little-margin"
+              ></v-text-field>
+              <v-select
+                :items="reformTypes"
+                v-model="selectedReformId"
+                label="סוג"
+                class="little-margin"
+              ></v-select>
+              <v-btn
+                class="to-left"
+                dense
+                color="success"
+                @click="exportToExcel()"
+                >ייצא לאקסל</v-btn
+              >
+            </div>
+            <v-dialog v-model="dialog" max-width="50%">
+              <v-card id="myform" class="center wrapper">
+                <h1>פרטים נוספים</h1>
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" md="3">
+                        <v-text-field
+                          label="חלוקת אחוזים"
+                          type="number"
+                          min="0"
+                          max="100"
+                          v-model="refToRow.percent"
+                          @change="onPercentChange(refToRow)"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="5">
+                        <v-text-field
+                          label="שם מורה נוסף"
+                          v-model="refToRow.secondTeacher"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-btn color="grey" @click="close()">סגור</v-btn>
+                  </v-container>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
           </v-toolbar>
         </template>
         <template v-slot:footer>
@@ -64,6 +89,15 @@
             label='יח"ל'
             v-model="item.units"
             :items="getUnits(item)"
+            @input="onUnitsChange(item)"
+          ></v-select>
+        </template>
+        <template v-slot:[`item.actualUnits`]="{ item }">
+          <v-select
+            style="max-width: 50px"
+            label='יח"ל'
+            v-model="item.actualUnits"
+            :items="getActaulUnits(item)"
             @input="getHoursReward(item)"
           ></v-select>
         </template>
@@ -85,13 +119,22 @@
             label="סוג"
           ></v-select>
         </template>
-        <template v-slot:[`item.teachingClass`]="{ item }">
+        <template v-slot:[`item.grade`]="{ item }">
           <v-select
             style="max-width: 50px"
-            :items="classes"
+            :items="grades"
+            v-model="item.grade"
+            label="שכבה"
+          ></v-select>
+        </template>
+        <template v-slot:[`item.teachingClass`]="{ item }">
+          <v-text-field
+            style="max-width: 40px"
             v-model="item.teachingClass"
             label="כיתה"
-          ></v-select>
+            type="number"
+            min="1"
+          ></v-text-field>
         </template>
         <template v-slot:[`item.students`]="{ item }">
           <v-text-field
@@ -104,27 +147,31 @@
           ></v-text-field>
         </template>
         <template v-slot:[`item.isSplit`]="{ item }">
-          <v-select
-            style="max-width: 50px"
-            :items="isSplitedRange"
-            v-model="item.isSplit"
-            label="מורה נוסף"
-            @change="onIsSplitChange(item)"
-          ></v-select>
+          <div style="display: inline-flex">
+            <v-select
+              style="max-width: 50px"
+              :items="isSplitedRange"
+              v-model="item.isSplit"
+              label="מורה נוסף"
+              @change="onIsSplitChange(item)"
+            ></v-select>
+
+            <v-tooltip top>
+              <template #activator="{ on, attrs }">
+                <v-icon
+                  style="min-width: 30px"
+                  size="16"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="openMoreInfo(item)"
+                  :disabled="item.isSplit == false"
+                  >mdi-information-outline</v-icon
+                >
+              </template>
+              <span>פרטים נוספים</span>
+            </v-tooltip>
+          </div>
         </template>
-        <template v-slot:[`item.hoursReward`]="{ item }">
-          <v-text-field
-            style="max-width: 130px"
-            :disabled="item.isSplit == false"
-            type="number"
-            min="0"
-            v-model="item.hoursReward"
-            @change="onHoursRewardChange(item)"
-          ></v-text-field>
-        </template>
-        <!-- <template v-slot:[`item.percentReward`]="{ item }">
-          <p id="rewardHours">{{ getTwoDigits(item.percentReward) }}%</p>
-        </template> -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-tooltip top>
             <template #activator="{ on }">
@@ -134,14 +181,6 @@
             </template>
             <span>מחק שורה</span>
           </v-tooltip>
-          <!-- <v-tooltip top>
-            <template #activator="{ on }">
-              <v-icon size="16" v-on="on" @click="saveRow(item)"
-                >mdi-content-save</v-icon
-              >
-            </template>
-            <span>שמור שורה</span>
-          </v-tooltip> -->
         </template>
       </v-data-table>
     </v-card>
@@ -161,8 +200,10 @@ export default {
       headers: [
         { text: "מקצוע", value: "studyName" },
         { text: 'יח"ל', value: "units" },
+        { text: 'יח"ל בפועל', value: "actualUnits" },
         { text: "שאלון", value: "questionnaire" },
         { text: "סוג", value: "isExternal" },
+        { text: "שכבה", value: "grade" },
         { text: "כיתה", value: "teachingClass" },
         { text: "תלמידים", value: "students" },
         { text: "מורה נוסף", value: "isSplit" },
@@ -171,10 +212,12 @@ export default {
         { text: "פעולות", value: "actions" },
       ],
       selectedReformId: 5,
+      dialog: false,
+      refToRow: {},
       rewards: [],
       studyNames: [],
       tableData: [],
-      classes: [
+      grades: [
         { text: "ט", value: 9 },
         { text: "י", value: 10 },
         { text: 'י"א', value: 11 },
@@ -235,12 +278,15 @@ export default {
             year: this.selectedYear,
             employmentCode: this.selectedReformId == 5 ? 9671 : 2598,
             split: el.isSplit,
+            actualUnits: el.actualUnits,
             external: el.isExternal,
             students: el.students,
             hours: el.hoursReward,
             percent: el.percentReward,
+            grade: el.grade,
             teachingClass: el.teachingClass,
             rewardType: 1,
+            secondTeacher: el.secondTeacher,
           });
         });
       axios({
@@ -258,37 +304,6 @@ export default {
           });
         });
     },
-    // saveRow(row) {
-    //   var teachersRewards = [];
-    //   teachersRewards.push({
-    //     empId: this.empId,
-    //     rewardId: row.recordkey,
-    //     mossadId: this.$store.state.logginAs,
-    //     reformId: this.selectedReformId,
-    //     year: this.selectedYear,
-    //     split: row.isSplit,
-    //     employmentCode: this.selectedReformId == 5 ? 9671 : 2598,
-    //     external: row.isExternal,
-    //     students: row.students,
-    //     hours: row.hoursReward,
-    //     percent: row.percentReward,
-    //     teachingClass: row.teachingClass,
-    //     rewardType: 1,
-    //   });
-    //   axios({
-    //     url: "/teachersRewards/saveAll",
-    //     method: "post",
-    //     data: teachersRewards,
-    //   })
-    //     .then(() => {
-    //       alert("הנתונים נשמרו בהצלחה");
-    //     })
-    //     .catch((error) => {
-    //       this.$store.dispatch("displayErrorMessage", {
-    //         error,
-    //       });
-    //     });
-    // },
     setExistData() {
       if (this.existData.length == 0 || this.additionalReward.length == 0) {
         return;
@@ -302,33 +317,43 @@ export default {
         if (currReward == undefined) {
           return;
         }
-        this.rewards.push({
+        let currRow = {
           isSplit: el.split,
           students: el.students,
           studyName: currReward.studyName,
           units: currReward.studyUnits,
+          actualUnits: el.actualUnits,
           reformId: this.selectedReformId,
           questionnaire: currReward.questionnaire,
           isExternal: el.external,
           hoursReward: el.hours,
           percentReward: el.percent,
           recordkey: el.rewardId,
+          grade: el.grade,
           teachingClass: el.teachingClass,
-        });
+          secondTeacher: el.secondTeacher,
+        };
+        currRow.percent =
+          (currRow.hoursReward / this.getMaxHours(currRow)) * 100;
+        this.rewards.push(currRow);
       });
     },
     addNewRow() {
       this.rewards.push({
         isExternal: true,
-        teachingClass: 9,
+        grade: 9,
+        teachingClass: 1,
         studyName: null,
         questionnaire: "",
         isSplit: false,
         units: 0,
+        actualUnits: 0,
         students: 0,
         hoursReward: 0,
         percentReward: 0,
         recordkey: null,
+        secondTeacher: "",
+        percent: 100,
       });
     },
     removeRow(row) {
@@ -350,6 +375,7 @@ export default {
             rewardId: row.recordkey,
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
+            garde: row.grade,
             class: row.teachingClass,
             rewardType: 1,
           },
@@ -430,42 +456,39 @@ export default {
           row.percentReward = rewardsData.internalPercentReward / 4;
         }
       }
+      this.setActualUnits(row);
+    },
+    onUnitsChange(row) {
+      row.actualUnits = row.units;
+      this.getHoursReward(row);
     },
     onIsSplitChange(row) {
       if (row.isSplit == false) {
-        this.getHoursReward(row);
+        row.percent = 100;
+        this.onPercentChange(row);
       }
     },
-    onHoursRewardChange(row) {
-      let temp = this.additionalReward.find(
-        (el) =>
-          el.studyName == row.studyName &&
-          (el.questionnaire == null || el.questionnaire == row.questionnaire) &&
-          el.studyUnits == row.units
+    onPercentChange(row) {
+      let maxHours = this.getMaxHours(row);
+      row.hoursReward = (row.percent / 100) * maxHours;
+    },
+    getMaxHours(row) {
+      let currReward = this.additionalReward.find(
+        (el) => el.recordkey == row.recordkey
       );
-      if (temp == null) {
-        return;
-      }
-      // check if internal or extrnal hours
-      if (row.isExternal) {
-        if (parseFloat(row.hoursReward) > temp.externalHoursReward) {
-          row.hoursReward = temp.externalHoursReward;
-          this.onStudentsChange(row);
-        } else {
-          row.percentReward =
-            temp.externalPercentReward /
-            (temp.externalHoursReward / row.hoursReward);
-        }
+      let maxHours = row.isExternal
+        ? currReward.externalHoursReward
+        : currReward.internalHoursReward;
+      maxHours = (row.actualUnits / row.units) * maxHours;
+
+      if (row.students > 9) {
+        //do nothing
+      } else if (row.students > 5) {
+        maxHours = maxHours / 2;
       } else {
-        if (parseFloat(row.hoursReward) > temp.internalHoursReward) {
-          row.hoursReward = temp.internalHoursReward;
-          this.onStudentsChange(row);
-        } else {
-          row.percentReward =
-            temp.internalPercentReward /
-            (temp.internalHoursReward / row.hoursReward);
-        }
+        maxHours = maxHours != 1.5 ? maxHours / 4 : 0.33;
       }
+      return maxHours.toFixed(2);
     },
     studyName() {
       this.additionalReward.forEach((el) => {
@@ -512,6 +535,7 @@ export default {
             : temp.externalPercentReward;
         row.recordkey = temp.recordkey;
       }
+      this.setActualUnits(row);
     },
     getUnits(row) {
       let units = Array.from(
@@ -523,9 +547,32 @@ export default {
       );
       if (units.length == 1 && units[0] != row.units) {
         row.units = units[0];
-        this.getHoursReward(row);
+        this.onUnitsChange(row);
       }
       return units;
+    },
+    getActaulUnits(row) {
+      if (!row.units) {
+        return;
+      }
+      let units = [];
+      let max = this.additionalReward
+        .filter((el) => el.studyName == row.studyName)
+        .reduce((prev, current) =>
+          prev.studyUnits > current.studyUnits ? prev : current
+        ).studyUnits;
+      for (let index = 1; index <= max; index++) {
+        units.push(index);
+      }
+      return units;
+    },
+    setActualUnits(row) {
+      // get the relative actualUnits
+      row.hoursReward = (row.percent / 100) * this.getMaxHours(row);
+      row.percentReward = (
+        row.percentReward *
+        (row.actualUnits / row.units)
+      ).toFixed(2);
     },
     exportToExcel() {
       var excelHeaders = {
@@ -538,12 +585,14 @@ export default {
         studyName: "מקצוע",
         questionnaire: "שאלון",
         studyUnits: 'יח"ל',
+        grade: "שכבה",
         teachingClass: "כיתה",
         external: "סוג",
         split: "מפוצל",
         students: "תלמידים",
         hoursReward: "גמול שעות",
         percentReward: "גמול אחוזים",
+        secondTeacher: "מורה נוסף",
       };
       var excelData = [];
 
@@ -562,12 +611,14 @@ export default {
           studyUnits: el.units,
           external: this.isExternalRange.find((e) => e.value == el.isExternal)
             .text,
-          teachingClass: this.classes.find((e) => e.value == el.teachingClass)
-            .text,
+          grade: this.grades.find((e) => e.value == el.grade).text,
+          teachingClass: el.teachingClass,
           split: this.isSplitedRange.find((e) => e.value == el.isSplit).text,
+          actualUnits: el.actualUnits,
           students: el.students,
           hoursReward: el.hoursReward,
           percentReward: el.percentReward,
+          secondTeacher: el.secondTeacher,
         });
       });
 
@@ -578,12 +629,22 @@ export default {
         "גמולי בגרות"
       );
     },
-
     getTwoDigits(number) {
       if (isNaN(number)) {
         return 0.0;
       }
       return parseFloat(number).toFixed(2);
+    },
+    openMoreInfo(row) {
+      this.refToRow = row;
+      this.dialog = true;
+    },
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.editedUser = Object.assign({}, this.defaultUser);
+        this.editedIndex = -1;
+      });
     },
   },
 };
@@ -595,5 +656,12 @@ export default {
   /* To help visualize the fact that the container is too small */
   width: 10px;
   /* border: 1px solid #ddd; */
+}
+.little-margin {
+  margin-left: 15px;
+}
+.to-left {
+  position: absolute;
+  left: 0px;
 }
 </style>

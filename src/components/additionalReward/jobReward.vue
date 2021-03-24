@@ -41,7 +41,10 @@
           <v-autocomplete
             :items="additionalReward"
             v-model="item.rewardId"
-            :item-text="(i) => i.employmentCode + ' - ' + i.description"
+            :item-text="
+              (i) =>
+                i.jobCode + ' - ' + i.employmentCode + ' - ' + i.description
+            "
             item-value="recordkey"
             label="גמול"
             @change="handleRewardSelected(item)"
@@ -100,14 +103,6 @@
             </template>
             <span>מחק שורה</span>
           </v-tooltip>
-          <!-- <v-tooltip top>
-            <template #activator="{ on }">
-              <v-icon size="16" v-on="on" @click="saveRow(item)"
-                >mdi-content-save</v-icon
-              >
-            </template>
-            <span>שמור שורה</span>
-          </v-tooltip> -->
         </template>
       </v-data-table>
     </v-card>

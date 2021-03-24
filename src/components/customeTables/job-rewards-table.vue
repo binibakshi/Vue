@@ -50,6 +50,16 @@
                       placeholder="בחר קוד פיצול"
                     ></v-select>
                   </v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      dense
+                      placeholder="קוד משני"
+                      type="number"
+                      v-model="newRow.jobCode"
+                      min="0"
+                      max="5"
+                    ></v-text-field
+                  ></v-col>
                   <v-col cols="12" md="4">
                     <v-text-field
                       dense
@@ -163,6 +173,15 @@
           class="inputNumberSize"
           type="text"
           v-model="item.employmentCode"
+        ></v-text-field
+      ></template>
+      <template v-slot:[`item.jobCode`]="{ item }">
+        <v-text-field
+          dense
+          :disabled="item.disabled"
+          class="inputNumberSize"
+          type="number"
+          v-model="item.jobCode"
         ></v-text-field
       ></template>
       <template v-slot:[`item.description`]="{ item }">
@@ -315,6 +334,7 @@ export default {
       headers: [
         { text: "פעולות", value: "actions", sortable: false },
         { text: "קוד מקצוע", value: "employmentCode" },
+        { text: "קוד משני", value: "jobCode" },
         { text: "תיאור", value: "description" },
         { text: "מינימום שעות", value: "minHours" },
         { text: "מקסימום שעות", value: "maxHours" },
@@ -329,6 +349,7 @@ export default {
       ],
       excelHeaders: {
         employmentCode: "קוד מקצוע",
+        jobCode: "קוד משני",
         description: "תיאור",
         minHours: "מינימום שעות",
         maxHours: "מקסימום שעות",
@@ -372,6 +393,7 @@ export default {
       this.jobRewardsTable.forEach((el) => {
         this.tableToDisplay.push({
           employmentCode: el.employmentCode,
+          jobCode: el.jobCode,
           description: el.description,
           minHours: el.minHours,
           maxHours: el.maxHours,
@@ -400,6 +422,7 @@ export default {
     duplicateRow(row) {
       let newRow = {
         employmentCode: row.employmentCode,
+        jobCode: row.jobCode,
         description: row.description,
         minHours: row.minHours,
         maxHours: row.maxHours,

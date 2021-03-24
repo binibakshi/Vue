@@ -192,6 +192,7 @@ export default {
     this.setFrontalCodes();
     this.setBegdaEndda();
     this.setExistData();
+    this.setExistRewards();
   },
   methods: {
     initilizer() {
@@ -312,25 +313,32 @@ export default {
           if (this.newHours.find((e) => e.code == el.empCode) == undefined) {
             newRow = {
               type: FRONTAL,
-              hours: el.hours,
+              hours: 0,
               code: el.empCode,
               week: [0, 0, 0, 0, 0, 0],
             };
+            if (!this.isRewradHours(el.empCode)) {
+              newRow.hours = el.hours;
+            }
             newRow.week[el.day] = el.hours;
             this.newHours.push(newRow);
           } else {
-            this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
+            if (!this.isRewradHours(el.empCode)) {
+              this.newHours.find((e) => e.type == tempHourType).hours +=
+                el.hours;
+            }
             this.newHours.find((e) => e.code == el.empCode).week[el.day] +=
               el.hours;
           }
         } else {
+          if (!this.isRewradHours(el.empCode)) {
+            this.newHours.find((e) => e.type == tempHourType).hours += el.hours;
+          }
           this.newHours.find((e) => e.type == tempHourType).week[el.day] =
             el.hours;
-          this.newHours.find((e) => e.type == tempHourType).hours += el.hours;
           this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
         }
       });
-      this.setExistRewards();
       this.setPrivateAndPauseCodes(
         this.newHours.find((el) => el.type == FRONTAL).code
       );
@@ -338,6 +346,7 @@ export default {
     },
     setExistRewards() {
       var currRewardHours = 0.0;
+      var currCode = {};
       Array.from(
         new Set(this.rewardsHours.map((el) => el.employmentCode))
       ).forEach((el) => {
@@ -345,23 +354,25 @@ export default {
           .filter((e) => e.employmentCode == el)
           .reduce((sum, e) => (sum += parseFloat(e.hours)), 0)
           .toFixed(2);
-        if (
-          currRewardHours == 0 ||
-          this.newHours.map((e) => e.code).includes(el)
-        ) {
-          // return
+        if (currRewardHours == 0) {
+          // do nithing
         } else {
-          if (this.newHours.find((e) => e.type == FRONTAL).code != "") {
-            this.newHours.push({
-              code: el,
-              hours: currRewardHours,
-              type: 1,
-              week: [0, 0, 0, 0, 0, 0],
-            });
-          } else {
+          if (this.newHours.find((e) => e.type == FRONTAL).code == "") {
             this.newHours.find((e) => e.type == FRONTAL).hours +=
               currRewardHours * 1.0; //parse to float
             this.newHours.find((e) => e.type == FRONTAL).code = el;
+          } else {
+            currCode = this.newHours.find((e) => e.code == el);
+            if (!currCode) {
+              this.newHours.push({
+                code: el,
+                hours: currRewardHours,
+                type: 1,
+                week: [0, 0, 0, 0, 0, 0],
+              });
+            } else {
+              currCode.hours = currRewardHours;
+            }
           }
         }
       });
