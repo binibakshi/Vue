@@ -304,6 +304,7 @@ export default {
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
             class: 0,
+            grade: 0,
             rewardType: 2,
           },
         })

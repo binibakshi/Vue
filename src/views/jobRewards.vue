@@ -1,27 +1,21 @@
 <template>
   <div id="jobRewardsContainer">
-    <v-row id="mossadHoursDetails" @click="navToReport()">
-      <v-col cols="12" md="2">
-        <v-select
-          style="max-hight: 40px"
-          :items="years"
-          v-model="selectedYear"
-          item-text="hebrewYear"
-          item-value="year"
-          label="שנה"
-          @change="onYearChanged()"
-        ></v-select>
-      </v-col>
-      <v-col cols="12" md="2">
+    <div style="display: inline-flex">
+      <v-select
+        style="max-hight: 40px; width: 20%"
+        :items="years"
+        v-model="selectedYear"
+        item-text="hebrewYear"
+        item-value="year"
+        label="שנה"
+        @change="onYearChanged()"
+      ></v-select>
+      <div class="navToReport" @click="navToReport()">
         <p>מוסד - {{ _mossadInfo.mossadName }}</p>
-      </v-col>
-      <v-col cols="12" md="3">
         <p>סך גמול שעות:{{ getTwoDigits(_mossadInfo.hoursReward) }}</p>
-      </v-col>
-      <v-col cols="12" md="3">
         <p>סך גמולים אחוזיים:{{ getTwoDigits(_mossadInfo.percentReward) }}%</p>
-      </v-col>
-    </v-row>
+      </div>
+    </div>
     <v-row>
       <v-col id="serchEmployee" cols="12" md="2" lg="3">
         <v-autocomplete
@@ -245,5 +239,10 @@ p {
   /* To help visualize the fact that the container is too small */
   width: 10px;
   /* border: 1px solid #ddd; */
+}
+.navToReport > * {
+  display: inline-flex;
+  cursor: pointer;
+  margin-right: 40px;
 }
 </style>

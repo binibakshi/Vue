@@ -375,8 +375,8 @@ export default {
             rewardId: row.recordkey,
             mossadId: this.$store.state.logginAs,
             year: this.selectedYear,
-            garde: row.grade,
             class: row.teachingClass,
+            grade: row.grade,
             rewardType: 1,
           },
         })
@@ -469,8 +469,13 @@ export default {
       }
     },
     onPercentChange(row) {
-      let maxHours = this.getMaxHours(row);
-      row.hoursReward = (row.percent / 100) * maxHours;
+      row.hoursReward = ((row.percent / 100) * this.getMaxHours(row)).toFixed(
+        2
+      );
+      row.percentReward = (
+        (row.percent / 100) *
+        this.getMaxPercents(row)
+      ).toFixed(2);
     },
     getMaxHours(row) {
       let currReward = this.additionalReward.find(
@@ -489,6 +494,24 @@ export default {
         maxHours = maxHours != 1.5 ? maxHours / 4 : 0.33;
       }
       return maxHours.toFixed(2);
+    },
+    getMaxPercents(row) {
+      let currReward = this.additionalReward.find(
+        (el) => el.recordkey == row.recordkey
+      );
+      let maxPercent = row.isExternal
+        ? currReward.externalPercentReward
+        : currReward.internalPercentReward;
+      maxPercent = (row.actualUnits / row.units) * maxPercent;
+
+      if (row.students > 9) {
+        //do nothing
+      } else if (row.students > 5) {
+        maxPercent = maxPercent / 2;
+      } else {
+        maxPercent / 4;
+      }
+      return maxPercent.toFixed(2);
     },
     studyName() {
       this.additionalReward.forEach((el) => {
@@ -569,10 +592,7 @@ export default {
     setActualUnits(row) {
       // get the relative actualUnits
       row.hoursReward = (row.percent / 100) * this.getMaxHours(row);
-      row.percentReward = (
-        row.percentReward *
-        (row.actualUnits / row.units)
-      ).toFixed(2);
+      row.percentReward = (row.percent / 100) * this.getMaxPercents(row);
     },
     exportToExcel() {
       var excelHeaders = {

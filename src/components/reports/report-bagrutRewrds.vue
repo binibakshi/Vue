@@ -121,7 +121,7 @@ export default {
           value: "percent",
         },
       ],
-      classes: [
+      grades: [
         { text: "ט", value: 9 },
         { text: "י", value: 10 },
         { text: 'י"א', value: 11 },
@@ -298,6 +298,7 @@ export default {
         studyName: "מקצוע",
         questionnaire: "שאלון",
         studyUnits: 'יח"ל',
+        grade: "שכבה",
         teachingClass: "כיתה",
         external: "סוג",
         split: "מפוצל",
@@ -324,8 +325,8 @@ export default {
           studyUnits: currReward.studyUnits,
           external: this.isExternalRange.find((e) => e.value == el.external)
             .text,
-          teachingClass: this.classes.find((e) => e.value == el.teachingClass)
-            .text,
+          grade: this.grades.find((e) => e.value == el.grade).text,
+          teachingClass: el.teachingClass,
           split: this.isSplitedRange.find((e) => e.value == el.split).text,
           students: el.students,
           hoursReward: el.hours,

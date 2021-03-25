@@ -193,6 +193,10 @@ export default {
     this.setBegdaEndda();
     this.setExistData();
     this.setExistRewards();
+    this.setPrivateAndPauseCodes(
+      this.newHours.find((el) => el.type == FRONTAL).code
+    );
+    this.sortTable()
   },
   methods: {
     initilizer() {
@@ -339,10 +343,6 @@ export default {
           this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
         }
       });
-      this.setPrivateAndPauseCodes(
-        this.newHours.find((el) => el.type == FRONTAL).code
-      );
-      this.sortTable();
     },
     setExistRewards() {
       var currRewardHours = 0.0;
@@ -376,7 +376,6 @@ export default {
           }
         }
       });
-      this.getPauseAndPrivateHours();
     },
     relevantCodes(row) {
       return this.frontalCodes.filter(

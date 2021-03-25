@@ -121,12 +121,6 @@ export default {
           value: "percent",
         },
       ],
-      classes: [
-        { text: "ט", value: 9 },
-        { text: "י", value: 10 },
-        { text: 'י"א', value: 11 },
-        { text: 'י"ב', value: 12 },
-      ],
       isExternalRange: [
         {
           text: "חצוני",
@@ -292,18 +286,16 @@ export default {
         empId: "תעודת זהות",
         firstName: "שם פרטי",
         lastName: "שם משפחה",
-        // mossadId: "מוסד",
         mossadName: "שם מוסד",
         year: "שנה",
-        studyName: "מקצוע",
-        questionnaire: "שאלון",
-        studyUnits: 'יח"ל',
-        teachingClass: "כיתה",
-        external: "סוג",
-        split: "מפוצל",
-        students: "תלמידים",
-        hoursReward: "גמול שעות",
-        percentReward: "גמול אחוזים",
+        employmentCode: "קוד מקצוע",
+        codeDescription: "תיאור גמול",
+        hoursReward: 'ס"ה שעות',
+        percentReward: 'ס"ה אחוזים',
+        hoursNormal: "גמול שעות",
+        hoursOTS: "שעות אור תורה",
+        percentNormal: "גמול אחוזים",
+        percentOTS: "אחוזים אור תורה",
       };
       var excelData = [];
       var currReward = {};
@@ -312,24 +304,20 @@ export default {
         currReward = this.additionalReward.find(
           (e) => e.recordkey == el.rewardId
         );
-
         excelData.push({
           empId: el.empId,
           firstName: this.employees.find((e) => e.empId == el.empId).firstName,
           lastName: this.employees.find((e) => e.empId == el.empId).lastName,
           mossadName: this.$store.state.mossadInfo.mossadName,
           year: this.selectedYear,
-          studyName: currReward.studyName,
-          questionnaire: currReward.questionnaire,
-          studyUnits: currReward.studyUnits,
-          external: this.isExternalRange.find((e) => e.value == el.external)
-            .text,
-          teachingClass: this.classes.find((e) => e.value == el.teachingClass)
-            .text,
-          split: this.isSplitedRange.find((e) => e.value == el.split).text,
-          students: el.students,
+          employmentCode: currReward.employmentCode,
+          codeDescription: currReward.description,
           hoursReward: el.hours,
           percentReward: el.percent,
+          hoursNormal: el.hoursNormal,
+          hoursOTS: el.hoursOTS,
+          percentNormal: el.percentNormal,
+          percentOTS: el.percentOTS,
         });
       });
       excelData.sort((a, b) => (a.empId > b.empId ? 1 : -1));

@@ -17,9 +17,15 @@
           <p>מוסד - {{ _mossadInfo.mossadName }}</p>
         </v-col>
         <v-col cols="12" md="2" sm="2">
-          <router-link :to="{ name: 'reportWeeklyHours' }" target="_blank">
+          <!-- <router-link
+            :to="{ name: 'report/reportBagrutRewards' }"
+            target="_blank"
+          >
             שעות מאוישות - {{ _mossadInfo.currHours }}
-          </router-link>
+          </router-link> -->
+          <a @click="navToReport()"
+            >שעות מאוישות - {{ _mossadInfo.currHours }}</a
+          >
         </v-col>
         <v-col cols="12" md="2" sm="2">
           <p>
@@ -676,6 +682,13 @@ export default {
           this.employeeInfo.mother
         );
       });
+    },
+
+    navToReport() {
+      let routeData = this.$router.resolve({
+        path: "/report/reportWeeklyHours",
+      });
+      window.open(routeData.href);
     },
     isNotEmpty(obj) {
       for (var i in obj) return false;

@@ -90,7 +90,7 @@ export default {
           })
         );
 
-      this.$router.push({ name: "reportWeeklyHours" }).catch((error) => {
+      this.$router.push({ name: "report/reportWeeklyHours" }).catch((error) => {
         console.info(error.message);
       });
     },

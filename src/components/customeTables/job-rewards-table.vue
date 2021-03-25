@@ -439,6 +439,20 @@ export default {
       this.tableToDisplay.splice(currIndex + 1, 0, newRow);
     },
     saveRow(row) {
+      if (row.employmentCode != "000" && (!row.minHours || !row.maxHours)) {
+        alert("נא להזין גמול שעות");
+        return;
+      }
+      // eslint-disable-next-line no-debugger
+      debugger;
+      if (
+        row.employmentCode == "000" &&
+        (!row.minPercent || !row.maxPercent) &&
+        !row.percent1
+      ) {
+        alert("נא להזין גמול אחוזים");
+        return;
+      }
       axios({
         url: "/jobRewards/save",
         method: "post",
@@ -494,6 +508,10 @@ export default {
           this.codeDescription = response.data.filter(
             (el) => el.hourType == FRONTAL || el.hourType == 0
           );
+          this.codeDescription.push({
+            code: "000",
+            codeDescription: "אחוזים בלבד",
+          });
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
