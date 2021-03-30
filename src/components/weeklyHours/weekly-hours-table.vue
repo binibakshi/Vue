@@ -196,7 +196,7 @@ export default {
     this.setPrivateAndPauseCodes(
       this.newHours.find((el) => el.type == FRONTAL).code
     );
-    this.sortTable()
+    this.sortTable();
   },
   methods: {
     initilizer() {
@@ -305,6 +305,7 @@ export default {
     setExistData() {
       let tempHourType;
       let newRow = {};
+
       this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;
@@ -328,8 +329,7 @@ export default {
             this.newHours.push(newRow);
           } else {
             if (!this.isRewradHours(el.empCode)) {
-              this.newHours.find((e) => e.type == tempHourType).hours +=
-                el.hours;
+              this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
             }
             this.newHours.find((e) => e.code == el.empCode).week[el.day] +=
               el.hours;
