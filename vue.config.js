@@ -9,6 +9,6 @@ module.exports = {
   //   disableHostCheck: true,
   // },
   devServer: {
-    proxy: "http://localhost:8080",
+    proxy: "http://localhost:9090",
   },
 };

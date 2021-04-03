@@ -1,16 +1,16 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import router from "../router/index";
+import router from "../router/router";
 import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
 // axios.defaults.baseURL = "http://localhost:9191";
-axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
+axios.defaults.baseURL = "http://134.122.120.245:8082/ots-app";
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
 if( process.env.NODE_ENV != 'development' ){
-    axios.defaults.baseURL = "http://134.122.120.245:8080/ots-app";
+    axios.defaults.baseURL = "http://134.122.120.245:8082/ots-app";
 }
 
 export const store = new Vuex.Store({
@@ -27,6 +27,7 @@ export const store = new Vuex.Store({
       mossadId: "",
       mossadType: "",
     },
+    popup:"",
   },
   getters: {
     loggedIn(state) {
@@ -75,8 +76,8 @@ export const store = new Vuex.Store({
         .then((response) => {
           const token = response.data.jwt;
           axios.defaults.headers.Authorization = "Bearer " + token;
-          localStorage.setItem("access_token", token);
-          localStorage.setItem("username", credentials.username);
+          // localStorage.setItem("access_token", token);
+          // localStorage.setItem("username", credentials.username);
           context.state.username = credentials.username;
           context.commit("retrieveToken", token);
         })

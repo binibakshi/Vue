@@ -23,31 +23,15 @@ export default {
   },
   mounted() {},
   methods: {
+    testMe() {
+      this.$store.state.popup = true;
+    },
     onStart() {
       if (this.$store.state.token != null) {
         axios.defaults.headers.Authorization =
           "Bearer " + this.$store.state.token;
       }
     },
-    //   HandleExpiredToken() {
-    //     if (this.$store.state.token == null) {
-    //       return;
-    //     }
-    //     axios
-    //       .get("/authenticate/isExpired", {
-    //         params: {
-    //           token: this.$store.state.token,
-    //         },
-    //       })
-    //       .then((response) => {
-    //         if (response.data == true) {
-    //           this.$store.dispatch("destroyToken");
-    //         }
-    //       })
-    //       .catch(() => {
-    //         this.$store.dispatch("destroyToken");
-    //       });
-    //   },
   },
 };
 </script>

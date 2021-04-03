@@ -307,7 +307,7 @@ export default {
             ? currDate.getFullYear() + 1
             : currDate.getFullYear();
       }
-      if (this.$store.state.empId != null) {
+      if (this.$store.state.empId != 0) {
         this.empId = this.$store.state.empId;
         this.getEmployeeInfo();
       }
@@ -346,7 +346,7 @@ export default {
         .get("/employees/all")
         .then((response) => {
           this.tzArray = response.data;
-          if (this.$store.state.empId != null) {
+          if (this.$store.state.empId != 0) {
             this.empId = this.tzArray.find(
               (el) => el.empId == this.$store.state.empId
             ).empId;

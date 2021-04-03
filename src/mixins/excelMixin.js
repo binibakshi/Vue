@@ -1,9 +1,8 @@
-/* eslint-disable no-unused-vars */
 import XLSX from "xlsx";
 import axios from "axios";
-const FRONTAL = 1;
 
 export default {
+  name:"excelMixin",
   data() {
     return {
       localMossadId: null,
@@ -321,6 +320,11 @@ export default {
       return this.codeDescription.find((el) => el.code == code).codeDescription;
     },
     getReformType(empCode) {
+      // eslint-disable-next-line no-unused-vars
+      let currCode  = this.codeDescription.find(el => el.code == empCode)
+      // if (currCode.reformType == 1 || 7) {
+        
+      // }
       return "TODO";
     },
   },

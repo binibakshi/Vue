@@ -67,7 +67,7 @@ export default {
         .then((response) => {
           this.$store.state.mossadId = response.data;
           this.$store.state.logginAs = response.data;
-          localStorage.setItem("mossadId", response.data);
+          // localStorage.setItem("mossadId", response.data);
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
