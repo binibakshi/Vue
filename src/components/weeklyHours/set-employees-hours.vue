@@ -313,6 +313,7 @@ export default {
   },
   methods: {
     initilize() {
+      console.log("initlizing")
       if (this.$store.state.selectedYear != 0) {
         this.selectedYear = this.$store.state.selectedYear;
       } else {
