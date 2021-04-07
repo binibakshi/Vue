@@ -193,6 +193,7 @@ export default {
     this.setBegdaEndda();
     this.setExistData();
     this.setExistRewards();
+    this.getPauseAndPrivateHours();
     this.setPrivateAndPauseCodes(
       this.newHours.find((el) => el.type == FRONTAL).code
     );
@@ -516,7 +517,8 @@ export default {
     hoursAmount() {
       return this.newHours
         .filter((el) => this.isNumber(el.hours))
-        .reduce((acc, item) => parseFloat(acc) + parseFloat(item.hours), 0);
+        .reduce((acc, item) => parseFloat(acc) + parseFloat(item.hours), 0)
+        .toFixed(2);
     },
     dayAmount(day) {
       return this.newHours.reduce(

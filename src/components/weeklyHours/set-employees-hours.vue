@@ -17,12 +17,6 @@
           <p>מוסד - {{ _mossadInfo.mossadName }}</p>
         </v-col>
         <v-col cols="12" md="2" sm="2">
-          <!-- <router-link
-            :to="{ name: 'report/reportBagrutRewards' }"
-            target="_blank"
-          >
-            שעות מאוישות - {{ _mossadInfo.currHours }}
-          </router-link> -->
           <a @click="navToReport()"
             >שעות מאוישות - {{ _mossadInfo.currHours }}</a
           >
@@ -48,8 +42,8 @@
         </v-col>
       </v-row>
       <div v-show="_mossadInfo.maxHours != null && _mossadInfo.maxHours != 0">
-        <v-row id="employeeDetails">
-          <v-col id="searchEmployee" cols="12" md="2" sm="2" lg="3">
+        <div class="wrapper-grid">
+          <div class="grid-element">
             <v-autocomplete
               :disabled="
                 _mossadInfo.maxHours == null || _mossadInfo.maxHours == 0
@@ -66,83 +60,101 @@
               hide-selected
               @change="getEmployeeInfo()"
             ></v-autocomplete>
-          </v-col>
-          <v-col cols="12" md="1" sm="1">
+          </div>
+          <div class="grid-element">
             <p>שם פרטי</p>
             {{ employeeInfo.firstName }}
-          </v-col>
-          <v-col cols="12" md="1" sm="1">
+          </div>
+          <div class="grid-element">
             <p>שם משפחה</p>
             {{ employeeInfo.lastName }}
-          </v-col>
-          <v-col cols="12" md="1" sm="1">
+          </div>
+          <div class="grid-element">
             <p>גיל</p>
             {{ _getAge }}
-          </v-col>
-          <v-col cols="12" md="1" sm="1">
+          </div>
+          <div class="grid-element">
             <p>משרת אם</p>
             {{ formatIsMother }}
-          </v-col>
-          <v-col cols="12" md="1" sm="1">
+          </div>
+          <div class="grid-element">
             <p>שעות גיל</p>
             {{ _getAgeHours }}
-          </v-col>
-          <v-col cols="12" md="4">
-            <table id="detailsTable">
-              <thead>
-                <th></th>
-                <th>א</th>
-                <th>ב</th>
-                <th>ג</th>
-                <th>ד</th>
-                <th>ה</th>
-                <th>ו</th>
-                <th>סך שעות</th>
-                <th>אחוז משרה</th>
-              </thead>
-              <tbody>
-                <tr v-for="(row, index) in empHoursTable" :key="index">
-                  <td>{{ getRowType(row.type) }}</td>
-                  <td v-for="index in 6" :key="index">
-                    <v-tooltip top>
-                      <template v-slot:activator="{ on, attrs }">
-                        <span
-                          v-bind="attrs"
-                          v-on="on"
-                          @mouseover="changeText(row.type, index - 1)"
-                        >
-                          {{ row.week[index - 1].hours }}</span
-                        >
-                      </template>
-                      <span>{{ hoverText }}</span>
-                    </v-tooltip>
-                  </td>
-                  <td>{{ row.sum }}</td>
-                  <td>{{ getTwoDigits(row.jobPercent) }}%</td>
-                </tr>
-              </tbody>
-            </table>
-            <span
-              id="mossadotWorkAt"
-              v-for="reform in workInReforms"
-              :key="reform"
-              >{{ getRreformDiscription(reform) + ", " }}</span
-            >
-            <v-tooltip top>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  large
-                  class="mr-3 excelMDI"
-                  @click="exportEmployeeWeeklyHours()"
-                  v-bind="attrs"
-                  v-on="on"
-                  >mdi-file-excel-outline</v-icon
+          </div>
+          <div class="grid-element">
+            <div class="detailsTable">
+              <table>
+                <thead>
+                  <th></th>
+                  <th>א</th>
+                  <th>ב</th>
+                  <th>ג</th>
+                  <th>ד</th>
+                  <th>ה</th>
+                  <th>ו</th>
+                  <th>סך שעות</th>
+                  <th>אחוז משרה</th>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, index) in empHoursTable" :key="index">
+                    <td>{{ getRowType(row.type) }}</td>
+                    <td v-for="index in 6" :key="index">
+                      <v-tooltip top>
+                        <template v-slot:activator="{ on, attrs }">
+                          <span
+                            v-bind="attrs"
+                            v-on="on"
+                            @mouseover="changeText(row.type, index - 1)"
+                          >
+                            {{ row.week[index - 1].hours }}</span
+                          >
+                        </template>
+                        <span>{{ hoverText }}</span>
+                      </v-tooltip>
+                    </td>
+                    <td>{{ row.sum }}</td>
+                    <td>{{ getTwoDigits(row.jobPercent) }}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="underTableDiv">
+              <div class="workInReform">
+                <span
+                  id="mossadotWorkAt"
+                  v-for="reform in workInReforms"
+                  :key="reform"
+                  >{{ getRreformDiscription(reform) + ", " }}</span
                 >
-              </template>
-              <span>ייצוא איוש שעות לאקסל</span>
-            </v-tooltip>
-          </v-col>
-        </v-row>
+              </div>
+              <div>
+                <v-tooltip top>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      large
+                      class="mr-3 excelMDI"
+                      @click="exportEmployeeWeeklyHours()"
+                      v-bind="attrs"
+                      v-on="on"
+                      >mdi-file-excel-outline</v-icon
+                    >
+                  </template>
+                  <span>ייצוא איוש שעות לאקסל</span>
+                </v-tooltip>
+              </div>
+            </div>
+          </div>
+          <div class="grid-element">
+            <router-link
+              title="דף אחוז קביעות משרה"
+              :to="{ name: 'setJobPercent' }"
+              target="_blank"
+            >
+              אחוז קביעות</router-link
+            >
+            <p>{{ estinateJobPercent }}</p>
+          </div>
+        </div>
         <v-row v-if="empId != null">
           <v-col cols="12" md="3" sm="3">
             <v-select
@@ -221,11 +233,12 @@ export default {
       mossadInfo: { mossadId: "", mossadName: "", maxHours: 0, currHours: 0 },
       hoverText: "",
       compId: 0,
+      estinateJobPercent: 0,
       circleProgress: false,
     };
   },
   created() {
-    this.initilize();
+    // this.initilize();
     this.getAllTz();
     this.getCodeDescription();
     this.getMossadot();
@@ -460,8 +473,8 @@ export default {
             error,
           });
         });
-
       this.calcEmpHoursData();
+      this.getEstemateJobPercent();
       this.compId += 1;
     },
     getBagrutRewardsTypes() {
@@ -475,6 +488,32 @@ export default {
             error,
           });
         });
+    },
+    getEstemateJobPercent() {
+      axios
+        .get("/jobPercent/byId", {
+          params: {
+            empId: this.empId,
+            mossadId: this.$store.state.logginAs,
+            year: this.selectedYear,
+          },
+        })
+        .then((response) => {
+          response.data;
+          if (!response.data) {
+            this.estinateJobPercent = 0;
+          } else {
+            this.estinateJobPercent = response.data.jobPercent;
+          }
+          if (this.estinateJobPercent > this.empHoursTable[1].week[5].hours) {
+            alert("יש לעדכן אחוז קביעות לעובד זה");
+          }
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
     },
     setBegdaEndda() {
       this.datesRange.min = this.formatDate(
@@ -683,7 +722,6 @@ export default {
         );
       });
     },
-
     navToReport() {
       let routeData = this.$router.resolve({
         path: "/report/reportWeeklyHours",
@@ -711,8 +749,24 @@ p {
   margin: 10px;
   padding: 10px;
 }
+.wrapper-grid {
+  display: grid;
+  grid-template-columns: 5fr 2fr 2fr 2fr 2fr 2fr 8fr 1fr 1fr;
+}
+.wrapper-grid > div {
+  margin-right: 0.7em;
+  margin-left: 0.7em;
+}
+.underTableDiv {
+  margin-top: 15px;
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+}
 #searchEmployee {
   max-width: 400px;
+}
+.detailsTable {
+  display: inline-flex;
 }
 table,
 tr,
@@ -739,29 +793,14 @@ th {
   margin: 1px;
   padding: 1px;
   min-width: 25px;
-  max-width: 100px;
+  max-width: auto;
   text-align: center;
-}
-#detailsTable {
-  position: relative;
-  /* text-align: center;
-  justify-content: center;
-  align-items: center;
-  margin-right: auto; */
-  margin-bottom: 20px;
 }
 #mossadotWorkAt {
   font-weight: bold;
-  position: absolute;
-  /* right: 1%; */
-}
-#mossadHoursDetails {
-  border-bottom: 1px solid;
 }
 .excelMDI {
   color: green;
-  position: relative;
-  right: 340px;
   background-color: lightgray;
 }
 .v-icon:hover {

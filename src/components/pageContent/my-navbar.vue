@@ -21,6 +21,7 @@
           <v-list-item to="/jobRewards">גמולי תפקיד</v-list-item>
         </v-list>
       </v-menu>
+      <v-tab to="/setJobPercent">אחוז קביעות משרה </v-tab>
       <v-tab to="/calcHours"> רפורמות עובד </v-tab>
       <v-tab to="/HireEmp"> עובדים </v-tab>
       <v-menu offset-y>

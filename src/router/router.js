@@ -8,7 +8,6 @@ Vue.use(VueRouter);
 //   componentName:"excelMixin"
 // })
 
-
 const routes = [
   {
     path: "/login",
@@ -145,6 +144,23 @@ const routes = [
     component: () =>
       import("../views/jobRewardsCust.vue"),
   },
+  {
+    path: "/setJobPercent",
+    name: "setJobPercent",
+    component: () =>
+      import("../views/setJobPercent.vue"),    beforeEnter(to, from, next) {
+        if (
+          to.name == "jobRewards" &&
+          (store.state.logginAs == 999 || store.state.logginAs == 998)
+        ) {
+          alert("התחבר כמוסד כדי להכנס לדף זה");
+          next({ name: "auth" });
+        } else {
+          next();
+        }
+      },
+  },
+
 ];
 
 const router = new VueRouter({
