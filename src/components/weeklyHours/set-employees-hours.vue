@@ -238,7 +238,7 @@ export default {
     };
   },
   created() {
-    // this.initilize();
+    this.initilize();
     this.getAllTz();
     this.getCodeDescription();
     this.getMossadot();
@@ -247,7 +247,7 @@ export default {
     this.getBagrutRewardsTypes();
   },
   mounted() {
-    this.initilize();
+    // this.initilize();
     bus.$on("changeWeeklyHours", async () => {
       this.getAllEmpData();
       await this.getMossadHours();
