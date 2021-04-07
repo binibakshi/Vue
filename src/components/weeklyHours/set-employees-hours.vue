@@ -324,7 +324,6 @@ export default {
       }
       if (this.$store.state.empId != 0) {
         this.empId = this.$store.state.empId;
-        this.getEmployeeInfo();
       }
       this.mossadInfo.mossadId = this.$store.state.mossadId;
       this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName;
