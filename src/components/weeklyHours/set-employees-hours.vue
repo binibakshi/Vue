@@ -238,6 +238,7 @@ export default {
     };
   },
   created() {
+    console.log("created")
     this.initilize();
     this.getAllTz();
     this.getCodeDescription();
@@ -247,6 +248,7 @@ export default {
     this.getBagrutRewardsTypes();
   },
   mounted() {
+    console.log("mounted")
     if (this.empId != null) {
       this.getEmployeeInfo();
     }
@@ -322,6 +324,7 @@ export default {
             ? currDate.getFullYear() + 1
             : currDate.getFullYear();
       }
+      console.log("year is " + this.selectedYear);
       if (this.$store.state.empId != 0) {
         this.empId = this.$store.state.empId;
       }
@@ -394,15 +397,6 @@ export default {
       setTimeout(() => (this.circleProgress = false), 1000);
     },
     getMossadHours() {
-      if (this.$store.state.selectedYear != 0) {
-        this.selectedYear = this.$store.state.selectedYear;
-      } else {
-        let currDate = new Date();
-        this.selectedYear =
-          currDate.getMonth() >= 8
-            ? currDate.getFullYear() + 1
-            : currDate.getFullYear();
-      }
       axios
         .get("mossadHours/byId", {
           params: {
