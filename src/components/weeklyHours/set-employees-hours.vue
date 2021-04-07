@@ -247,7 +247,9 @@ export default {
     this.getBagrutRewardsTypes();
   },
   mounted() {
-    // this.initilize();
+    if (this.empId) {
+      this.getEmployeeInfo();
+    }
     bus.$on("changeWeeklyHours", async () => {
       this.getAllEmpData();
       await this.getMossadHours();
