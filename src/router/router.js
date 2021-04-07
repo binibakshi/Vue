@@ -146,20 +146,23 @@ const routes = [
   {
     path: "/setJobPercent",
     name: "setJobPercent",
+    props: true,
     component: () =>
-      import("../views/setJobPercent.vue"),    beforeEnter(to, from, next) {
-        if (
-          to.name == "setJobPercent" &&
-          (store.state.logginAs == 999 || store.state.logginAs == 998)
-        ) {
-          alert("התחבר כמוסד כדי להכנס לדף זה");
-          next({ name: "auth" });
-        } else {
-          next();
-        }
-      },
+      import(
+       "../views/setJobPercent.vue"
+      ),
+    beforeEnter(to, from, next) {
+      if (
+        to.name == "setJobPercent" &&
+        (store.state.logginAs == 999 || store.state.logginAs == 998)
+      ) {
+        alert("התחבר כמוסד כדי להכנס לדף זה");
+        next({ name: "auth" });
+      } else {
+        next();
+      }
+    },
   },
-
 ];
 
 const router = new VueRouter({
