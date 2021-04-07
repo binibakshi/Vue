@@ -31,7 +31,6 @@ const routes = [
       import(
          "../views/EmployeeInfo.vue"
       ),
-
     beforeEnter(to, from, next) {
       if (
         to.name == "employeeInfo" &&
@@ -150,7 +149,7 @@ const routes = [
     component: () =>
       import("../views/setJobPercent.vue"),    beforeEnter(to, from, next) {
         if (
-          to.name == "jobRewards" &&
+          to.name == "setJobPercent" &&
           (store.state.logginAs == 999 || store.state.logginAs == 998)
         ) {
           alert("התחבר כמוסד כדי להכנס לדף זה");
