@@ -394,6 +394,15 @@ export default {
       setTimeout(() => (this.circleProgress = false), 1000);
     },
     getMossadHours() {
+      if (this.$store.state.selectedYear != 0) {
+        this.selectedYear = this.$store.state.selectedYear;
+      } else {
+        let currDate = new Date();
+        this.selectedYear =
+          currDate.getMonth() >= 8
+            ? currDate.getFullYear() + 1
+            : currDate.getFullYear();
+      }
       axios
         .get("mossadHours/byId", {
           params: {
