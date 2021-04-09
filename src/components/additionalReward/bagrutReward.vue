@@ -395,7 +395,7 @@ export default {
         });
     },
     onStudyNameChange(row) {
-      row.questionnaire = row.units = "";
+      row.questionnaire = row.units = row.actualUnits = "";
       row.hoursReward = row.percentReward = 0;
       row.students = 10;
     },
@@ -483,6 +483,9 @@ export default {
       let currReward = this.additionalReward.find(
         (el) => el.recordkey == row.recordkey
       );
+      if (!currReward) {
+        return 0;
+      }
       let maxHours = row.isExternal
         ? currReward.externalHoursReward
         : currReward.internalHoursReward;
@@ -501,6 +504,9 @@ export default {
       let currReward = this.additionalReward.find(
         (el) => el.recordkey == row.recordkey
       );
+      if (!currReward) {
+        return 0;
+      }
       let maxPercent = row.isExternal
         ? currReward.externalPercentReward
         : currReward.internalPercentReward;
@@ -546,7 +552,7 @@ export default {
           (el.questionnaire == null || el.questionnaire == row.questionnaire) &&
           el.studyUnits == row.units
       );
-      if (temp == null) {
+      if (!temp) {
         row.hoursReward = 0;
         row.percentReward = 0;
       } else {
@@ -597,8 +603,10 @@ export default {
         (row.teacherPercent / 100) *
         this.getMaxHours(row)
       ).toFixed(2);
-      row.percentReward =
-        (row.teacherPercent / 100) * this.getMaxPercents(row).toFixed(2);
+      row.percentReward = (
+        (row.teacherPercent / 100) *
+        this.getMaxPercents(row)
+      ).toFixed(2);
     },
     exportToExcel() {
       var excelHeaders = {
