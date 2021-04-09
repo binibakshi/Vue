@@ -335,6 +335,7 @@ export default {
           secondTeacher: el.secondTeacher,
           teacherPercent: el.teacherPercent,
         };
+        
         this.rewards.push(currRow);
       });
     },
