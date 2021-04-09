@@ -335,7 +335,6 @@ export default {
           secondTeacher: el.secondTeacher,
           teacherPercent: el.teacherPercent,
         };
-        
         this.rewards.push(currRow);
       });
     },
@@ -355,6 +354,7 @@ export default {
         recordkey: null,
         secondTeacher: "",
         percent: 100,
+        teacherPercent: 100,
       });
     },
     removeRow(row) {
