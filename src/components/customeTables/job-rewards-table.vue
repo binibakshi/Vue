@@ -3,6 +3,7 @@
     <v-data-table
       dense
       height="500"
+      width="700"
       id="myTable"
       :search="search"
       :headers="headers"
@@ -344,8 +345,8 @@ export default {
         { text: "אחוזים2", value: "percent2" },
         { text: "אחוזים3", value: "percent3" },
         { text: "אחוזים4", value: "percent4" },
-        { text: "אחוזים5", value: "percent5" },
-        { text: "קישור", value: "descLink" },
+        // { text: "אחוזים5", value: "percent5" },
+        // { text: "קישור", value: "descLink" },
       ],
       excelHeaders: {
         employmentCode: "קוד מקצוע",

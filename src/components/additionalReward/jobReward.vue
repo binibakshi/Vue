@@ -122,10 +122,10 @@ export default {
       headers: [
         { text: "מקצוע", value: "rewardId" },
         { text: "גמול שעות", value: "hoursNormal" },
-        { text: "שעות אור תורה", value: "hoursOTS" },
+        { text: "שעות תוספתיות", value: "hoursOTS" },
         { text: 'ס"ה שעות', value: "hoursReward" },
         { text: "גמול אחוזים", value: "percentNormal" },
-        { text: "אחוזים אור תורה", value: "percentOTS" },
+        { text: "אחוזים תוספתיים", value: "percentOTS" },
         { text: 'ס"ה אחוזים', value: "percentReward" },
         { text: "פעולות", value: "actions" },
       ],
@@ -386,10 +386,10 @@ export default {
         employmentCode: "קוד פיצול",
         description: "תיאור",
         hoursNormal: "גמול שעות",
-        hoursOTS: "שעות אור תורה",
+        hoursOTS: "שעות תוספתיות",
         hours: 'ס"ה שעות',
         percentNormal: "גמול אחוזים",
-        percentOTS: "אחוזים אור תורה",
+        percentOTS: "אחוזים תוספתיים",
         percent: 'ס"ה אחוזים',
       };
       var excelData = [];

@@ -293,9 +293,9 @@ export default {
         hoursReward: 'ס"ה שעות',
         percentReward: 'ס"ה אחוזים',
         hoursNormal: "גמול שעות",
-        hoursOTS: "שעות אור תורה",
+        hoursOTS: "שעות תוספתיות",
         percentNormal: "גמול אחוזים",
-        percentOTS: "אחוזים אור תורה",
+        percentOTS: "אחוזים תוספתיים",
       };
       var excelData = [];
       var currReward = {};

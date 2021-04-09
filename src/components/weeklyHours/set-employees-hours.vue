@@ -145,14 +145,13 @@
             </div>
           </div>
           <div class="grid-element">
+            <p>אחוז קביעות</p>
             <router-link
               title="דף אחוז קביעות משרה"
               :to="{ name: 'setJobPercent' }"
               target="_blank"
-            >
-              אחוז קביעות</router-link
-            >
-            <p>{{ estinateJobPercent }}</p>
+              >{{ estinateJobPercent }}
+            </router-link>
           </div>
         </div>
         <v-row v-if="empId != null">
@@ -313,7 +312,6 @@ export default {
   },
   methods: {
     initilize() {
-      console.log("initlizing")
       if (this.$store.state.selectedYear != 0) {
         this.selectedYear = this.$store.state.selectedYear;
       } else {
@@ -507,8 +505,8 @@ export default {
           } else {
             this.estinateJobPercent = response.data.jobPercent;
           }
-          if (this.estinateJobPercent > this.empHoursTable[1].week[5].hours) {
-            alert("יש לעדכן אחוז קביעות לעובד זה");
+          if (this.estinateJobPercent < this.empHoursTable[1].week[5].hours) {
+            alert("יש לעדכן הסכם העסקה לשעות זמניות");
           }
         })
         .catch((error) =>

@@ -21,9 +21,6 @@
           <v-list-item to="/jobRewards">גמולי תפקיד</v-list-item>
         </v-list>
       </v-menu>
-      <v-tab to="/setJobPercent">אחוז קביעות משרה </v-tab>
-      <v-tab to="/calcHours"> רפורמות עובד </v-tab>
-      <v-tab to="/HireEmp"> עובדים </v-tab>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn text class="align-self-center mr-4" v-bind="attrs" v-on="on">
@@ -48,6 +45,37 @@
           >
         </v-list>
       </v-menu>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn text class="align-self-center mr-4" v-bind="attrs" v-on="on">
+            ניהול אקסלים
+            <v-icon right> mdi-menu-down </v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item to="/importExcels">אקסלים לקליטה</v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item to="/exportExcels">אקסלים לייצוא</v-list-item>
+        </v-list>
+      </v-menu>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn text class="align-self-center mr-4" v-bind="attrs" v-on="on">
+            נוספים
+            <v-icon right> mdi-menu-down </v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item to="/HireEmp"> עובדים</v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item to="/setJobPercent">אחוז קביעות משרה</v-list-item>
+        </v-list>
+        <v-list>
+          <v-list-item to="/calcHours"> רפורמות עובד </v-list-item>
+        </v-list>
+      </v-menu>
       <v-menu offset-y v-if="$store.state.mossadId == 999">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -65,7 +93,6 @@
           <v-list-item to="/auth" v-if="$store.state.mossadId == 999">
             הרשאות
           </v-list-item>
-          <v-list-item to="/ImportData"> ניהול Excel </v-list-item>
           <v-list-item to="/mossadot">ניהול מוסדות </v-list-item>
           <v-list-item to="/mossadotHours"> מגבלת שעות למוסד </v-list-item>
           <v-list-item to="/mossadClasses">ניהול כיתות במוסד</v-list-item>

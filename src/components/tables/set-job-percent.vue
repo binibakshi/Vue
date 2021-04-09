@@ -136,6 +136,7 @@ export default {
         );
     },
     async getAllJobPercent() {
+      this.jobPercent = [];
       await axios
         .get("/jobPercent/byYearAndMossad", {
           params: {
@@ -174,6 +175,7 @@ export default {
         });
     },
     setExistData() {
+      this.tableToDisplay = []; 
       let currEmp = {};
       let JobPercentage = 0;
       this.tzArray.forEach((el) => {
@@ -191,9 +193,10 @@ export default {
         });
       });
     },
-    onYearChange() {
+    async onYearChange() {
       this.$store.dispatch("setSelectedYear", this.selectedYear);
-      this.getRewards();
+      await this.getAllJobPercent();
+      this.setExistData();
     },
   },
 };

@@ -12,11 +12,9 @@ export default {
       dataToExport: [],
     };
   },
-  mounted() {
-    this.getCodesDescription();
-  },
   methods: {
-    async createWeeklyHoursToMossad(mossadId, begda, endda) {
+    async createWeeklyHoursToMossad(mossadId, begda, endda) {    
+      await this.getCodesDescription();
       await this.getAllEmpInfo(mossadId, begda, endda);
       await this.getAllEmpHours(mossadId, begda, endda);
       await this.setWeeklyHoursAndExport(mossadId);
@@ -25,6 +23,7 @@ export default {
       this.empsHours = [];
     },
     async createWeeklyHoursToEmployee(empId, mossadId, begda, endda) {
+      await this.getCodesDescription();
       await this.getEmpInfo(empId, mossadId, begda, endda);
       await this.getEmpHours(empId, mossadId, begda, endda);
       await this.setWeeklyHoursAndExport(mossadId);
@@ -133,8 +132,8 @@ export default {
           })
         );
     },
-    getCodesDescription() {
-      axios
+    async getCodesDescription() {
+      await axios
         .get("/convertHours/all")
         .then((response) => {
           this.codeDescription = response.data;
@@ -177,26 +176,26 @@ export default {
         (wb.Workbook.Views[0] = {}), (wb.Workbook.Views[0].RTL = true);
     },
     setExistHours(empInfo, hoursToFormat, mossadId, mossadName) {
-
+      // eslint-disable-next-line no-debugger
+      debugger
       let newRow = {};
       let hoursToDisplay = [];
       hoursToFormat.forEach((el) => {
         // after first insert check whether create new row or add to existing one
-        if (
-          hoursToDisplay.find(
+        if ( hoursToDisplay.find(
             (e) =>
               e.code == el.empCode && e.begda == el.begda && e.endda == el.endda
           ) == undefined
         ) {
           // create row template
-          (newRow = {
+          newRow = {
             empId: empInfo.empId,
             lastName: empInfo.lastName,
             firstName: empInfo.firstName,
             ageHours: this.getAgeHours(empInfo.birthDate),
             isMother: this.getIsMother(empInfo.mother),
             code: el.empCode,
-            codeDescription: this.getCodeDescription(el.empCode),
+            codeDescription: this.codeDescription.find((e) => e.code == el.empCode).codeDescription,
             mossadId: mossadId + "100", // TODO
             mossadName: mossadName, // TODO
             begda: el.begda,
@@ -210,7 +209,7 @@ export default {
             totalHours: 0,
             reformType: this.getReformType(el.empCode),
             systemMessages: "",
-          }),
+          }
             hoursToDisplay.push(newRow);
         }
         this.setHoursInDay(
@@ -315,9 +314,6 @@ export default {
       } else {
         return 2;
       }
-    },
-    getCodeDescription(code) {
-      return this.codeDescription.find((el) => el.code == code).codeDescription;
     },
     getReformType(empCode) {
       // eslint-disable-next-line no-unused-vars

@@ -90,12 +90,6 @@ const routes = [
       import( "../views/Mossadot.vue"),
   },
   {
-    path: "/ImportData",
-    name: "ImportData",
-    component: () =>
-      import("../views/ImportData.vue"),
-  },
-  {
     path: "/auth",
     name: "auth",
     component: () =>
@@ -162,6 +156,18 @@ const routes = [
         next();
       }
     },
+  },
+  {
+    path: "/importExcels",
+    name: "importExcels",
+    component: () =>
+      import("../views/importExcels.vue"),
+  },
+  {
+    path: "/exportExcels",
+    name: "exportExcels",
+    component: () =>
+      import("../views/exportExcels.vue"),
   },
 ];
 

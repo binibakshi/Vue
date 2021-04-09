@@ -2,31 +2,10 @@
   <v-card class="wrapper">
     <v-card>
       <v-row class="giveSomeSpace">
-        <v-btn class="btn" color="success" @click="downloadDemoFile()"
-          >מבנה קובץ לקליטת פרטי עובדים</v-btn
-        >
+        <v-btn class="btn" color="success" @click="getAllEmployees()"
+          >אקסל פרטי עובדים
+        </v-btn>
       </v-row>
-      <v-row class="giveSomeSpace">
-        <input type="file" id="file" ref="file" @change="filesChange" />
-        <v-btn
-          v-if="employeesTable != null"
-          id="btn"
-          color="primary"
-          dark
-          @click="saveAll()"
-          >שמור הכל</v-btn
-        >
-      </v-row>
-      <div v-if="employeesTable != null">
-        <v-data-table
-          dense
-          id="myTable"
-          :headers="headers"
-          :items="employeesTable"
-          :items-per-page="50"
-          class="elevation-1"
-        ></v-data-table>
-      </div>
     </v-card>
   </v-card>
 </template>
@@ -84,15 +63,6 @@ export default {
         "מבנה קליטת עובדים"
       );
     },
-    downloadDemoFile() {
-      var emptyForDemo = [];
-      this.downloadFile(
-        emptyForDemo,
-        this.getEmployeesHeaders(),
-        "עובדים.xlsx",
-        "מבנה קליטת עובדים"
-      );
-    },
     downloadFile(dataToExport, headers, excelName, sheetName) {
       var temp = dataToExport;
       temp.unshift(headers);
@@ -126,77 +96,8 @@ export default {
       };
       return headers;
     },
-    filesChange(e) {
-      var files = e.target.files,
-        f = files[0];
-      var reader = new FileReader();
-      reader.onload = (e) => {
-        var data = new Uint8Array(e.target.result);
-        var workbook = XLSX.read(data, { type: "array" });
-        let sheetName = workbook.SheetNames[0];
-
-        /* DO SOMETHING WITH workbook HERE */
-        workbook.Sheets[sheetName].A1.h = "empId";
-        workbook.Sheets[sheetName].A1.v = "empId";
-        workbook.Sheets[sheetName].A1.w = "empId";
-        workbook.Sheets[sheetName].B1.h = "lastName";
-        workbook.Sheets[sheetName].B1.v = "lastName";
-        workbook.Sheets[sheetName].B1.w = "lastName";
-        workbook.Sheets[sheetName].C1.h = "firstName";
-        workbook.Sheets[sheetName].C1.v = "firstName";
-        workbook.Sheets[sheetName].C1.w = "firstName";
-        workbook.Sheets[sheetName].D1.h = "birthDate";
-        workbook.Sheets[sheetName].D1.v = "birthDate";
-        workbook.Sheets[sheetName].D1.w = "birthDate";
-        workbook.Sheets[sheetName].E1.h = "mother";
-        workbook.Sheets[sheetName].E1.v = "mother";
-        workbook.Sheets[sheetName].E1.w = "mother";
-        workbook.Sheets[sheetName].F1.h = "ageHours";
-        workbook.Sheets[sheetName].F1.v = "ageHours";
-        workbook.Sheets[sheetName].F1.w = "ageHours";
-
-        let worksheet = workbook.Sheets[sheetName];
-        this.employeesTable = XLSX.utils.sheet_to_json(worksheet);
-
-        this.employeesTable.forEach((element) => {
-          element.birthDate = this.ExcelDateToJSDate(element.birthDate);
-        });
-      };
-      reader.readAsArrayBuffer(f);
-    },
     ExcelDateToJSDate(date) {
       return new Date(Math.round((date - 25569) * 86400 * 1000));
-    },
-    async saveAll() {
-      let promises = [];
-      this.employeesTable.forEach((el, index) => {
-        promises.push(
-          axios
-            .post(`/employees/save`, {
-              empId: el.empId,
-              firstName: el.firstName,
-              lastName: el.lastName,
-              birthDate: el.birthDate,
-              begda: new Date(),
-              mother: this.getIsMother(el.mother),
-            })
-            .then(() => {
-              this.employeesTable.slice(index, 1);
-            })
-            .catch((e) => {
-              console.log(e);
-              this.deleteTable.push(el);
-            })
-        );
-      });
-
-      await Promise.all(promises).then();
-      this.employeesTable = this.deleteTable;
-      this.deleteTable = [];
-      if (this.employeesTable.length > 0) {
-        this.paintInRed = true;
-        alert("הרשומות שנשארו לא הצליחו להישמר");
-      }
     },
     getIsMother(mother) {
       if (mother == "לא") {

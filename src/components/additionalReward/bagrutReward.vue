@@ -333,8 +333,10 @@ export default {
           teachingClass: el.teachingClass,
           secondTeacher: el.secondTeacher,
         };
-        currRow.percent =
-          (currRow.hoursReward / this.getMaxHours(currRow)) * 100;
+        currRow.percent = (
+          (currRow.hoursReward / this.getMaxHours(currRow)) *
+          100
+        ).toFixed(2);
         this.rewards.push(currRow);
       });
     },
@@ -605,6 +607,7 @@ export default {
         studyName: "מקצוע",
         questionnaire: "שאלון",
         studyUnits: 'יח"ל',
+        actualUnits: 'יח"ל בפועל',
         grade: "שכבה",
         teachingClass: "כיתה",
         external: "סוג",
@@ -615,7 +618,6 @@ export default {
         secondTeacher: "מורה נוסף",
       };
       var excelData = [];
-
       this.rewards.forEach((el) => {
         excelData.push({
           empId: this.empId,

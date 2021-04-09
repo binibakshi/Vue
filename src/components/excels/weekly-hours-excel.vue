@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title>ייצוא לשכר</v-card-title>
       <v-row>
-        <v-col cols="12" md="2">
+        <v-col v-if="$store.state.mossadId == 999" cols="12" md="2">
           <v-autocomplete
             v-model="selectedMossad"
             :items="mossadot"
@@ -46,11 +46,8 @@
 </template>
 
 <script>
-/* eslint-disable no-unused-vars */
-// import XLSX from "xlsx";
 import axios from "axios";
 import excelMixin from "../../mixins/excelMixin";
-const FRONTAL = 1;
 
 export default {
   name: "WeeklyHoursExcel",
@@ -91,6 +88,9 @@ export default {
         { year: 2024, hebrewYear: 'תשפ"ד' },
         { year: 2025, hebrewYear: 'תשפ"ה' },
       ];
+      if (this.$store.state.logginAs == this.$store.state.logginAs) {
+        this.selectedMossad = this.$store.state.logginAs;
+      }
     },
     setBegdaEndda() {
       this.datesRange.min = this.FormatDate(

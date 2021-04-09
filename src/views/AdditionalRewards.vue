@@ -207,6 +207,7 @@ export default {
     },
     onYearChanged() {
       this.$store.dispatch("setSelectedYear", this.selectedYear);
+      this.getExistData();
     },
     onEmpIdChange() {
       this.$store.dispatch("setEmpId", this.empId);
