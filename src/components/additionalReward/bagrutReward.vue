@@ -49,7 +49,7 @@
                           type="number"
                           min="0"
                           max="100"
-                          v-model="refToRow.percent"
+                          v-model="refToRow.teacherPercent"
                           @change="onPercentChange(refToRow)"
                         ></v-text-field>
                       </v-col>
@@ -287,6 +287,7 @@ export default {
             teachingClass: el.teachingClass,
             rewardType: 1,
             secondTeacher: el.secondTeacher,
+            teacherPercent: el.teacherPercent,
           });
         });
       axios({
@@ -332,11 +333,8 @@ export default {
           grade: el.grade,
           teachingClass: el.teachingClass,
           secondTeacher: el.secondTeacher,
+          teacherPercent: el.teacherPercent,
         };
-        currRow.percent = (
-          (currRow.hoursReward / this.getMaxHours(currRow)) *
-          100
-        ).toFixed(2);
         this.rewards.push(currRow);
       });
     },
@@ -466,16 +464,17 @@ export default {
     },
     onIsSplitChange(row) {
       if (row.isSplit == false) {
-        row.percent = 100;
+        row.teacherPercent = 100;
         this.onPercentChange(row);
       }
     },
     onPercentChange(row) {
-      row.hoursReward = ((row.percent / 100) * this.getMaxHours(row)).toFixed(
-        2
-      );
+      row.hoursReward = (
+        (row.teacherPercent / 100) *
+        this.getMaxHours(row)
+      ).toFixed(2);
       row.percentReward = (
-        (row.percent / 100) *
+        (row.teacherPercent / 100) *
         this.getMaxPercents(row)
       ).toFixed(2);
     },
@@ -593,8 +592,12 @@ export default {
     },
     setActualUnits(row) {
       // get the relative actualUnits
-      row.hoursReward = (row.percent / 100) * this.getMaxHours(row);
-      row.percentReward = (row.percent / 100) * this.getMaxPercents(row);
+      row.hoursReward = (
+        (row.teacherPercent / 100) *
+        this.getMaxHours(row)
+      ).toFixed(2);
+      row.percentReward =
+        (row.teacherPercent / 100) * this.getMaxPercents(row).toFixed(2);
     },
     exportToExcel() {
       var excelHeaders = {

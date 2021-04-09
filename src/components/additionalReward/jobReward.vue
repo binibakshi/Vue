@@ -175,6 +175,7 @@ export default {
             percentOTS: el.percentOTS,
             percentNormal: el.percentNormal,
             rewardType: 2,
+            teacherPercent:el.teacherPercent
           });
         });
       if (teachersRewards.length > 3 && this.$store.state.username != 999) {
@@ -196,38 +197,6 @@ export default {
           });
         });
     },
-    // saveRow(row) {
-    //   var teachersRewards = [];
-    //   teachersRewards.push({
-    //     empId: this.empId,
-    //     rewardId: row.rewardId,
-    //     mossadId: this.$store.state.logginAs,
-    //     employmentCode: this.additionalReward.find(
-    //       (el) => el.recordkey == row.rewardId
-    //     ).employmentCode,
-    //     year: this.selectedYear,
-    //     hours: row.hoursReward,
-    //     hoursOTS: row.hoursOTS,
-    //     hoursNormal: row.hoursNormal,
-    //     percent: row.percentReward,
-    //     percentOTS: row.percentOTS,
-    //     percentNormal: row.percentNormal,
-    //     rewardType: 2,
-    //   });
-    //   axios({
-    //     url: "/teachersRewards/saveAll",
-    //     method: "post",
-    //     data: teachersRewards,
-    //   })
-    //     .then(() => {
-    //       alert("הנתונים נשמרו בהצלחה");
-    //     })
-    //     .catch((error) => {
-    //       this.$store.dispatch("displayErrorMessage", {
-    //         error,
-    //       });
-    //     });
-    // },
     setExistData() {
       if (this.existData.length == 0 || this.additionalReward.length == 0) {
         return;
