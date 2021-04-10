@@ -510,7 +510,7 @@ export default {
             (el) => el.hourType == FRONTAL || el.hourType == 0
           );
           this.codeDescription.push({
-            code: "000",
+            code: "0",
             codeDescription: "אחוזים בלבד",
           });
         })

@@ -96,7 +96,7 @@ export default {
         },
         {
           text: "קביעות משרה",
-          value: "esemateJobPercent",
+          value: "estimateJobPercent",
         },
         {
           text: "אחוזים בפועל",
@@ -109,7 +109,7 @@ export default {
       ],
       mossadot: [],
       tzArray: [],
-      tableData: [],
+      jobPercentTable: [],
       reformTable: [
         { text: "עוז לתמורה", value: 5 },
         { text: "עולם ישן", value: 2 },
@@ -128,8 +128,10 @@ export default {
   },
   async created() {
     this.initilize();
+    this.getMossadot();
+    await this.getAllTz();
     await this.getGaps();
-    await this.getMossadot();
+    this.setExistData();
   },
   methods: {
     initilize() {
@@ -155,8 +157,7 @@ export default {
           },
         })
         .then((response) => {
-          this.tableData = response.data;
-          this.tableToDisplay = response.data;
+          this.jobPercentTable = response.data;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -164,8 +165,8 @@ export default {
           })
         );
     },
-    async getMossadot() {
-      await axios
+    getMossadot() {
+      axios
         .get("mossadot/all")
         .then((response) => {
           this.mossadot = response.data;
@@ -188,6 +189,20 @@ export default {
           })
         );
     },
+    setExistData() {
+      let currEmp = {};
+      this.jobPercentTable.forEach((el) => {
+        currEmp = this.tzArray.find((e) => e.empId == el.empId);
+        this.tableToDisplay.push({
+          empId: currEmp.empId,
+          firstName: currEmp.firstName,
+          lastName: currEmp.lastName,
+          estimateJobPercent: el.estimateJobPercent,
+          jobPercent: el.jobPercent,
+          gaps: el.estimateJobPercent - el.jobPercent,
+        });
+      });
+    },
     onYearChange() {
       this.$store.dispatch("setSelectedYear", this.selectedYear);
       this.getGaps();
@@ -201,23 +216,11 @@ export default {
       let routeData = this.$router.resolve({ name: "employeeInfo" });
       window.open(routeData.href);
     },
-    getPsitiveNumber(val) {
-      if (val < 0) {
-        return val * -1;
-      }
-    },
     getTwoDigits(number) {
       if (isNaN(number) || number == null) {
         return 0.0;
       }
       return parseFloat(number).toFixed(2);
-    },
-    getRewardType(type) {
-      if (type == 1) {
-        return " בגרות";
-      } else {
-        return " תפקיד";
-      }
     },
     handleFilterGaps() {
       this.onlyGaps = !this.onlyGaps;
@@ -228,7 +231,7 @@ export default {
             this.getTwoDigits(el.estimateJobPercent)
         );
       } else {
-        this.tableToDisplay = this.tableData;
+        this.tableToDisplay = this.jobPercentTable;
       }
     },
   },
