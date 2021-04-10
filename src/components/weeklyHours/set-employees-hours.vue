@@ -474,7 +474,7 @@ export default {
           });
         });
       this.calcEmpHoursData();
-      this.getEstemateJobPercent();
+      this.getEstimateJobPercent();
       this.compId += 1;
     },
     getBagrutRewardsTypes() {
@@ -489,7 +489,7 @@ export default {
           });
         });
     },
-    getEstemateJobPercent() {
+    getEstimateJobPercent() {
       axios
         .get("/jobPercent/byId", {
           params: {

@@ -9,6 +9,7 @@ import reportBagrutRewards from "../components/reports/report-bagrutRewrds.vue";
 import reportJobRewards from "../components/reports/report-jobRewards.vue";
 import reportWeeklyHours from "../components/reports/report-weeklyHours.vue";
 import reportRewardGaps from "../components/reports/report-rewardHoursGaps.vue";
+import reportJobPercentGaps from "../components/reports/report-jobPercentGaps";
 export default {
   name: "report",
   components: {
@@ -16,6 +17,7 @@ export default {
     reportJobRewards,
     reportWeeklyHours,
     reportRewardGaps,
+    reportJobPercentGaps,
   },
   data() {
     return {

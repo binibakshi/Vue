@@ -46,15 +46,14 @@
               </v-toolbar-title>
             </v-toolbar>
           </template>
-          <template v-slot:[`item.jobPercent`]="{ item }">
+          <template v-slot:[`item.estimateJobPercent`]="{ item }">
             <v-text-field
               dense
               style="max-width: 150px"
-              v-model="item.jobPercent"
+              v-model="item.estimateJobPercent"
             />
           </template>
           <template v-slot:[`item.actions`]="{ item }">
-            <!-- <v-icon small @click="saveJobPercent(item)">mdi-content-save</v-icon> -->
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-icon
@@ -84,13 +83,13 @@ export default {
       selectedYear: 0,
       selectedMossadId: 0,
       tzArray: [],
-      jobPercent: [],
+      jobPercentTable: [],
       tableToDisplay: [],
       headers: [
         { text: "תעודת זהות", value: "empId" },
         { text: "שם משפחה", value: "lastName" },
         { text: "שם פרטי", value: "firstName" },
-        { text: "קביעות משרה", value: "jobPercent" },
+        { text: "קביעות משרה", value: "estimateJobPercent" },
         { text: "פעולות", value: "actions", sortable: false },
       ],
       years: [
@@ -136,7 +135,7 @@ export default {
         );
     },
     async getAllJobPercent() {
-      this.jobPercent = [];
+      this.jobPercentTable = [];
       await axios
         .get("/jobPercent/byYearAndMossad", {
           params: {
@@ -145,7 +144,7 @@ export default {
           },
         })
         .then((response) => {
-          this.jobPercent = response.data;
+          this.jobPercentTable = response.data;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -158,7 +157,7 @@ export default {
         empId: row.empId,
         mossadId: this.selectedMossadId,
         year: this.selectedYear,
-        jobPercent: row.jobPercent,
+        estimateJobPercent: row.estimateJobPercent,
       };
       axios({
         url: "/jobPercent/save",
@@ -175,21 +174,21 @@ export default {
         });
     },
     setExistData() {
-      this.tableToDisplay = []; 
+      this.tableToDisplay = [];
       let currEmp = {};
-      let JobPercentage = 0;
+      let currJobPercent = 0;
       this.tzArray.forEach((el) => {
-        currEmp = this.jobPercent.find((e) => e.empId == el.empId);
+        currEmp = this.jobPercentTable.find((e) => e.empId == el.empId);
         if (!currEmp) {
-          JobPercentage = 0;
+          currJobPercent = 0;
         } else {
-          JobPercentage = currEmp.jobPercent;
+          currJobPercent = currEmp.estimateJobPercent;
         }
         this.tableToDisplay.push({
           empId: el.empId,
           firstName: el.firstName,
           lastName: el.lastName,
-          jobPercent: JobPercentage,
+          estimateJobPercent: currJobPercent,
         });
       });
     },
@@ -217,8 +216,6 @@ input {
 
 #searchEmployee {
   max-width: 400px;
-}
-.jobPercentTable {
 }
 #myform {
   background-color: #ffffe6;

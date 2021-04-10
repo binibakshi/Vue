@@ -9,7 +9,7 @@
       <v-row class="giveSomeSpace">
         <input type="file" id="file" ref="file" @change="filesChange" />
         <v-btn
-          v-if="estemateJobPercentTable != null"
+          v-if="estimateJobPercentTable != null"
           id="btn"
           color="primary"
           dark
@@ -17,12 +17,12 @@
           >שמור הכל</v-btn
         >
       </v-row>
-      <div v-if="estemateJobPercentTable != null">
+      <div v-if="estimateJobPercentTable != null">
         <v-data-table
           dense
           id="myTable"
           :headers="headers"
-          :items="estemateJobPercentTable"
+          :items="estimateJobPercentTable"
           :items-per-page="50"
           class="elevation-1"
         ></v-data-table>
@@ -36,7 +36,7 @@ import XLSX from "xlsx";
 import axios from "axios";
 
 export default {
-  name: "HireEmpsvieExcel",
+  name: "estimateJobPercent",
   data() {
     return {
       file: null,
@@ -44,9 +44,9 @@ export default {
         { text: "תעודת זהות", value: "empId" },
         { text: "קוד מוסד", value: "mossadId" },
         { text: "שנה", value: "year" },
-        { text: "אחוז קביעות משרה", value: "jobPercent" },
+        { text: "אחוז קביעות משרה", value: "estimateJobPercent" },
       ],
-      estemateJobPercentTable: null,
+      estimateJobPercentTable: null,
       paintInRed: false,
       dataToExport: [],
       deleteTable: [],
@@ -57,7 +57,7 @@ export default {
       axios({
         url: "/jobPercent/saveAll",
         method: "post",
-        data: this.estemateJobPercentTable,
+        data: this.estimateJobPercentTable,
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
@@ -99,7 +99,7 @@ export default {
       if (!wb.Workbook.Views[0]) wb.Workbook.Views[0] = {};
       wb.Workbook.Views[0].RTL = true;
     },
-    getEstemateJobPercentHeaders() {
+    getEstimateJobPercentHeaders() {
       var headers = {
         empId: "תעודת זהות",
         mossadId: "קוד מוסד",
@@ -132,7 +132,7 @@ export default {
         workbook.Sheets[sheetName].D1.w = "jobPercent";
 
         let worksheet = workbook.Sheets[sheetName];
-        this.estemateJobPercentTable = XLSX.utils.sheet_to_json(worksheet);
+        this.estimateJobPercentTable = XLSX.utils.sheet_to_json(worksheet);
       };
       reader.readAsArrayBuffer(f);
     },

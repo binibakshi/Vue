@@ -23,17 +23,6 @@
           @change="getGaps()"
         ></v-autocomplete>
       </v-col>
-      <!-- <v-col cols="12" md="2">
-        <v-select
-          class="myMaxWindth"
-          v-model="selectedReformType"
-          :items="reformTable"
-          hide-selected
-          label="רפורמה"
-          placeholder="בחר"
-          @change="getGaps()"
-        ></v-select>
-      </v-col> -->
       <v-col cols="12" md="1">
         <v-btn color="primary" @click="getGaps()">חפש</v-btn>
       </v-col>
@@ -78,18 +67,6 @@
           </v-toolbar-title>
         </v-toolbar>
       </template>
-      <template v-slot:[`item.hours`]="{ item }">{{
-        getTwoDigits(item.hours)
-      }}</template>
-      <template v-slot:[`item.actualHours`]="{ item }">{{
-        getTwoDigits(item.actualHours)
-      }}</template>
-      <template v-slot:[`item.gaps`]="{ item }">{{
-        getTwoDigits(item.hours - item.actualHours)
-      }}</template>
-      <template v-slot:[`item.rewardType`]="{ item }">{{
-        getRewardType(item.rewardType)
-      }}</template>
     </v-data-table>
   </div>
 </template>
@@ -97,6 +74,7 @@
 <script>
 import axios from "axios";
 export default {
+  name: "reportJobPercentGaps",
   data() {
     return {
       gapsTable: [],
@@ -117,23 +95,20 @@ export default {
           value: "lastName",
         },
         {
-          text: "שעות",
-          value: "hours",
+          text: "קביעות משרה",
+          value: "esemateJobPercent",
         },
         {
-          text: "שעות מנוצלות",
-          value: "actualHours",
+          text: "אחוזים בפועל",
+          value: "jobPercent",
         },
         {
           text: "הפרש",
           value: "gaps",
         },
-        {
-          text: "סוג גמול",
-          value: "rewardType",
-        },
       ],
       mossadot: [],
+      tzArray: [],
       tableData: [],
       reformTable: [
         { text: "עוז לתמורה", value: 5 },
@@ -173,7 +148,7 @@ export default {
     },
     async getGaps() {
       await axios
-        .get("teachersRewards/findGaps", {
+        .get("jobPercent/all", {
           params: {
             year: this.selectedYear,
             mossadId: this.selectedMossadId,
@@ -194,6 +169,18 @@ export default {
         .get("mossadot/all")
         .then((response) => {
           this.mossadot = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+    },
+    async getAllTz() {
+      await axios
+        .get("/employees/all")
+        .then((response) => {
+          this.tzArray = response.data;
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -237,7 +224,8 @@ export default {
       if (this.onlyGaps) {
         this.tableToDisplay = this.tableToDisplay.filter(
           (el) =>
-            this.getTwoDigits(el.hours) != this.getTwoDigits(el.actualHours)
+            this.getTwoDigits(el.jobPercent) !=
+            this.getTwoDigits(el.estimateJobPercent)
         );
       } else {
         this.tableToDisplay = this.tableData;

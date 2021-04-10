@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-tabs class="grey lighten-3">
+    <v-tabs class="grey lighten-3 navBar">
       <v-tab to="/empInfo"> איוש שעות </v-tab>
       <v-menu left offset-y>
         <template v-slot:activator="{ on, attrs }">
@@ -28,22 +28,11 @@
             <v-icon right> mdi-menu-down </v-icon>
           </v-btn>
         </template>
-        <v-list>
-          <v-list-item to="/report/reportWeeklyHours">איוש שעות</v-list-item>
-        </v-list>
-        <v-list>
-          <v-list-item to="/report/reportBagrutRewards"
-            >גמולי בגרות</v-list-item
-          >
-        </v-list>
-        <v-list>
-          <v-list-item to="/report/reportJobRewards">גמולי תפקיד</v-list-item>
-        </v-list>
-        <v-list>
-          <v-list-item to="/report/reportRewardGaps"
-            >דוח פערי שעות-גמולים</v-list-item
-          >
-        </v-list>
+        <v-list v-for="report in reports" v-bind:key="report.url">
+          <v-list-item :to="`${report.url}`">{{
+            report.text
+          }}</v-list-item></v-list
+        >
       </v-menu>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
@@ -115,24 +104,32 @@
           </v-menu>
         </v-list>
       </v-menu>
-      <div id="navbarInfo" class="parent">
-        <p class="child inline-block-child">{{ _username }}</p>
-        <p class="child inline-block-child">{{ _AuthText }}</p>
-        <p class="child inline-block-child">{{ _mossadName }}</p>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-icon
-              large
-              @click="logout()"
-              v-bind="attrs"
-              v-on="on"
-              class="child inline-block-child"
-              color="primary"
-              >mdi-arrow-left-bold-circle</v-icon
-            >
-          </template>
-          <span>התנתק</span>
-        </v-tooltip>
+      <div class="loginInfo">
+        <div>
+          <p class="child inline-block-child">{{ _username }}</p>
+        </div>
+        <div>
+          <p class="child inline-block-child">{{ _AuthText }}</p>
+        </div>
+        <div>
+          <p class="child inline-block-child">{{ _mossadName }}</p>
+        </div>
+        <div>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                large
+                @click="logout()"
+                v-bind="attrs"
+                v-on="on"
+                class="child inline-block-child"
+                color="primary"
+                >mdi-arrow-left-bold-circle</v-icon
+              >
+            </template>
+            <span>התנתק</span>
+          </v-tooltip>
+        </div>
       </div>
     </v-tabs>
   </nav>
@@ -146,6 +143,13 @@ export default {
   data() {
     return {
       mossadName: "",
+      reports: [
+        { text: "איוש שעות", url: "/report/reportWeeklyHours" },
+        { text: "גמולי בגרות", url: "/report/reportBagrutRewards" },
+        { text: "גמולי תפקיד", url: "/report/reportJobRewards" },
+        { text: "דוח פערי שעות-גמולים", url: "/report/reportRewardGaps" },
+        { text: "דוח פערי אחוזי משרה", url: "/report/reportJobPercentGaps" },
+      ],
     };
   },
   mounted() {
@@ -226,8 +230,6 @@ nav {
   background-color: whitesmoke;
 }
 p {
-  margin-left: 10px;
-  margin-top: 15px;
   color: black;
 }
 
@@ -236,13 +238,12 @@ p {
   margin: 0;
   padding: 0;
 }
-
-.inline-block-child {
-  display: inline-block;
-}
-
-#navbarInfo {
+.loginInfo {
+  display: inline-flex;
   position: absolute;
   left: 20px;
+}
+.loginInfo > div {
+  margin: 1rem;
 }
 </style>

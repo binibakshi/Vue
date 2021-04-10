@@ -13,18 +13,18 @@
 
 <script>
 import hireEmpViaExcel from "../components/excels/hire-emp-via-excel";
-import estemateJobPercent from "../components/excels/estemate-job-percent";
+import estimateJobPercent from "../components/excels/estimate-job-percent";
 export default {
   name: "importExcels",
   components: {
     hireEmpViaExcel,
-    estemateJobPercent,
+    estimateJobPercent,
   },
   data() {
     return {
       componentsOptions: [
         { text: "קליטת עובדים", value: "hireEmpViaExcel" },
-        { text: "אחוזי קביעות משרה", value: "estemateJobPercent" },
+        { text: "אחוזי קביעות משרה", value: "estimateJobPercent" },
       ],
       selectedComp: "",
     };

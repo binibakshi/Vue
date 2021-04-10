@@ -29,7 +29,9 @@ const routes = [
     name: "employeeInfo",
     component: () =>
       import(
-         "../views/EmployeeInfo.vue"
+         /* webpackPreload: true */
+        /* webpackChunkName: "employeeInfo" */
+        "../views/EmployeeInfo.vue"
       ),
     beforeEnter(to, from, next) {
       if (
