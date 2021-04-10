@@ -150,7 +150,7 @@
               title="דף אחוז קביעות משרה"
               :to="{ name: 'setJobPercent' }"
               target="_blank"
-              >{{ estinateJobPercent }}
+              >{{ estimateJobPercent }}
             </router-link>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default {
       mossadInfo: { mossadId: "", mossadName: "", maxHours: 0, currHours: 0 },
       hoverText: "",
       compId: 0,
-      estinateJobPercent: 0,
+      estimateJobPercent: 0,
       circleProgress: false,
     };
   },
@@ -501,11 +501,11 @@ export default {
         .then((response) => {
           response.data;
           if (!response.data) {
-            this.estinateJobPercent = 0;
+            this.estimateJobPercent = 0;
           } else {
-            this.estinateJobPercent = response.data.estinateJobPercent;
+            this.estimateJobPercent = response.data.estimateJobPercent;
           }
-          if (this.estinateJobPercent < this.empHoursTable[1].week[5].hours) {
+          if (this.estimateJobPercent < this.empHoursTable[1].week[5].hours) {
             alert("יש לעדכן הסכם העסקה לשעות זמניות");
           }
         })
