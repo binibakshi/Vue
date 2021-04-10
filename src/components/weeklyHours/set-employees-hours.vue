@@ -503,7 +503,7 @@ export default {
           if (!response.data) {
             this.estinateJobPercent = 0;
           } else {
-            this.estinateJobPercent = response.data.jobPercent;
+            this.estinateJobPercent = response.data.estinateJobPercent;
           }
           if (this.estinateJobPercent < this.empHoursTable[1].week[5].hours) {
             alert("יש לעדכן הסכם העסקה לשעות זמניות");
