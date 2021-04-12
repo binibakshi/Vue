@@ -24,7 +24,7 @@
               <v-icon
                 id="myPlusIcon"
                 dense
-                @click="addNewRow()"
+                @click="addNewRow(index)"
                 v-if="row.type == frontalConst"
                 >mdi-plus-circle-outline</v-icon
               >
@@ -387,7 +387,14 @@ export default {
     },
     removeRow(index) {
       if (index === 0) {
-        return;
+        // Check there is no more frontal codes than initilize the table
+        if (
+          this.newHours.filter((el, i) => el.type == FRONTAL && i != index)
+            .length == 0
+        ) {
+          this.initilizer();
+          return;
+        }
       }
       if (this.newHours[index].type != FRONTAL) {
         return;
@@ -395,14 +402,13 @@ export default {
       this.newHours.splice(index, 1);
       this.getPauseAndPrivateHours();
     },
-    addNewRow() {
-      this.newHours.push({
+    addNewRow(index) {
+      this.newHours.splice(index + 1, 0, {
         type: FRONTAL,
         hours: 0,
         code: "",
         week: [0, 0, 0, 0, 0, 0],
       });
-      this.sortTable();
     },
     sortTable() {
       this.newHours.sort((a, b) => a.type - b.type);

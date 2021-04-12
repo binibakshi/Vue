@@ -72,7 +72,7 @@ export default {
       var emptyForDemo = [];
       this.downloadFile(
         emptyForDemo,
-        this.getEmployeesHeaders(),
+        this.getEstimateJobPercentHeaders(),
         "קביעות משרה.xlsx",
         "מבנה קביעות משרה"
       );

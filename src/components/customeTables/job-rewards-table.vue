@@ -440,14 +440,12 @@ export default {
       this.tableToDisplay.splice(currIndex + 1, 0, newRow);
     },
     saveRow(row) {
-      if (row.employmentCode != "000" && (!row.minHours || !row.maxHours)) {
+      if (row.employmentCode != "0" && (!row.minHours || !row.maxHours)) {
         alert("נא להזין גמול שעות");
         return;
       }
-      // eslint-disable-next-line no-debugger
-      debugger;
       if (
-        row.employmentCode == "000" &&
+        row.employmentCode == "0" &&
         (!row.minPercent || !row.maxPercent) &&
         !row.percent1
       ) {

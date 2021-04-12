@@ -464,6 +464,9 @@ export default {
       this.getHoursReward(row);
     },
     onIsSplitChange(row) {
+      if (row.teacherPercent > 100) {
+        row.teacherPercent = 100;
+      }
       if (row.isSplit == false) {
         row.teacherPercent = 100;
         this.onPercentChange(row);

@@ -3,7 +3,7 @@
     <v-row id="selections" class="center" style="align-items: initial">
       <v-col cols="12" md="2">
         <v-select
-          :items="years"
+          :items="$store.state.years"
           v-model="selectedYear"
           item-text="hebrewYear"
           item-value="year"
@@ -88,13 +88,6 @@ export default {
       rewards: [],
       additionalReward: [],
       mossadot: [],
-      years: [
-        { year: 2021, hebrewYear: 'תשפ"א' },
-        { year: 2022, hebrewYear: 'תשפ"ב' },
-        { year: 2023, hebrewYear: 'תשפ"ג' },
-        { year: 2024, hebrewYear: 'תשפ"ד' },
-        { year: 2025, hebrewYear: 'תשפ"ה' },
-      ],
       employees: [],
       dataToDisplay: [],
       selectedYear: 0,
@@ -170,6 +163,7 @@ export default {
       if (this.$store.state.logginAs == this.$store.state.logginAs) {
         this.selectedMossadId = this.$store.state.logginAs;
       }
+      // this.years = this.$store.state.years;
     },
     async getMossadot() {
       await axios
@@ -305,6 +299,8 @@ export default {
         students: "תלמידים",
         hoursReward: "גמול שעות",
         percentReward: "גמול אחוזים",
+        teacherPercent: "חלוקת אחוזים",
+        secondTeacher: "מורה נוסף",
       };
       var excelData = [];
       var currReward = {};
@@ -331,6 +327,8 @@ export default {
           students: el.students,
           hoursReward: el.hours,
           percentReward: el.percent,
+          teacherPercent: el.teacherPercent,
+          secondTeacher: el.secondTeacher,
         });
       });
       excelData.sort((a, b) => (a.empId > b.empId ? 1 : -1));

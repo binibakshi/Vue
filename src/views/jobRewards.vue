@@ -3,7 +3,7 @@
     <div style="display: inline-flex">
       <v-select
         style="max-hight: 40px; width: 20%"
-        :items="years"
+        :items="$store.state.years"
         v-model="selectedYear"
         item-text="hebrewYear"
         item-value="year"
@@ -62,13 +62,6 @@ export default {
       empId: null,
       compKey: 0,
       additionalReward: [],
-      years: [
-        { year: 2021, hebrewYear: 'תשפ"א' },
-        { year: 2022, hebrewYear: 'תשפ"ב' },
-        { year: 2023, hebrewYear: 'תשפ"ג' },
-        { year: 2024, hebrewYear: 'תשפ"ד' },
-        { year: 2025, hebrewYear: 'תשפ"ה' },
-      ],
     };
   },
   async mounted() {

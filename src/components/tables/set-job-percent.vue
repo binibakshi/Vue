@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12" md="2">
         <v-select
-          :items="years"
+          :items="$store.state.years"
           v-model="selectedYear"
           item-text="hebrewYear"
           item-value="year"
@@ -92,13 +92,6 @@ export default {
         { text: "קביעות משרה", value: "estimateJobPercent" },
         { text: "פעולות", value: "actions", sortable: false },
       ],
-      years: [
-        { year: 2021, hebrewYear: 'תשפ"א' },
-        { year: 2022, hebrewYear: 'תשפ"ב' },
-        { year: 2023, hebrewYear: 'תשפ"ג' },
-        { year: 2024, hebrewYear: 'תשפ"ד' },
-        { year: 2025, hebrewYear: 'תשפ"ה' },
-      ],
     };
   },
   async created() {
@@ -153,6 +146,10 @@ export default {
         );
     },
     saveJobPercent(row) {
+      if (row.estimateJobPercent > 150) {
+        alert("אי אפשר להזין יותר מ150 אחוזי קיבעות משרה");
+        return;
+      }
       let dataToSAve = {
         empId: row.empId,
         mossadId: this.selectedMossadId,

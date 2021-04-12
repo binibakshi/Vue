@@ -1,157 +1,33 @@
 <template>
   <v-card>
     <div class="littleMargin">
-      <v-row id="mossadHoursDetails">
-        <v-col cols="12" md="2" sm="2">
-          <v-select
-            style="max-hight: 40px"
-            :items="years"
-            @change="onYearChanged()"
-            v-model="selectedYear"
-            item-text="hebrewYear"
-            item-value="year"
-            label="שנה"
-          ></v-select>
-        </v-col>
-        <v-col cols="12" md="2" sm="2">
-          <p>מוסד - {{ _mossadInfo.mossadName }}</p>
-        </v-col>
-        <v-col cols="12" md="2" sm="2">
-          <a @click="navToReport()"
-            >שעות מאוישות - {{ _mossadInfo.currHours }}</a
-          >
-        </v-col>
-        <v-col cols="12" md="2" sm="2">
-          <p>
-            יתרת שעות -
-            {{ getTwoDigits(_mossadInfo.maxHours - _mossadInfo.currHours) }}
-          </p>
-        </v-col>
-        <v-col cols="12" md="2" sm="2">
-          <p>מגבלת שעות- {{ _mossadInfo.maxHours }}</p>
-        </v-col>
-        <v-col cols="12" md="2" sm="2">
-          <p>
-            אחוז איוש -
-            {{
-              getTwoDigits(
-                (_mossadInfo.currHours / _mossadInfo.maxHours) * 100
-              )
-            }}%
-          </p>
-        </v-col>
-      </v-row>
-      <div v-show="_mossadInfo.maxHours != null && _mossadInfo.maxHours != 0">
-        <div class="wrapper-grid">
-          <div class="grid-element">
-            <v-autocomplete
-              :disabled="
-                _mossadInfo.maxHours == null || _mossadInfo.maxHours == 0
-              "
-              v-model="empId"
-              :items="tzArray"
-              :item-text="
-                (item) =>
-                  item.firstName + ' ' + item.lastName + ' - ' + item.empId
-              "
-              item-value="empId"
-              label="תעודת זהות"
-              placeholder="חפש"
-              hide-selected
-              @change="getEmployeeInfo()"
-            ></v-autocomplete>
-          </div>
-          <div class="grid-element">
-            <p>שם פרטי</p>
-            {{ employeeInfo.firstName }}
-          </div>
-          <div class="grid-element">
-            <p>שם משפחה</p>
-            {{ employeeInfo.lastName }}
-          </div>
-          <div class="grid-element">
-            <p>גיל</p>
-            {{ _getAge }}
-          </div>
-          <div class="grid-element">
-            <p>משרת אם</p>
-            {{ formatIsMother }}
-          </div>
-          <div class="grid-element">
-            <p>שעות גיל</p>
-            {{ _getAgeHours }}
-          </div>
-          <div class="grid-element">
-            <div class="detailsTable">
-              <table>
-                <thead>
-                  <th></th>
-                  <th>א</th>
-                  <th>ב</th>
-                  <th>ג</th>
-                  <th>ד</th>
-                  <th>ה</th>
-                  <th>ו</th>
-                  <th>סך שעות</th>
-                  <th>אחוז משרה</th>
-                </thead>
-                <tbody>
-                  <tr v-for="(row, index) in empHoursTable" :key="index">
-                    <td>{{ getRowType(row.type) }}</td>
-                    <td v-for="index in 6" :key="index">
-                      <v-tooltip top>
-                        <template v-slot:activator="{ on, attrs }">
-                          <span
-                            v-bind="attrs"
-                            v-on="on"
-                            @mouseover="changeText(row.type, index - 1)"
-                          >
-                            {{ row.week[index - 1].hours }}</span
-                          >
-                        </template>
-                        <span>{{ hoverText }}</span>
-                      </v-tooltip>
-                    </td>
-                    <td>{{ row.sum }}</td>
-                    <td>{{ getTwoDigits(row.jobPercent) }}%</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="underTableDiv">
-              <div class="workInReform">
-                <span
-                  id="mossadotWorkAt"
-                  v-for="reform in workInReforms"
-                  :key="reform"
-                  >{{ getRreformDiscription(reform) + ", " }}</span
-                >
-              </div>
-              <div>
-                <v-tooltip top>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                      large
-                      class="mr-3 excelMDI"
-                      @click="exportEmployeeWeeklyHours()"
-                      v-bind="attrs"
-                      v-on="on"
-                      >mdi-file-excel-outline</v-icon
-                    >
-                  </template>
-                  <span>ייצוא איוש שעות לאקסל</span>
-                </v-tooltip>
-              </div>
-            </div>
-          </div>
-          <div class="grid-element">
-            <p>אחוז קביעות</p>
-            <router-link
-              title="דף אחוז קביעות משרה"
-              :to="{ name: 'setJobPercent' }"
-              target="_blank"
-              >{{ estimateJobPercent }}
-            </router-link>
+      <mossadHours :mossadInfo="mossadInfo" />
+      <div v-show="mossadInfo.maxHours != null && mossadInfo.maxHours != 0">
+        <div class="flexEmployeeHours">
+          <v-autocomplete
+            :disabled="mossadInfo.maxHours == null || mossadInfo.maxHours == 0"
+            v-model="empId"
+            :items="tzArray"
+            :item-text="
+              (item) =>
+                item.firstName + ' ' + item.lastName + ' - ' + item.empId
+            "
+            item-value="empId"
+            label="תעודת זהות"
+            placeholder="חפש"
+            hide-selected
+            class="autoCompleteEmployees"
+            @change="getEmployeeInfo()"
+          ></v-autocomplete>
+          <div>
+            <employeeHours
+              :employeeInfo="employeeInfo"
+              :empHoursTable="empHoursTable"
+              :estimateJobPercent="estimateJobPercent"
+              :workInReforms="workInReforms"
+              :datesRange="datesRange"
+              :reformTypes="reformTypes"
+            />
           </div>
         </div>
         <v-row v-if="empId != null">
@@ -164,6 +40,7 @@
               label="בחר רפורמה"
               multiple
               single-line
+              class="autoCompleteEmployees"
             ></v-select>
           </v-col>
         </v-row>
@@ -201,8 +78,9 @@
 
 <script>
 import axios from "axios";
+import mossadHours from "./mossadHours";
 import weeklyHours from "./weekly-hours.vue";
-import excelMixin from "../../mixins/excelMixin";
+import employeeHours from "./employeeHours";
 import calcHoursMixin from "../../mixins/calcHoursMixin";
 import { bus } from "../../main";
 
@@ -210,6 +88,8 @@ export default {
   name: "setEmployeesHours",
   components: {
     weeklyHours,
+    mossadHours,
+    employeeHours,
   },
   data() {
     return {
@@ -226,7 +106,6 @@ export default {
       codeDescription: [],
       empHoursTable: [],
       jobRewardTypes: [],
-      years: [],
       mossadot: [],
       rewardsHours: [],
       mossadInfo: { mossadId: "", mossadName: "", maxHours: 0, currHours: 0 },
@@ -240,7 +119,6 @@ export default {
     this.initilize();
     this.getAllTz();
     this.getCodeDescription();
-    this.getMossadot();
     this.getReformTypes();
     this.getMossadHours();
     this.getBagrutRewardsTypes();
@@ -251,64 +129,11 @@ export default {
     }
     bus.$on("changeWeeklyHours", async () => {
       this.getAllEmpData();
-      await this.getMossadHours();
+      this.getMossadHours();
     });
-  },
-  computed: {
-    _getAge() {
-      if (this.isNotEmpty(this.employeeInfo)) {
-        return;
-      }
-      var currDate = new Date();
-      var birthDate = new Date(this.employeeInfo.birthDate);
-      var tempMonth = 0;
-      var tempYears = currDate.getFullYear() - birthDate.getFullYear();
-      if (currDate.getUTCMonth() < birthDate.getUTCMonth()) {
-        tempYears -= 1;
-      }
-      tempMonth = currDate.getUTCMonth() - birthDate.getUTCMonth();
-      if (tempMonth < 0) {
-        tempMonth = tempMonth * -1;
-      }
-      if (tempMonth < 10) {
-        tempMonth = "0" + tempMonth;
-      }
-      return tempYears + "." + tempMonth;
-    },
-    formatIsMother() {
-      if (this.isNotEmpty(this.employeeInfo)) {
-        return;
-      }
-
-      if (this.employeeInfo.mother === true) {
-        return "כן";
-      } else {
-        return "לא";
-      }
-    },
-    _getAgeHours() {
-      if (this.isNotEmpty(this.employeeInfo)) {
-        return;
-      }
-      var birthDate = new Date(this.employeeInfo.birthDate);
-      var today = new Date();
-      var currSchoolYear = new Date(today.getFullYear(), 8, 1);
-
-      if (today.getMonth() >= 8) {
-        currSchoolYear.setFullYear(currSchoolYear.getFullYear() + 1);
-      }
-      var age = currSchoolYear.getFullYear() - birthDate.getFullYear();
-      if (age < 50) {
-        return 0;
-      } else if (age > 55) {
-        return 4;
-      } else {
-        return 2;
-      }
-    },
-    _mossadInfo() {
-      return this.mossadInfo;
-    },
+    bus.$on("yearChanged", async () => {
+      this.onYearChanged();
+    });
   },
   methods: {
     initilize() {
@@ -326,13 +151,6 @@ export default {
       }
       this.mossadInfo.mossadId = this.$store.state.mossadId;
       this.mossadInfo.mossadName = this.$store.state.mossadInfo.mossadName;
-      this.years = [
-        { year: 2021, hebrewYear: 'תשפ"א' },
-        { year: 2022, hebrewYear: 'תשפ"ב' },
-        { year: 2023, hebrewYear: 'תשפ"ג' },
-        { year: 2024, hebrewYear: 'תשפ"ד' },
-        { year: 2025, hebrewYear: 'תשפ"ה' },
-      ];
       this.empHoursTable = [
         { week: [], sum: 0, jobPercent: 0, type: 0 },
         { week: [], sum: 0, jobPercent: 0, type: 1 },
@@ -349,7 +167,7 @@ export default {
       this.compId = 0;
     },
     onYearChanged() {
-      this.$store.dispatch("setSelectedYear", this.selectedYear);
+      this.selectedYear = this.$store.state.selectedYear;
       this.getEmployeeInfo();
       this.setBegdaEndda();
       this.getMossadHours();
@@ -505,9 +323,9 @@ export default {
           } else {
             this.estimateJobPercent = response.data.estimateJobPercent;
           }
-          if (this.estimateJobPercent < this.empHoursTable[1].week[5].hours) {
-            alert("יש לעדכן הסכם העסקה לשעות זמניות");
-          }
+          // if (this.estimateJobPercent < this.empHoursTable[1].jobPercent) {
+          //   alert("יש לעדכן הסכם העסקה לשעות זמניות");
+          // }
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -539,15 +357,6 @@ export default {
       formattedDate = year + "-" + month + "-" + day;
       return formattedDate;
     },
-    exportEmployeeWeeklyHours() {
-      // call function in the mixin
-      this.createWeeklyHoursToEmployee(
-        this.empId,
-        this.$store.state.logginAs,
-        this.datesRange.min,
-        this.datesRange.max
-      );
-    },
     filterReformTypeByMossad() {
       if (this.$store.state.mossadInfo.mossadType == 2) {
         return this.reformTypes.filter(
@@ -565,28 +374,6 @@ export default {
       }
       return this.reformTypes;
     },
-    getTwoDigits(number) {
-      if (isNaN(number)) {
-        return "";
-      }
-      return parseFloat(number).toFixed(2);
-    },
-    changeText(rowType, index) {
-      this.hoverText = this.getMossadotDescription(
-        this.empHoursTable[rowType].week[index].mossadot
-      );
-    },
-    getMossadotDescription(mossadotTable) {
-      if (mossadotTable == null) {
-        return "";
-      }
-      var mossadotames = "";
-      mossadotTable.forEach((el) => {
-        mossadotames +=
-          this.mossadot.find((e) => e.mossadId == el).mossadName + ", ";
-      });
-      return mossadotames;
-    },
     getRelevantCodesDescription(reformType) {
       return this.codeDescription.filter((el) => el.reformType == reformType);
     },
@@ -599,23 +386,6 @@ export default {
     },
     getRelevantRewardHours(reform) {
       return this.rewardsHours.filter((el) => el.reformId == reform);
-    },
-    getRreformDiscription(reform) {
-      var name = this.reformTypes.find((el) => el.reformId == reform);
-      if (name != undefined) {
-        return name.name;
-      }
-      return "";
-    },
-    getMossadot() {
-      axios
-        .get("mossadot/all")
-        .then((response) => (this.mossadot = response.data))
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
     },
     calcAgeHours() {
       if (this.employeeInfo.birthDate === undefined) {
@@ -636,12 +406,6 @@ export default {
       } else {
         this.ageHours = 2;
       }
-    },
-    getRowType(type) {
-      if (type === 0) {
-        return "במוסד";
-      }
-      return "בכל המוסדות";
     },
     calcEmpHoursData() {
       // this function calc all emp hours the
@@ -722,18 +486,12 @@ export default {
         );
       });
     },
-    navToReport() {
-      let routeData = this.$router.resolve({
-        path: "/report/reportWeeklyHours",
-      });
-      window.open(routeData.href);
-    },
     isNotEmpty(obj) {
       for (var i in obj) return false;
       return true;
     },
   },
-  mixins: [excelMixin, calcHoursMixin],
+  mixins: [calcHoursMixin],
 };
 </script>
 
@@ -749,62 +507,11 @@ p {
   margin: 10px;
   padding: 10px;
 }
-.wrapper-grid {
-  display: grid;
-  grid-template-columns: 5fr 2fr 2fr 2fr 2fr 2fr 8fr 1fr 1fr;
+.autoCompleteEmployees {
+  width: 400px;
+  margin-left: 20px;
 }
-.wrapper-grid > div {
-  margin-right: 0.7em;
-  margin-left: 0.7em;
-}
-.underTableDiv {
-  margin-top: 15px;
-  display: grid;
-  grid-template-columns: 5fr 1fr;
-}
-#searchEmployee {
-  max-width: 400px;
-}
-.detailsTable {
-  display: inline-flex;
-}
-table,
-tr,
-th,
-td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-tbody {
-  display: table-row-group;
-  vertical-align: inherit;
-  border-block: inherit;
-}
-thead {
-  display: table-header-group;
-  vertical-align: inherit;
-  border-color: inherit;
-}
-th {
-  font-weight: bold;
-}
-td,
-th {
-  margin: 1px;
-  padding: 1px;
-  min-width: 25px;
-  max-width: auto;
-  text-align: center;
-}
-#mossadotWorkAt {
-  font-weight: bold;
-}
-.excelMDI {
-  color: green;
-  background-color: lightgray;
-}
-.v-icon:hover {
-  color: blue;
-  display: "tete";
+.flexEmployeeHours {
+  display: flex;
 }
 </style>

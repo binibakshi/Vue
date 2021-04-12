@@ -19,7 +19,7 @@
         <v-col cols="12" md="2">
           <v-select
             style="max-hight: 40px"
-            :items="years"
+            :items="$store.state.years"
             v-model="selectedYear"
             @change="setBegdaEndda()"
             item-text="hebrewYear"
@@ -60,7 +60,6 @@ export default {
       empsHours: [],
       dataToExport: [],
       mossadot: [],
-      years: [],
       selectedYear: 0,
     };
   },
@@ -80,14 +79,6 @@ export default {
         currDate.getMonth() >= 8
           ? currDate.getFullYear() + 1
           : currDate.getFullYear();
-
-      this.years = [
-        { year: 2021, hebrewYear: 'תשפ"א' },
-        { year: 2022, hebrewYear: 'תשפ"ב' },
-        { year: 2023, hebrewYear: 'תשפ"ג' },
-        { year: 2024, hebrewYear: 'תשפ"ד' },
-        { year: 2025, hebrewYear: 'תשפ"ה' },
-      ];
       if (this.$store.state.logginAs == this.$store.state.logginAs) {
         this.selectedMossad = this.$store.state.logginAs;
       }

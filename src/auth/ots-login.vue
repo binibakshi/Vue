@@ -34,6 +34,7 @@
 
 <script>
 import axios from "axios";
+import router from "../router/router";
 export default {
   name: "LoginForm",
   template: "#login-form",
@@ -52,6 +53,7 @@ export default {
   },
   methods: {
     async login() {
+      let urlToNavigate = ";";
       axios.defaults.headers.Authorization = "";
       await this.$store.dispatch("retrieveToken", {
         username: this.username,
@@ -89,8 +91,11 @@ export default {
             error,
           })
         );
+      // Get the page name to navigate to
+      urlToNavigate =
+        this.$store.state.mossadId != 999 ? "employeeInfo" : "auth";
 
-      this.$router.push({ name: "report/reportWeeklyHours" }).catch((error) => {
+      router.push({ name: urlToNavigate }).catch((error) => {
         console.info(error.message);
       });
     },

@@ -26,12 +26,12 @@
                     single-line
                     autocomplete="off"
                     hide-details
-                     append-icon="mdi-magnify"
+                    append-icon="mdi-magnify"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="3">
                   <v-select
-                    :items="years"
+                    :items="$store.state.years"
                     v-model="selectedYear"
                     @change="getAllMossadotHours()"
                     item-text="hebrewYear"
@@ -114,8 +114,6 @@ export default {
       isNew: false,
       mossadInfo: {},
       search: "",
-      // selectedRows: [],
-      years: [],
       dialog: false,
       selectedYear: 0,
       mossadot: [],
@@ -130,7 +128,7 @@ export default {
       ],
     };
   },
-  async mounted(){
+  async mounted() {
     this.initilize();
     await this.getAllMossadot();
     await this.getAllMossadotHours();
@@ -141,13 +139,6 @@ export default {
       return item.disabled != false ? "ערוך" : "צפייה";
     },
     initilize() {
-      this.years = [
-        { year: 2021, hebrewYear: 'תשפ"א' },
-        { year: 2022, hebrewYear: 'תשפ"ב' },
-        { year: 2023, hebrewYear: 'תשפ"ג' },
-        { year: 2024, hebrewYear: 'תשפ"ד' },
-        { year: 2025, hebrewYear: 'תשפ"ה' },
-      ];
       let currDate = new Date();
       this.selectedYear = currDate.getFullYear();
       if (currDate.getMonth() >= 8) {

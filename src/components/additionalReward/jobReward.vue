@@ -158,7 +158,7 @@ export default {
     saveAll() {
       var teachersRewards = [];
       this.rewards
-        .filter((el) => el.rewardId != 0)
+        .filter((el) => el.rewardId != 0 && el.rewardId != null)
         .forEach((el) => {
           teachersRewards.push({
             empId: this.empId,
@@ -175,7 +175,7 @@ export default {
             percentOTS: el.percentOTS,
             percentNormal: el.percentNormal,
             rewardType: 2,
-            teacherPercent:el.teacherPercent
+            teacherPercent: el.teacherPercent,
           });
         });
       if (teachersRewards.length > 3 && this.$store.state.username != 999) {
@@ -298,6 +298,7 @@ export default {
       row.maxHours = currReward.maxHours;
       row.minPercent = currReward.minPercent;
       row.maxPercent = currReward.maxPercent;
+      row.employmentCode = currReward.employmentCode;
 
       this.changeLabelText(row);
     },
@@ -314,6 +315,9 @@ export default {
       row.hoursReward = parseFloat(row.hoursNormal) + parseFloat(row.hoursOTS);
     },
     handleHoursOTSChanged(row) {
+      if (row.employmentCode == 0) {
+        row.hoursOTS = 0;
+      }
       let tempHors = parseFloat(row.hoursNormal) + parseFloat(row.hoursOTS);
       if (tempHors < 0) {
         row.hoursOTS = parseFloat(row.hoursNormal) * -1.0;

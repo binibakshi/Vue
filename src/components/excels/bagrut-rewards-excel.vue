@@ -13,7 +13,9 @@
           @click="saveAll()"
           >שמור הכל</v-btn
         >
-        <v-btn color="primary" dark dense @click="downloadDemoFile()">מבנה אקסל</v-btn>
+        <v-btn color="primary" dark dense @click="downloadDemoFile()"
+          >מבנה אקסל</v-btn
+        >
 
         <div v-if="bagrutRewardsTable.length > 0">
           <v-data-table

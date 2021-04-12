@@ -291,10 +291,10 @@ export default {
           studyName: el.studyName,
           studyUnits: el.studyUnits,
           questionnaire: el.questionnaire,
-          internalHoursReward: this.getTwoDigits(el.internalHoursReward),
-          internalPercentReward: this.getTwoDigits(el.internalPercentReward),
-          externalHoursReward: this.getTwoDigits(el.externalHoursReward),
-          externalPercentReward: this.getTwoDigits(el.externalPercentReward),
+          internalHoursReward: this.getNDigits(el.internalHoursReward, 3),
+          internalPercentReward: this.getNDigits(el.internalPercentReward, 2),
+          externalHoursReward: this.getNDigits(el.externalHoursReward, 3),
+          externalPercentReward: this.getNDigits(el.externalPercentReward, 2),
           recordkey: el.recordkey,
           disabled: true,
         });
@@ -314,10 +314,10 @@ export default {
         studyName: row.studyName,
         studyUnits: row.studyUnits,
         questionnaire: row.questionnaire,
-        internalHoursReward: this.getTwoDigits(row.internalHoursReward),
-        internalPercentReward: this.getTwoDigits(row.internalPercentReward),
-        externalHoursReward: this.getTwoDigits(row.externalHoursReward),
-        externalPercentReward: this.getTwoDigits(row.externalPercentReward),
+        internalHoursReward: this.getNDigits(row.internalHoursReward, 3),
+        internalPercentReward: this.getNDigits(row.internalPercentReward, 2),
+        externalHoursReward: this.getNDigits(row.externalHoursReward, 3),
+        externalPercentReward: this.getNDigits(row.externalPercentReward, 2),
         disabled: false,
       };
       let currIndex = this.tableToDisplay.indexOf(row);
@@ -376,11 +376,11 @@ export default {
       this.newRow = {};
       this.dialog = false;
     },
-    getTwoDigits(number) {
+    getNDigits(number, digits) {
       if (isNaN(number)) {
         return 0.0;
       }
-      return parseFloat(number).toFixed(2);
+      return parseFloat(number).toFixed(digits);
     },
   },
 };
