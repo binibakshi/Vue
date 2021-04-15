@@ -42,7 +42,7 @@
                   <v-col cols="12" md="2">
                     <v-text-field
                       dense
-                      placeholder="קוד מקצוע"
+                      placeholder="מספר מקצוע מ.חינוך"
                       type="number"
                       v-model="newRow.studyId"
                       min="0"
@@ -240,7 +240,7 @@ export default {
       newRow: {},
       headers: [
         { text: "פעולות", value: "actions", sortable: false },
-        { text: "קוד מקצוע", value: "studyId" },
+        { text: "מספר מקצוע מ.חינוך", value: "studyId" },
         { text: "מקצוע", value: "studyName" },
         { text: 'יח"ל', value: "studyUnits" },
         { text: "שאלון", value: "questionnaire" },
@@ -250,7 +250,7 @@ export default {
         { text: "אחוזים חיצוני", value: "externalPercentReward" },
       ],
       excelHeaders: {
-        studyId: "קוד מקצוע",
+        studyId: "מספר מקצוע מ.חינוך",
         studyName: "מקצוע",
         studyUnits: 'יח"ל',
         questionnaire: "שאלון",

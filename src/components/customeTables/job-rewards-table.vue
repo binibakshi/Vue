@@ -54,7 +54,7 @@
                   <v-col cols="12" md="2">
                     <v-text-field
                       dense
-                      placeholder="קוד משני"
+                      placeholder="קוד לשכר"
                       type="number"
                       v-model="newRow.jobCode"
                       min="0"
@@ -334,8 +334,8 @@ export default {
       newRow: {},
       headers: [
         { text: "פעולות", value: "actions", sortable: false },
-        { text: "קוד מקצוע", value: "employmentCode" },
-        { text: "קוד משני", value: "jobCode" },
+        { text: "קוד פיצול", value: "employmentCode" },
+        { text: "קוד לשכר", value: "jobCode" },
         { text: "תיאור", value: "description" },
         { text: "מינימום שעות", value: "minHours" },
         { text: "מקסימום שעות", value: "maxHours" },
@@ -349,8 +349,8 @@ export default {
         // { text: "קישור", value: "descLink" },
       ],
       excelHeaders: {
-        employmentCode: "קוד מקצוע",
-        jobCode: "קוד משני",
+        employmentCode: "קוד פיצול",
+        jobCode: "קוד לשכר",
         description: "תיאור",
         minHours: "מינימום שעות",
         maxHours: "מקסימום שעות",

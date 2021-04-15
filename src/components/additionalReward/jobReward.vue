@@ -120,11 +120,11 @@ export default {
     return {
       search: "",
       headers: [
-        { text: "מקצוע", value: "rewardId" },
-        { text: "גמול שעות", value: "hoursNormal" },
+        { text: "נושא הגמול", value: "rewardId" },
+        { text: 'גמול ש"ש לפי מ.חינוך', value: "hoursNormal" },
         { text: "שעות תוספתיות", value: "hoursOTS" },
         { text: 'ס"ה שעות', value: "hoursReward" },
-        { text: "גמול אחוזים", value: "percentNormal" },
+        { text: "גמול % מ.חינוך", value: "percentNormal" },
         { text: "אחוזים תוספתיים", value: "percentOTS" },
         { text: 'ס"ה אחוזים', value: "percentReward" },
         { text: "פעולות", value: "actions" },
@@ -358,10 +358,10 @@ export default {
         year: "שנה",
         employmentCode: "קוד פיצול",
         description: "תיאור",
-        hoursNormal: "גמול שעות",
+        hoursNormal: 'גמול ש"ש לפי מ.חינוך',
         hoursOTS: "שעות תוספתיות",
         hours: 'ס"ה שעות',
-        percentNormal: "גמול אחוזים",
+        percentNormal: "גמול % מ.חינוך",
         percentOTS: "אחוזים תוספתיים",
         percent: 'ס"ה אחוזים',
       };

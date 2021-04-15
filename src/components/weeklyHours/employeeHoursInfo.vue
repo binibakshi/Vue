@@ -86,8 +86,7 @@
         <router-link
           title="דף אחוז קביעות משרה"
           :to="{ name: 'setJobPercent' }"
-          target="_blank"
-          >{{ estimateJobPercent }}
+          >{{ estimateJobPercent }}%
         </router-link>
       </div>
     </div>
@@ -236,8 +235,9 @@ p {
 }
 .wrapper-grid {
   display: grid;
-  grid-template-columns: 2fr 2fr 2fr 2fr 2fr 7fr 1fr 1fr;
+  grid-template-columns: 2fr 2fr 2fr 2fr 2fr 7fr 1fr;
 }
+
 .wrapper-grid > div {
   margin-right: 0.7em;
   margin-left: 0.7em;

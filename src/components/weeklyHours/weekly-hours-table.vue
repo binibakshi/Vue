@@ -59,16 +59,14 @@
               @click.native="beforeOpenRewards"
               title="מעבר לגמולי בגרות"
               :to="{ name: 'AdditionalRewards' }"
-              target="_blank"
             >
               {{ row.hours }}
             </router-link>
             <router-link
               v-if="isJobReward(row.code)"
               @click.native="beforeOpenRewards"
-              title="מעבר לגמולי שעות"
+              title="מעבר לגמולי תפקיד"
               :to="{ name: 'jobRewards' }"
-              target="_blank"
             >
               {{ row.hours }}
             </router-link>
@@ -392,7 +390,7 @@ export default {
           this.newHours.filter((el, i) => el.type == FRONTAL && i != index)
             .length == 0
         ) {
-          this.initilizer();
+          this.cleanWeeklyData();
           return;
         }
       }

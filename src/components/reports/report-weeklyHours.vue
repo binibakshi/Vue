@@ -4,7 +4,7 @@
       <v-col cols="12" md="2">
         <v-select
           :items="$store.state.years"
-          v-model="selections.year"
+          v-model="selectedYear"
           item-text="hebrewYear"
           item-value="year"
           label="שנה"
@@ -134,12 +134,12 @@ export default {
       existData: [],
       dataToDisplay: [],
       selections: {
-        year: 0,
         mossadId: [],
         reformType: [],
         code: [],
         status: [],
       },
+      selectedYear: 0,
       circleProgress: false,
     };
   },
@@ -161,10 +161,10 @@ export default {
       ];
 
       if (this.$store.state.selectedYear != 0) {
-        this.selections.year = this.$store.state.selectedYear;
+        this.selectedYear = this.$store.state.selectedYear;
       } else {
         let currDate = new Date();
-        this.selections.year =
+        this.selectedYear =
           currDate.getMonth() >= 8
             ? currDate.getFullYear() + 1
             : currDate.getFullYear();
@@ -177,11 +177,9 @@ export default {
     },
     setBegdaEndda() {
       this.datesRange.min = this.formatDate(
-        new Date(this.selections.year - 1, 8, 1)
+        new Date(this.selectedYear - 1, 8, 1)
       );
-      this.datesRange.max = this.formatDate(
-        new Date(this.selections.year, 5, 20)
-      );
+      this.datesRange.max = this.formatDate(new Date(this.selectedYear, 5, 20));
     },
     async getMossadot() {
       await axios
@@ -254,7 +252,11 @@ export default {
         if (currEmpId != null) {
           currEmpId.frontalHours += el.hours;
         } else {
-          this.dataToDisplay.push({ empId: el.empId, frontalHours: el.hours });
+          this.dataToDisplay.push({
+            empId: el.empId,
+            frontalHours: el.hours,
+            mossadId: el.mossadId,
+          });
         }
       });
 
@@ -280,8 +282,8 @@ export default {
     async getSelectedData() {
       this.circleProgress = true;
       var params = {
-        begda: this.formatDate(new Date(this.selections.year - 1, 7, 1)),
-        endda: this.formatDate(new Date(this.selections.year + 0, 6, 20)),
+        begda: this.formatDate(new Date(this.selectedYear - 1, 7, 1)),
+        endda: this.formatDate(new Date(this.selectedYear + 0, 6, 20)),
         mossadId: this.addSpaceIfNeeded(this.selections.mossadId),
         reformType: this.addSpaceIfNeeded(this.selections.reformType),
         empCode: this.addSpaceIfNeeded(this.selections.code),
@@ -305,7 +307,7 @@ export default {
         );
     },
     onYearChange() {
-      this.$store.dispatch("setSelectedYear", this.selections.year);
+      this.$store.dispatch("setSelectedYear", this.selectedYear);
     },
     formatDate(currrDate) {
       var inputDate = new Date(currrDate);
@@ -342,7 +344,7 @@ export default {
       };
       this.dataToDisplay.forEach((el) => {
         dataToExport.push({
-          year: this.selections.year,
+          year: this.selectedYear,
           empId: el.empId,
           firstName: el.firstName,
           lastName: el.lastName,

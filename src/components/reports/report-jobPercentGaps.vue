@@ -67,6 +67,15 @@
           </v-toolbar-title>
         </v-toolbar>
       </template>
+      <template v-slot:[`item.jobPercent`]="{ item }"
+        >{{ getTwoDigits(item.jobPercent) }}%</template
+      >
+      <template v-slot:[`item.estimateJobPercent`]="{ item }"
+        >{{ getTwoDigits(item.estimateJobPercent) }}%</template
+      >
+      <template v-slot:[`item.gaps`]="{ item }"
+        >{{ getTwoDigits(item.gaps) }}%</template
+      >
     </v-data-table>
   </div>
 </template>

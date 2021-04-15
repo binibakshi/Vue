@@ -22,12 +22,22 @@ export default {
   },
   data() {
     return {
-      componentsOptions: [
-        { text: "קליטת עובדים", value: "hireEmpViaExcel" },
-        { text: "אחוזי קביעות משרה", value: "estimateJobPercent" },
-      ],
+      componentsOptions: [],
       selectedComp: "",
     };
+  },
+  created() {
+    this.initilize();
+  },
+  methods: {
+    initilize() {
+      if (this.$store.state.mossadId == 999) {
+        this.componentsOptions = [
+          { text: "קליטת עובדים", value: "hireEmpViaExcel" },
+          { text: "אחוזי קביעות משרה", value: "estimateJobPercent" },
+        ];
+      }
+    },
   },
 };
 </script>

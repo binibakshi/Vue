@@ -80,7 +80,7 @@
 import axios from "axios";
 import mossadHours from "./mossadHours";
 import weeklyHours from "./weekly-hours.vue";
-import employeeHours from "./employeeHours";
+import employeeHours from "./employeeHoursInfo.vue";
 import calcHoursMixin from "../../mixins/calcHoursMixin";
 import { bus } from "../../main";
 
@@ -225,6 +225,8 @@ export default {
         .catch(() => {
           this.mossadInfo.currHours = 0;
           this.mossadInfo.maxHours = 0;
+          // eslint-disable-next-line no-debugger
+          debugger
           alert(
             "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
           );
@@ -509,7 +511,7 @@ p {
 }
 .autoCompleteEmployees {
   width: 400px;
-  margin-left: 20px;
+  margin-left: 0.7rem;
 }
 .flexEmployeeHours {
   display: flex;

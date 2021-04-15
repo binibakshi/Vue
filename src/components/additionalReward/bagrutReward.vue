@@ -200,7 +200,7 @@ export default {
       headers: [
         { text: "מקצוע", value: "studyName" },
         { text: 'יח"ל', value: "units" },
-        { text: 'יח"ל בפועל', value: "actualUnits" },
+        { text: 'יח"ל מוגש', value: "actualUnits" },
         { text: "שאלון", value: "questionnaire" },
         { text: "סוג", value: "isExternal" },
         { text: "שכבה", value: "grade" },
@@ -616,13 +616,13 @@ export default {
         empId: "תעודת זהות",
         firstName: "שם פרטי",
         lastName: "שם משפחה",
-        mossadName: "שם מוסד",
+        mossadName: "שם מוסד",  
         year: "שנה",
         studyId: "קוד מקצוע",
         studyName: "מקצוע",
         questionnaire: "שאלון",
         studyUnits: 'יח"ל',
-        actualUnits: 'יח"ל בפועל',
+        actualUnits: 'יח"ל מוגש',
         grade: "שכבה",
         teachingClass: "כיתה",
         external: "סוג",
@@ -630,6 +630,7 @@ export default {
         students: "תלמידים",
         hoursReward: "גמול שעות",
         percentReward: "גמול אחוזים",
+        teacherPercent: "חלוקת אחוזים",
         secondTeacher: "מורה נוסף",
       };
       var excelData = [];
@@ -655,6 +656,7 @@ export default {
           students: el.students,
           hoursReward: el.hoursReward,
           percentReward: el.percentReward,
+          teacherPercent: el.teacherPercent,
           secondTeacher: el.secondTeacher,
         });
       });
