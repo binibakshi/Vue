@@ -68,6 +68,7 @@
               :jobRewardTypes="jobRewardTypes"
               :rewardsHours="getRelevantRewardHours(reform)"
               :existData="getRelevantData(reform)"
+              :existTeacherHours="getRelevantTeacherHours(existTeacherHours)"
             ></weeklyHours>
           </v-card>
         </div>
@@ -101,6 +102,7 @@ export default {
       datesRange: { min: "", max: "" },
       employeeInfo: {},
       existData: [],
+      existTeacherHours: [],
       reformTypes: [],
       workInReforms: [],
       codeDescription: [],
@@ -226,7 +228,7 @@ export default {
           this.mossadInfo.currHours = 0;
           this.mossadInfo.maxHours = 0;
           // eslint-disable-next-line no-debugger
-          debugger
+          debugger;
           alert(
             "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
           );
@@ -261,6 +263,25 @@ export default {
       if (this.empId == null || this.empId == "") {
         return;
       }
+      //TODO : promises list wait for all
+      await axios
+        .get("/teacherHours/byEmpIdAndMossadId", {
+          params: {
+            empId: this.empId,
+            mossadId: this.$store.state.logginAs,
+            begda: this.datesRange.min,
+            endda: this.datesRange.max,
+          },
+        })
+        .then((response) => {
+          this.existTeacherHours = response.data;
+        })
+        .catch((error) =>
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          })
+        );
+
       await axios
         .get("/teacherEmploymentDetails/byId", {
           params: {
@@ -381,6 +402,13 @@ export default {
     },
     getRelevantData(reformType) {
       return this.existData.filter(
+        (el) =>
+          el.reformType == reformType &&
+          el.mossadId == this.$store.state.logginAs
+      );
+    },
+    getRelevantTeacherHours(reformType) {
+      return this.existTeacherHours.filter(
         (el) =>
           el.reformType == reformType &&
           el.mossadId == this.$store.state.logginAs

@@ -30,6 +30,7 @@
             :isMother="isMother"
             :ageHours="ageHours"
             :existData="table.data"
+            :existTeacherHours="existTeacherHours"
             :begda="table.begda"
             :endda="table.endda"
             :codeDescription="codeDescription"
@@ -60,6 +61,7 @@ export default {
     "selectedYear",
     "codeDescription",
     "existData",
+    "existTeacherHours",
     "jobRewardTypes",
     "rewardsHours",
   ],

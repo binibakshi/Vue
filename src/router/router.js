@@ -33,7 +33,6 @@ const routes = [{
                 "../views/EmployeeInfo.vue"
             ),
         beforeEnter(to, from, next) {
-            console.log(store.state.logginAs)
             if (
                 to.name == "employeeInfo" &&
                 (store.state.logginAs == 999 || store.state.logginAs == 998)

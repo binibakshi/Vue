@@ -160,6 +160,7 @@ export default {
     "isMother",
     "ageHours",
     "existData",
+    "existTeacherHours",
     "begda",
     "endda",
     "codeDescription",
@@ -175,7 +176,8 @@ export default {
         min: "",
         max: "",
       },
-      tableToSave: [],
+      teacherEmployeeDetails: [],
+      teacherHours: [],
       tablesArray: [],
       empOptions: [],
       reformTypes: [],
@@ -252,10 +254,10 @@ export default {
         );
     },
     setNewHoursForSave() {
-      this.tableToSave = [];
+      this.teacherEmployeeDetails = [];
       this.newHours.forEach((element) => {
         element.week.forEach((day, index) => {
-          this.tableToSave.push({
+          this.teacherEmployeeDetails.push({
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
             changedBy: this.$store.state.username,
@@ -265,6 +267,18 @@ export default {
             day: index,
             hours: day,
           });
+        });
+        this.teacherHours.push({
+          empId: this.empId,
+          mossadId: this.$store.state.logginAs,
+          changedBy: this.$store.state.username,
+          empCode: element.code,
+          begda: new Date(this.begda),
+          endda: new Date(this.endda),
+          hours: element.week
+            .reduce((sum, e) => (sum += parseFloat(e)), 0)
+            .toFixed(2),
+          reformType: this.reformType,
         });
       });
     },
@@ -321,27 +335,34 @@ export default {
               code: el.empCode,
               week: [0, 0, 0, 0, 0, 0],
             };
-            if (!this.isRewradHours(el.empCode)) {
-              newRow.hours = el.hours;
-            }
+            // if (!this.isRewradHours(el.empCode)) {
+            //   newRow.hours = el.hours;
+            // }
             newRow.week[el.day] = el.hours;
             this.newHours.push(newRow);
           } else {
-            if (!this.isRewradHours(el.empCode)) {
-              this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
-            }
+            // if (!this.isRewradHours(el.empCode)) {
+            //   this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
+            // }
             this.newHours.find((e) => e.code == el.empCode).week[el.day] +=
               el.hours;
           }
         } else {
-          if (!this.isRewradHours(el.empCode)) {
-            this.newHours.find((e) => e.type == tempHourType).hours += el.hours;
-          }
+          // if (!this.isRewradHours(el.empCode)) {
+          //   this.newHours.find((e) => e.type == tempHourType).hours += el.hours;
+          // }
           this.newHours.find((e) => e.type == tempHourType).week[el.day] =
             el.hours;
           this.newHours.find((e) => e.type == tempHourType).code = el.empCode;
         }
       });
+      //Set teacher hours from table can be diffrences
+      this.newHours.forEach(
+        (el) =>
+          (el.hours = this.existTeacherHours.find(
+            (e) => e.empCode == el.code
+          ).hours)
+      );
     },
     setExistRewards() {
       var currRewardHours = 0.0;
@@ -454,7 +475,7 @@ export default {
       }
       return "";
     },
-    saveHours() {
+    async saveHours() {
       //check all data before let user to save
       let isValid = true;
       this.newHours.forEach((row) => {
@@ -467,11 +488,31 @@ export default {
         alert("יש למלא שעות תקינות");
         return false;
       }
+      // Set data for save
       this.setNewHoursForSave();
-      axios({
+      // eslint-disable-next-line no-debugger
+      debugger;
+      // first insert teacher hours(only hours per empCode)
+      await axios({
+        url: "/teacherHours/cleanSave",
+        method: "post",
+        data: this.teacherHours,
+      })
+        .then(() => {
+          // alert("הנתונים נשמרו בהצלחה");
+          // bus.$emit("changeWeeklyHours");
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
+
+      // than update the actaul hours in teacherEmploymentDetails
+      await axios({
         url: "/teacherEmploymentDetails/saveAll",
         method: "post",
-        data: this.tableToSave,
+        data: this.teacherEmployeeDetails,
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
