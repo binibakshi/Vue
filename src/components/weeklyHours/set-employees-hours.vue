@@ -68,7 +68,7 @@
               :jobRewardTypes="jobRewardTypes"
               :rewardsHours="getRelevantRewardHours(reform)"
               :existData="getRelevantData(reform)"
-              :existTeacherHours="getRelevantTeacherHours(existTeacherHours)"
+              :existTeacherHours="getRelevantTeacherHours(reform)"
             ></weeklyHours>
           </v-card>
         </div>
@@ -227,8 +227,6 @@ export default {
         .catch(() => {
           this.mossadInfo.currHours = 0;
           this.mossadInfo.maxHours = 0;
-          // eslint-disable-next-line no-debugger
-          debugger;
           alert(
             "לא נמצאו נתונים עבור מוסד בשנה זו בחר שנה אחרת או הוסף שעות למוסד"
           );
@@ -484,6 +482,11 @@ export default {
       this.rewardsHours.forEach((el) => {
         if (!this.workInReforms.includes(el.reformId) && el.hours != 0) {
           this.workInReforms.push(el.reformId);
+        }
+      });
+      this.existTeacherHours.forEach((el) => {
+        if (!this.workInReforms.includes(el.reformType) && el.hours != 0) {
+          this.workInReforms.push(el.reformType);
         }
       });
       this.selectedReforms = this.workInReforms;

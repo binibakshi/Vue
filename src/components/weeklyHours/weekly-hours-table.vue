@@ -253,6 +253,54 @@ export default {
           })
         );
     },
+    async saveHours() {
+      //check all data before let user to save
+      let isValid = true;
+      this.newHours.forEach((row) => {
+        if (this.validRowsHours(row) == false) {
+          isValid = false;
+          return;
+        }
+      });
+      if (isValid == false) {
+        alert("יש למלא שעות תקינות");
+        return false;
+      }
+      // Set data for save
+      this.setNewHoursForSave();
+
+      // first insert teacher hours(only hours per empCode)
+      await axios({
+        url: "/teacherHours/saveAll",
+        method: "post",
+        data: this.teacherHours,
+      })
+        .then(() => {
+          // alert("הנתונים נשמרו בהצלחה");
+          // bus.$emit("changeWeeklyHours");
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
+
+      // than update the actaul hours in teacherEmploymentDetails
+      await axios({
+        url: "/teacherEmploymentDetails/saveAll",
+        method: "post",
+        data: this.teacherEmployeeDetails,
+      })
+        .then(() => {
+          alert("הנתונים נשמרו בהצלחה");
+          bus.$emit("changeWeeklyHours");
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
+    },
     setNewHoursForSave() {
       this.teacherEmployeeDetails = [];
       this.newHours.forEach((element) => {
@@ -268,18 +316,20 @@ export default {
             hours: day,
           });
         });
-        this.teacherHours.push({
-          empId: this.empId,
-          mossadId: this.$store.state.logginAs,
-          changedBy: this.$store.state.username,
-          empCode: element.code,
-          begda: new Date(this.begda),
-          endda: new Date(this.endda),
-          hours: element.week
-            .reduce((sum, e) => (sum += parseFloat(e)), 0)
-            .toFixed(2),
-          reformType: this.reformType,
-        });
+        if (element.type == FRONTAL) {
+          this.teacherHours.push({
+            empId: this.empId,
+            mossadId: this.$store.state.logginAs,
+            changedBy: this.$store.state.username,
+            empCode: element.code,
+            begda: new Date(this.begda),
+            endda: new Date(this.endda),
+            hours: element.week
+              .reduce((sum, e) => (sum += parseFloat(e)), 0)
+              .toFixed(2),
+            reformType: this.reformType,
+          });
+        }
       });
     },
     onCodeSelect(row) {
@@ -357,12 +407,28 @@ export default {
         }
       });
       //Set teacher hours from table can be diffrences
-      this.newHours.forEach(
-        (el) =>
-          (el.hours = this.existTeacherHours.find(
-            (e) => e.empCode == el.code
-          ).hours)
-      );
+      this.existTeacherHours.forEach((el) => {
+        let currRow = this.newHours.find((e) => e.code == el.empCode);
+        if (currRow != undefined) {
+          currRow.hours = el.hours;
+        } else {
+          //Check if first insert than edit first row
+          let currRow = this.newHours.find(
+            (e) => e.type == FRONTAL && e.code == ""
+          );
+          if (currRow != undefined) {
+            currRow.code = el.empCode;
+            currRow.hours = el.hours;
+          } else {
+            this.newHours.push({
+              type: FRONTAL,
+              hours: el.hours,
+              code: el.empCode,
+              week: [0, 0, 0, 0, 0, 0],
+            });
+          }
+        }
+      });
     },
     setExistRewards() {
       var currRewardHours = 0.0;
@@ -474,55 +540,6 @@ export default {
         return this.codeDescription.find((e) => e.code == code).codeDescription;
       }
       return "";
-    },
-    async saveHours() {
-      //check all data before let user to save
-      let isValid = true;
-      this.newHours.forEach((row) => {
-        if (this.validRowsHours(row) == false) {
-          isValid = false;
-          return;
-        }
-      });
-      if (isValid == false) {
-        alert("יש למלא שעות תקינות");
-        return false;
-      }
-      // Set data for save
-      this.setNewHoursForSave();
-      // eslint-disable-next-line no-debugger
-      debugger;
-      // first insert teacher hours(only hours per empCode)
-      await axios({
-        url: "/teacherHours/cleanSave",
-        method: "post",
-        data: this.teacherHours,
-      })
-        .then(() => {
-          // alert("הנתונים נשמרו בהצלחה");
-          // bus.$emit("changeWeeklyHours");
-        })
-        .catch((error) => {
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          });
-        });
-
-      // than update the actaul hours in teacherEmploymentDetails
-      await axios({
-        url: "/teacherEmploymentDetails/saveAll",
-        method: "post",
-        data: this.teacherEmployeeDetails,
-      })
-        .then(() => {
-          alert("הנתונים נשמרו בהצלחה");
-          bus.$emit("changeWeeklyHours");
-        })
-        .catch((error) => {
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          });
-        });
     },
     convertReformDescription(reform) {
       if (reform == PRIVATE) {

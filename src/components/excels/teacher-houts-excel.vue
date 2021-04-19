@@ -50,7 +50,14 @@
         :items="teacherHoursTable"
         :items-per-page="50"
         class="elevation-1"
-      ></v-data-table>
+      >
+        <template v-slot:[`item.begda`]="{ item }">{{
+          FormatDate(ExcelDateToJSDate(item.begda))
+        }}</template>
+        <template v-slot:[`item.endda`]="{ item }">{{
+          FormatDate(ExcelDateToJSDate(item.endda))
+        }}</template>
+      </v-data-table>
     </div>
   </div>
 </template>
@@ -144,6 +151,56 @@ export default {
           })
         );
     },
+    async saveAll() {
+      let promises = [];
+      let currTeacherHours = [];
+      this.teacherHoursTable.forEach((el, index) => {
+        let currCodeDescription = this.codeDescription.find(
+          (e) => e.code == el.empCode
+        );
+        if (
+          currCodeDescription == undefined 
+          //||
+          // this.ExcelDateToJSDate(el.begda).getMonth() != isNaN ||
+          // this.ExcelDateToJSDate(el.endda).getMonth() != isNaN
+        ) {
+          this.deleteTable.push(el);
+          return;
+        }
+        currTeacherHours = {
+          empId: el.empId,
+          mossadId: this.selectedMossadId,
+          empCode: el.empCode,
+          reformType: currCodeDescription.reformType,
+          begda: this.ExcelDateToJSDate(el.begda),
+          endda: this.ExcelDateToJSDate(el.endda),
+          hours: el.hours,
+          changedBy: this.$store.state.username,
+        };
+        promises.push(
+          axios({
+            url: "/teacherHours/save",
+            method: "post",
+            data: currTeacherHours,
+          })
+            .then(() => {
+              this.teacherHoursTable.slice(index, 1);
+            })
+            .catch((e) => {
+              console.log(e);
+              this.deleteTable.push(el);
+            })
+        );
+      });
+
+      await Promise.all(promises).then();
+      this.teacherHoursTable = this.deleteTable;
+      this.deleteTable = [];
+      if (this.teacherHoursTable.length > 0) {
+        this.paintInRed = true;
+        alert("הרשומות שנשארו לא הצליחו להישמר");
+      }
+    },
     getMossadot() {
       axios
         .get("mossadot/all")
@@ -201,6 +258,8 @@ export default {
       return headers;
     },
     filesChange(e) {
+      this.dataToExport = [];
+      this.deleteTable = [];
       var files = e.target.files,
         f = files[0];
       var reader = new FileReader();
@@ -238,49 +297,23 @@ export default {
     ExcelDateToJSDate(date) {
       return new Date(Math.round((date - 25569) * 86400 * 1000));
     },
-    async saveAll() {
-      let promises = [];
-      let currTeacherHours = [];
-      this.teacherHoursTable.forEach((el, index) => {
-        let currCodeDescription = this.codeDescription.find(
-          (e) => e.code == el.empCode
-        );
-        if (currCodeDescription == undefined) {
-          this.deleteTable.push(el);
-          return;
-        }
-        currTeacherHours = {
-          empId: el.empId,
-          mossadId: this.selectedMossadId,
-          empCode: el.empCode,
-          reformType: currCodeDescription.reformType,
-          begda: new Date(el.begda),
-          endda: new Date(el.endda),
-          hours: el.hours,
-        };
-        promises.push(
-          axios({
-            url: "/teacherHours/save",
-            method: "post",
-            data: currTeacherHours,
-          })
-            .then(() => {
-              this.teacherHoursTable.slice(index, 1);
-            })
-            .catch((e) => {
-              console.log(e);
-              this.deleteTable.push(el);
-            })
-        );
-      });
+    FormatDate(iDate) {
+      var inputDate = new Date(iDate);
+      var formattedDate;
+      var year = inputDate.getFullYear();
+      var month = 0;
+      var day = 0;
 
-      await Promise.all(promises).then();
-      this.teacherHoursTable = this.deleteTable;
-      this.deleteTable = [];
-      if (this.teacherHoursTable.length > 0) {
-        this.paintInRed = true;
-        alert("הרשומות שנשארו לא הצליחו להישמר");
+      month += inputDate.getMonth() + 1;
+      if (month < 10) {
+        month = "0" + month;
       }
+      if (inputDate.getDate() < 10) {
+        day = "0";
+      }
+      day += inputDate.getDate();
+      formattedDate = day + "/" + month + "/" + year;
+      return formattedDate;
     },
   },
 };

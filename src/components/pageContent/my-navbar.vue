@@ -149,6 +149,10 @@ export default {
         { text: "גמולי תפקיד", url: "/report/reportJobRewards" },
         { text: "דוח פערי שעות-גמולים", url: "/report/reportRewardGaps" },
         { text: "דוח פערי אחוזי משרה", url: "/report/reportJobPercentGaps" },
+        {
+          text: "דוח פערי שעות שבועיות",
+          url: "/report/reporstTeacherHoursGaps",
+        },
       ],
     };
   },
