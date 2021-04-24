@@ -35,7 +35,6 @@
       <input type="file" id="file" ref="file" @change="filesChange" />
       <v-btn
         v-if="teacherHoursTable != null"
-        id="btn"
         color="primary"
         dark
         @click="saveAll()"
@@ -52,10 +51,10 @@
         class="elevation-1"
       >
         <template v-slot:[`item.begda`]="{ item }">{{
-          FormatDate(ExcelDateToJSDate(item.begda))
+          FormatDate(item.begda)
         }}</template>
         <template v-slot:[`item.endda`]="{ item }">{{
-          FormatDate(ExcelDateToJSDate(item.endda))
+          FormatDate(item.endda)
         }}</template>
       </v-data-table>
     </div>
@@ -73,7 +72,6 @@ export default {
       file: null,
       headers: [
         { text: "תעודת זהות", value: "empId" },
-        // { text: "מוסד", value: "mossadId" },
         { text: "קוד מקצוע", value: "empCode" },
         { text: "מתאריך", value: "begda" },
         { text: "עד תאריך", value: "endda" },
@@ -85,7 +83,7 @@ export default {
       mossadot: [],
       paintInRed: false,
       dataToExport: [],
-      deleteTable: [],
+      unSavedRows: [],
       codeDescription: [],
     };
   },
@@ -122,54 +120,53 @@ export default {
         );
     },
     async saveAll() {
-      let promises = [];
-      let currTeacherHours = [];
-      this.teacherHoursTable.forEach((el, index) => {
+      let hoursToSave = [];
+      this.teacherHoursTable.forEach((el) => {
         let currCodeDescription = this.codeDescription.find(
           (e) => e.code == el.empCode
         );
-        if (
-          currCodeDescription == undefined
-          //||
-          // this.ExcelDateToJSDate(el.begda).getMonth() != isNaN ||
-          // this.ExcelDateToJSDate(el.endda).getMonth() != isNaN
-        ) {
-          this.deleteTable.push(el);
+        if (currCodeDescription == undefined) {
+          this.unSavedRows.push(el);
           return;
         }
-        currTeacherHours = {
+        hoursToSave.push({
           empId: el.empId,
           mossadId: this.selectedMossadId,
           empCode: el.empCode,
           reformType: currCodeDescription.reformType,
-          begda: this.ExcelDateToJSDate(el.begda),
-          endda: this.ExcelDateToJSDate(el.endda),
+          begda: el.begda,
+          endda: el.endda,
           hours: el.hours,
           changedBy: this.$store.state.username,
-        };
-        promises.push(
-          axios({
-            url: "/teacherHours/save",
-            method: "post",
-            data: currTeacherHours,
-          })
-            .then(() => {
-              this.teacherHoursTable.slice(index, 1);
-            })
-            .catch((e) => {
-              console.log(e);
-              this.deleteTable.push(el);
-            })
-        );
+        });
       });
 
-      await Promise.all(promises).then();
-      this.teacherHoursTable = this.deleteTable;
-      this.deleteTable = [];
-      if (this.teacherHoursTable.length > 0) {
-        this.paintInRed = true;
-        alert("הרשומות שנשארו לא הצליחו להישמר");
-      }
+      axios({
+        url: "/teacherHours/saveAll",
+        method: "post",
+        data: hoursToSave,
+      })
+        .then((response) => {
+          let tempData = response.data;
+          hoursToSave.forEach((el) => {
+            if (tempData.find((e) => e.empCode == el.empCode) == undefined) {
+              this.unSavedRows.push(el);
+            }
+          });
+          if (tempData.length > 0) {
+            alert("הנתונים נשמרו בהצלחה");
+          }
+          if (this.unSavedRows.length > 0) {
+            this.paintInRed = true;
+            this.teacherHoursTable = this.unSavedRows;
+            alert("הרשומות שנשארו לא הצליחו להישמר");
+          }
+        })
+        .catch((error) => {
+          this.$store.dispatch("displayErrorMessage", {
+            error,
+          });
+        });
     },
     getMossadot() {
       axios
@@ -229,7 +226,7 @@ export default {
     },
     filesChange(e) {
       this.dataToExport = [];
-      this.deleteTable = [];
+      this.unSavedRows = [];
       var files = e.target.files,
         f = files[0];
       var reader = new FileReader();
@@ -260,6 +257,8 @@ export default {
 
         this.teacherHoursTable.forEach((element) => {
           element.mossadId = this.selectedMossadId;
+          element.begda = this.ExcelDateToJSDate(element.begda);
+          element.endda = this.ExcelDateToJSDate(element.endda);
         });
       };
       reader.readAsArrayBuffer(f);
@@ -294,8 +293,7 @@ input {
   border: 1px solid;
 }
 .v-btn {
-  margin-bottom: 10px;
-  margin-top: 10px;
+  margin: 10px;
 }
 #myTable {
   max-width: 70%;

@@ -39,6 +39,10 @@ export default {
           { text: "אחוזי קביעות משרה", value: "estimateJobPercent" },
           { text: "קליטת מבנה שעות שבועיות", value: "teacherHoursExcel" },
         ];
+      } else {
+        this.componentsOptions = [
+          { text: "קליטת מבנה שעות שבועיות", value: "teacherHoursExcel" },
+        ];
       }
     },
   },
