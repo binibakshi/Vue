@@ -13,10 +13,10 @@
         <p>גיל</p>
         {{ getAge() }}
       </div>
-      <div class="grid-element">
+      <!-- <div class="grid-element">
         <p>משרת אם</p>
         {{ formatIsMother() }}
-      </div>
+      </div> -->
       <div class="grid-element">
         <p>שעות גיל</p>
         {{ getAgeHours() }}
@@ -235,7 +235,7 @@ p {
 }
 .wrapper-grid {
   display: grid;
-  grid-template-columns: 2fr 2fr 2fr 2fr 2fr 7fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 4fr 1fr;
 }
 
 .wrapper-grid > div {

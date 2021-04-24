@@ -1,7 +1,7 @@
 <template>
-  <v-card class="wrapper">
-    <v-card>
-      <v-card-title>אקסל גמול בגרות</v-card-title>
+  <div class="wrapper">
+    <div>
+      <div-title>אקסל גמול בגרות</div-title>
       <v-row class="giveSomeSpace">
         <input type="file" id="file" ref="file" @change="loadFile" />
         <v-btn
@@ -41,8 +41,8 @@
           </v-data-table>
         </div>
       </v-row>
-    </v-card>
-  </v-card>
+    </div>
+  </div>
 </template>
 
 <script>

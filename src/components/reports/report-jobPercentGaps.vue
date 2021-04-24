@@ -152,7 +152,7 @@ export default {
     },
     async getGaps() {
       await axios
-        .get("jobPercent/all", {
+        .get("jobPercent/byYearAndMossad", {
           params: {
             year: this.selectedYear,
             mossadId: this.selectedMossadId,

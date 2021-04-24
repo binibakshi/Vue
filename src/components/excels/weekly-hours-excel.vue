@@ -1,7 +1,7 @@
 <template>
-  <v-card class="wrapper">
-    <v-card>
-      <v-card-title>ייצוא לשכר</v-card-title>
+  <div class="wrapper">
+    <div>
+      <div-title>ייצוא לשכר</div-title>
       <v-row>
         <v-col v-if="$store.state.mossadId == 999" cols="12" md="2">
           <v-autocomplete
@@ -41,8 +41,8 @@
         >
         <v-btn @click="downloadDemoFile()" color="success">מבנה אקסל</v-btn>
       </v-row>
-    </v-card>
-  </v-card>
+    </div>
+  </div>
 </template>
 
 <script>

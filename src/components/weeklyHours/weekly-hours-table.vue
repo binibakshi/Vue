@@ -316,20 +316,18 @@ export default {
             hours: day,
           });
         });
-        if (element.type == FRONTAL) {
-          this.teacherHours.push({
-            empId: this.empId,
-            mossadId: this.$store.state.logginAs,
-            changedBy: this.$store.state.username,
-            empCode: element.code,
-            begda: new Date(this.begda),
-            endda: new Date(this.endda),
-            hours: element.week
-              .reduce((sum, e) => (sum += parseFloat(e)), 0)
-              .toFixed(2),
-            reformType: this.reformType,
-          });
-        }
+        this.teacherHours.push({
+          empId: this.empId,
+          mossadId: this.$store.state.logginAs,
+          changedBy: this.$store.state.username,
+          empCode: element.code,
+          begda: new Date(this.begda),
+          endda: new Date(this.endda),
+          hours: element.week
+            .reduce((sum, e) => (sum += parseFloat(e)), 0)
+            .toFixed(2),
+          reformType: this.reformType,
+        });
       });
     },
     onCodeSelect(row) {
@@ -385,22 +383,13 @@ export default {
               code: el.empCode,
               week: [0, 0, 0, 0, 0, 0],
             };
-            // if (!this.isRewradHours(el.empCode)) {
-            //   newRow.hours = el.hours;
-            // }
             newRow.week[el.day] = el.hours;
             this.newHours.push(newRow);
           } else {
-            // if (!this.isRewradHours(el.empCode)) {
-            //   this.newHours.find((e) => e.code == el.empCode).hours += el.hours;
-            // }
             this.newHours.find((e) => e.code == el.empCode).week[el.day] +=
               el.hours;
           }
         } else {
-          // if (!this.isRewradHours(el.empCode)) {
-          //   this.newHours.find((e) => e.type == tempHourType).hours += el.hours;
-          // }
           this.newHours.find((e) => e.type == tempHourType).week[el.day] =
             el.hours;
           this.newHours.find((e) => e.type == tempHourType).code = el.empCode;

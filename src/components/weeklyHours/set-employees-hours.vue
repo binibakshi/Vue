@@ -541,7 +541,7 @@ p {
   padding: 10px;
 }
 .autoCompleteEmployees {
-  width: 400px;
+  max-width: 300px;
   margin-left: 0.7rem;
 }
 .flexEmployeeHours {

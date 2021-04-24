@@ -1,6 +1,6 @@
 <template>
-  <v-card class="wrapper">
-    <v-card>
+  <div class="wrapper">
+    <div>
       <v-row class="giveSomeSpace">
         <v-btn class="btn" color="success" @click="downloadDemoFile()"
           >מבנה קובץ לקליטת פרטי עובדים</v-btn
@@ -27,8 +27,8 @@
           class="elevation-1"
         ></v-data-table>
       </div>
-    </v-card>
-  </v-card>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -45,7 +45,7 @@ export default {
         { text: "שם משפחה", value: "lastName" },
         { text: "שם פרטי", value: "firstName" },
         { text: "תאריך לידה", value: "birthDate" },
-        { text: "מורה אם", value: "mother" },
+        // { text: "מורה אם", value: "mother" },
       ],
       employeesTable: null,
       paintInRed: false,
@@ -122,7 +122,7 @@ export default {
         firstName: "שם פרטי",
         birthDate: "תאריך לידה",
         gender: "מין",
-        mother: "משרת אם",
+        // mother: "משרת אם",
       };
       return headers;
     },
@@ -199,10 +199,10 @@ export default {
       }
     },
     getIsMother(mother) {
-      if (mother == "לא") {
-        return 0;
+      if (mother == "כן") {
+        return 1;
       }
-      return 1;
+      return 0;
     },
     formattedDate(birthDate) {
       var d = new Date(birthDate);

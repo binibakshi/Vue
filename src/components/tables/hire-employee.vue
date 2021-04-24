@@ -78,7 +78,7 @@
                         <v-radio label="נקבה" value="F"></v-radio>
                       </v-radio-group>
                     </v-col>
-                    <v-col cols="12" md="2">
+                    <!-- <v-col cols="12" md="2">
                       <p>משרת אם</p>
                       <v-radio-group
                         v-model="editedEmployee.mother"
@@ -87,7 +87,7 @@
                         <v-radio label="כן" value="true"></v-radio>
                         <v-radio label="לא" value="false"></v-radio>
                       </v-radio-group>
-                    </v-col>
+                    </v-col> -->
                     <v-col cols="12" md="3">
                       <label for="birthDate">תאריך לידה</label>
                       <input
@@ -113,11 +113,17 @@
       <template v-slot:[`item.ageHours`]="{ item }">{{
         _getAgeHours(item.birthDate)
       }}</template>
-      <template v-slot:[`item.mother`]="{ item }">{{
+      <!-- <template v-slot:[`item.mother`]="{ item }">{{
         formatMother(item.mother)
-      }}</template>
+      }}</template> -->
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon
+          v-show="$store.state.mossadId == 999"
+          small
+          class="mr-2"
+          @click="editItem(item)"
+          >mdi-pencil</v-icon
+        >
         <v-icon
           v-show="$store.state.mossadId == 999"
           small
@@ -156,7 +162,7 @@ export default {
         { text: "שם משפחה", value: "lastName" },
         { text: "שם פרטי", value: "firstName" },
         { text: "גיל", value: "birthDate" },
-        { text: "מורה אם", value: "mother" },
+        // { text: "מורה אם", value: "mother" },
         { text: "שעות גיל", value: "ageHours" },
         { text: "פעולות", value: "actions", sortable: false },
       ],
@@ -237,8 +243,8 @@ export default {
         this.editedEmployee.firstName == null ||
         this.editedEmployee.lastName == null ||
         this.editedEmployee.birthDate == null ||
-        this.editedEmployee.gender == null ||
-        this.editedEmployee.mother == null
+        this.editedEmployee.gender == null
+        // || this.editedEmployee.mother == null
       ) {
         alert("נא להזין את כל השדות");
         return;

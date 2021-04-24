@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <v-row id="selections" class="center" style="align-items: initial">
+    <v-row id="selections" style="align-items: initial">
       <v-col cols="12" md="2">
         <v-select
           :items="$store.state.years"
@@ -26,12 +26,12 @@
         <v-btn color="primary" @click="getGaps()">חפש</v-btn>
       </v-col>
     </v-row>
-    <v-row class="giveSomeSpace">
-      <v-btn class="btn" color="success" @click="downloadDemoFile()"
+    <v-row>
+      <v-btn color="success" @click="downloadDemoFile()"
         >מבנה קובץ לקליטת פרטי שעות שבועיות</v-btn
       >
     </v-row>
-    <v-row class="giveSomeSpace">
+    <v-row>
       <input type="file" id="file" ref="file" @change="filesChange" />
       <v-btn
         v-if="teacherHoursTable != null"
@@ -109,36 +109,6 @@ export default {
         this.selectedMossadId = this.$store.state.logginAs;
       }
     },
-    async getAllEmployees() {
-      let allEmployees = await axios
-        .get("/employees/all")
-        .then((response) => {
-          return response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
-
-      allEmployees.forEach((el) => {
-        this.dataToExport.push({
-          empId: el.empId,
-          firstName: el.firstName,
-          lastName: el.lastName,
-          birthDate: this.formattedDate(el.birthDate),
-          gender: this.fromatGenderText(el.gender),
-          mother: this.formatMotherType(el.mother),
-          ageHours: this.getAgeHours(el.birthDate),
-        });
-      });
-      this.downloadFile(
-        this.dataToExport,
-        this.getTeacherHoursHeaders(),
-        "שעות שבועיות.xlsx",
-        "מבנה שעות שבועיות"
-      );
-    },
     async getCodeDescription() {
       await axios
         .get("/convertHours/all")
@@ -159,7 +129,7 @@ export default {
           (e) => e.code == el.empCode
         );
         if (
-          currCodeDescription == undefined 
+          currCodeDescription == undefined
           //||
           // this.ExcelDateToJSDate(el.begda).getMonth() != isNaN ||
           // this.ExcelDateToJSDate(el.endda).getMonth() != isNaN
@@ -323,20 +293,13 @@ export default {
 input {
   border: 1px solid;
 }
-.giveSomeSpace {
-  margin: 5px;
-  margin-top: 15px;
-  margin-right: 2%;
-}
-.btn {
-  margin-right: 10px;
+.v-btn {
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 #myTable {
   max-width: 70%;
   margin-top: 5%;
   margin-right: 10%;
-}
-#btn {
-  margin-right: 20px;
 }
 </style>

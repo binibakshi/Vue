@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="importExcelWrapper">
     <v-card-title class="center">אקסלים לקליטה</v-card-title>
     <v-select
       class="selectExcel"
@@ -7,14 +7,14 @@
       v-model="selectedComp"
       label="בחר אקסל"
     ></v-select>
-    <component v-bind:is="selectedComp" />
+    <component class="importedExcelComp" v-bind:is="selectedComp" />
   </v-card>
 </template>
 
 <script>
 import hireEmpViaExcel from "../components/excels/hire-emp-via-excel";
 import estimateJobPercent from "../components/excels/estimate-job-percent";
-import teacherHoursExcel from "../components/excels/teacher-houts-excel.vue";
+import teacherHoursExcel from "../components/excels/teacher-hours-excel.vue";
 export default {
   name: "importExcels",
   components: {
@@ -48,5 +48,11 @@ export default {
 <style scoped>
 .selectExcel {
   max-width: 350px;
+}
+.importedExcelComp {
+  margin-top: 2%;
+}
+.importExcelWrapper {
+  padding: 3%;
 }
 </style>

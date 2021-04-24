@@ -1,6 +1,6 @@
 <template>
-  <v-card class="wrapper">
-    <v-card>
+  <div class="wrapper">
+    <div>
       <v-row class="giveSomeSpace">
         <v-btn class="btn" color="success" @click="downloadDemoFile()"
           >מבנה קובץ לקליטת קביעות משרה</v-btn
@@ -27,8 +27,8 @@
           class="elevation-1"
         ></v-data-table>
       </div>
-    </v-card>
-  </v-card>
+    </div>
+  </div>
 </template>
 
 <script>

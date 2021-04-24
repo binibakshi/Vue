@@ -98,7 +98,7 @@ const routes = [{
         beforeEnter(to, from, next) {
             if (
                 to.name == "auth" &&
-                (store.state.logginAs == 999 || store.state.logginAs == 998)
+                (store.state.mossadId == 999 || store.state.mossadId == 998)
             ) {
                 next()
             } else { // Not authorized

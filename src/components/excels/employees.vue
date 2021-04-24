@@ -1,13 +1,13 @@
 <template>
-  <v-card class="wrapper">
-    <v-card>
+  <div class="wrapper">
+    <div>
       <v-row class="giveSomeSpace">
         <v-btn class="btn" color="success" @click="getAllEmployees()"
           >אקסל פרטי עובדים
         </v-btn>
       </v-row>
-    </v-card>
-  </v-card>
+    </div>
+  </div>
 </template>
 
 <script>
