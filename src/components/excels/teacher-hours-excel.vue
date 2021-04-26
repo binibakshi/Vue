@@ -142,7 +142,7 @@ export default {
       });
 
       axios({
-        url: "/teacherHours/saveAll",
+        url: "/teacherHours/cleanSave",
         method: "post",
         data: hoursToSave,
       })
@@ -227,6 +227,7 @@ export default {
     filesChange(e) {
       this.dataToExport = [];
       this.unSavedRows = [];
+      this.teacherHoursTable = [];
       var files = e.target.files,
         f = files[0];
       var reader = new FileReader();

@@ -366,6 +366,10 @@ export default {
     setExistData() {
       let tempHourType;
       let newRow = {};
+      let currRow = {};
+
+      // eslint-disable-next-line no-debugger
+      debugger;
 
       this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
@@ -397,13 +401,15 @@ export default {
       });
       //Set teacher hours from table can be diffrences
       this.existTeacherHours.forEach((el) => {
-        let currRow = this.newHours.find((e) => e.code == el.empCode);
+        tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
+          .hourType;
+        currRow = this.newHours.find((e) => e.code == el.empCode);
         if (currRow != undefined) {
           currRow.hours = el.hours;
         } else {
           //Check if first insert than edit first row
-          let currRow = this.newHours.find(
-            (e) => e.type == FRONTAL && e.code == ""
+          currRow = this.newHours.find(
+            (e) => e.type == tempHourType && !e.code
           );
           if (currRow != undefined) {
             currRow.code = el.empCode;

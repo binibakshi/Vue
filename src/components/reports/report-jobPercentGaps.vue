@@ -151,6 +151,7 @@ export default {
       }
     },
     async getGaps() {
+      this.jobPercentTable = [];
       await axios
         .get("jobPercent/byYearAndMossad", {
           params: {
@@ -160,6 +161,7 @@ export default {
         })
         .then((response) => {
           this.jobPercentTable = response.data;
+          this.setExistData();
         })
         .catch((error) =>
           this.$store.dispatch("displayErrorMessage", {
@@ -193,6 +195,7 @@ export default {
     },
     setExistData() {
       let currEmp = {};
+      this.tableToDisplay = [];
       this.jobPercentTable.forEach((el) => {
         currEmp = this.tzArray.find((e) => e.empId == el.empId);
         this.tableToDisplay.push({

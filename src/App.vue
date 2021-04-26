@@ -15,17 +15,12 @@ export default {
   components: {
     myNavBar,
   },
-  data: () => ({
-    //
-  }),
+  data: () => ({}),
   created() {
     this.onStart();
   },
   mounted() {},
   methods: {
-    testMe() {
-      this.$store.state.popup = true;
-    },
     onStart() {
       if (this.$store.state.token != null) {
         axios.defaults.headers.Authorization =
