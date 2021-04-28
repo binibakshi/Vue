@@ -316,18 +316,20 @@ export default {
             hours: day,
           });
         });
-        this.teacherHours.push({
-          empId: this.empId,
-          mossadId: this.$store.state.logginAs,
-          changedBy: this.$store.state.username,
-          empCode: element.code,
-          begda: new Date(this.begda),
-          endda: new Date(this.endda),
-          hours: element.week
-            .reduce((sum, e) => (sum += parseFloat(e)), 0)
-            .toFixed(2),
-          reformType: this.reformType,
-        });
+        if (element.hourType == FRONTAL) {
+          this.teacherHours.push({
+            empId: this.empId,
+            mossadId: this.$store.state.logginAs,
+            changedBy: this.$store.state.username,
+            empCode: element.code,
+            begda: new Date(this.begda),
+            endda: new Date(this.endda),
+            hours: element.week
+              .reduce((sum, e) => (sum += parseFloat(e)), 0)
+              .toFixed(2),
+            reformType: this.reformType,
+          });
+        }
       });
     },
     onCodeSelect(row) {
