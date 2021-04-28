@@ -316,7 +316,7 @@ export default {
             hours: day,
           });
         });
-        if (element.hourType == FRONTAL) {
+        if (element.type == FRONTAL) {
           this.teacherHours.push({
             empId: this.empId,
             mossadId: this.$store.state.logginAs,
