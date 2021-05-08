@@ -9,14 +9,16 @@
           v-model="selectedYear"
           item-text="hebrewYear"
           item-value="year"
-          label="שנה" 
+          label="שנה"
         ></v-select>
       </v-col>
       <v-col cols="12" md="2" sm="2">
         <p>מוסד - {{ mossadInfo.mossadName }}</p>
       </v-col>
       <v-col cols="12" md="2" sm="2">
-        <a @click="navToReport()">ש"ש פרונטלי מאויש - {{ mossadInfo.currHours }}</a>
+        <a @click="navToReport()"
+          >ש"ש פרונטלי מאויש - {{ mossadInfo.currHours }}</a
+        >
       </v-col>
       <v-col cols="12" md="2" sm="2">
         <p>
@@ -86,5 +88,8 @@ export default {
 <style scoped>
 p {
   font-weight: bold;
+}
+#mossadHoursDetails {
+  background-color: aliceblue;
 }
 </style>

@@ -370,9 +370,6 @@ export default {
       let newRow = {};
       let currRow = {};
 
-      // eslint-disable-next-line no-debugger
-      debugger;
-
       this.existData.forEach((el) => {
         tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
           .hourType;

@@ -545,6 +545,7 @@ p {
   margin-left: 0.7rem;
 }
 .flexEmployeeHours {
+  margin-top: 20px;
   display: flex;
 }
 </style>

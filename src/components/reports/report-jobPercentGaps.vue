@@ -236,7 +236,7 @@ export default {
             this.getTwoDigits(el.estimateJobPercent)
         );
       } else {
-        this.tableToDisplay = this.jobPercentTable;
+        this.setExistData();
       }
     },
   },
