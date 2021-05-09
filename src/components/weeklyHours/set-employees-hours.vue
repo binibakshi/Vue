@@ -1,7 +1,20 @@
 <template>
   <v-card>
     <div class="littleMargin">
-      <mossadHours :mossadInfo="mossadInfo" />
+      <div class="mossadInfoFlex">
+        <div class="MossadFlexItem">
+          <v-select
+            style="max-hight: 40px"
+            :items="$store.state.years"
+            @change="onYearChanged()"
+            v-model="selectedYear"
+            item-text="hebrewYear"
+            item-value="year"
+            label="שנה"
+          ></v-select>
+        </div>
+        <mossadHours :mossadInfo="mossadInfo" />
+      </div>
       <div v-show="mossadInfo.maxHours != null && mossadInfo.maxHours != 0">
         <div class="flexEmployeeHours">
           <v-autocomplete
@@ -27,6 +40,7 @@
               :workInReforms="workInReforms"
               :datesRange="datesRange"
               :reformTypes="reformTypes"
+              :selectedYear="selectedYear"
             />
           </div>
         </div>
@@ -133,9 +147,6 @@ export default {
       this.getAllEmpData();
       this.getMossadHours();
     });
-    bus.$on("yearChanged", async () => {
-      this.onYearChanged();
-    });
   },
   methods: {
     initilize() {
@@ -169,7 +180,7 @@ export default {
       this.compId = 0;
     },
     onYearChanged() {
-      this.selectedYear = this.$store.state.selectedYear;
+      this.$store.dispatch("setSelectedYear", this.selectedYear);
       this.getEmployeeInfo();
       this.setBegdaEndda();
       this.getMossadHours();
@@ -421,6 +432,7 @@ export default {
       }
       var birthDate = new Date(this.employeeInfo.birthDate);
       var today = new Date();
+      today.setUTCFullYear(this.selectedYear);
       var currSchoolYear = new Date(today.getFullYear(), 8, 1);
 
       if (today.getMonth() >= 8) {
@@ -547,5 +559,11 @@ p {
 .flexEmployeeHours {
   margin-top: 20px;
   display: flex;
+}
+.mossadInfoFlex {
+  margin-top: 20px;
+  display: flex;
+  border-bottom: 1px solid;
+  background-color: #f6fbff;
 }
 </style>

@@ -242,6 +242,7 @@ export default {
           params: {
             reformType: this.reformType,
             empId: this.empId,
+            year: this.$store.state.selectedYear,
           },
         })
         .then((response) => {

@@ -5,7 +5,7 @@
         v-if="empId != null"
         dense
         :headers="headers"
-        :items="rewards"
+        :items="dataByReform"
         :search="search"
         :hide-default-footer="true"
         disable-pagination
@@ -26,6 +26,7 @@
               <v-select
                 :items="reformTypes"
                 v-model="selectedReformId"
+                @change="onReformChanged()"
                 label="סוג"
                 class="little-margin"
               ></v-select>
@@ -216,7 +217,7 @@ export default {
       refToRow: {},
       rewards: [],
       studyNames: [],
-      tableData: [],
+      dataByReform: [],
       grades: [
         { text: "ט", value: 9 },
         { text: "י", value: 10 },
@@ -263,11 +264,12 @@ export default {
   methods: {
     initilize() {
       this.rewards = [];
+      this.dataByReform = [];
       this.addNewRow();
     },
     saveAll() {
       var teachersRewards = [];
-      this.rewards
+      this.dataByReform
         .filter((el) => el.recordkey != 0)
         .forEach((el) => {
           teachersRewards.push({
@@ -324,7 +326,7 @@ export default {
           studyName: currReward.studyName,
           units: currReward.studyUnits,
           actualUnits: el.actualUnits,
-          reformId: this.selectedReformId,
+          reformId: el.reformId,
           questionnaire: currReward.questionnaire,
           isExternal: el.external,
           hoursReward: el.hours,
@@ -337,9 +339,18 @@ export default {
         };
         this.rewards.push(currRow);
       });
+      if (
+        this.rewards.length > 0 &&
+        this.rewards.find((el) => el.reformId == 5) == null
+      ) {
+        this.selectedReformId = 1;
+      }
+      this.dataByReform = this.rewards
+        .filter((el) => el.reformId == this.selectedReformId)
+        .slice();
     },
     addNewRow() {
-      this.rewards.push({
+      this.dataByReform.push({
         isExternal: true,
         grade: 9,
         teachingClass: 1,
@@ -355,12 +366,13 @@ export default {
         secondTeacher: "",
         percent: 100,
         teacherPercent: 100,
+        reformId: this.selectedReformId,
       });
     },
     removeRow(row) {
-      const index = this.rewards.indexOf(row);
+      const index = this.dataByReform.indexOf(row);
       if (!this.existData.map((el) => el.rewardId).includes(row.recordkey)) {
-        this.rewards.splice(index, 1);
+        this.dataByReform.splice(index, 1);
         if (index === 0) {
           this.addNewRow();
         }
@@ -383,7 +395,8 @@ export default {
         })
         .then(() => {
           alert("הנתונים נמחקו בהצלחה");
-          this.rewards.splice(index, 1);
+          this.dataByReform.splice(index, 1);
+          this.rewards.splice(this.rewards.indexOf(row));
           if (index === 0) {
             this.addNewRow();
           }
@@ -393,6 +406,11 @@ export default {
             error,
           });
         });
+    },
+    onReformChanged() {
+      this.dataByReform = this.rewards
+        .filter((el) => el.reformId == this.selectedReformId)
+        .slice();
     },
     onStudyNameChange(row) {
       row.questionnaire = row.units = row.actualUnits = "";
@@ -616,7 +634,7 @@ export default {
         empId: "תעודת זהות",
         firstName: "שם פרטי",
         lastName: "שם משפחה",
-        mossadName: "שם מוסד",  
+        mossadName: "שם מוסד",
         year: "שנה",
         studyId: "קוד מקצוע",
         studyName: "מקצוע",

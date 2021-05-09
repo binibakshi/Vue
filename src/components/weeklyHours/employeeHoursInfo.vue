@@ -11,7 +11,7 @@
       </div>
       <div class="grid-element">
         <p>גיל</p>
-        {{ getAge() }}
+        {{ getAge }}
       </div>
       <!-- <div class="grid-element">
         <p>משרת אם</p>
@@ -83,9 +83,7 @@
       </div>
       <div class="grid-element">
         <p>אחוז קביעות</p>
-        <router-link
-          title="דף אחוז קביעות משרה"
-          :to="{ name: 'setJobPercent' }"
+        <router-link title="דף אחוז קביעות משרה" :to="{ name: 'setJobPercent' }"
           >{{ estimateJobPercent }}%
         </router-link>
       </div>
@@ -104,6 +102,7 @@ export default {
     "workInReforms",
     "datesRange",
     "reformTypes",
+    "selectedYear",
   ],
   mixins: [excelMixin],
   data() {
@@ -114,6 +113,29 @@ export default {
   },
   created() {
     this.getMossadot();
+  },
+  computed: {
+    getAge() {
+      if (this.isNotEmpty(this.employeeInfo)) {
+        return;
+      }
+      var currDate = new Date();
+      currDate.setFullYear(this.selectedYear);
+      var birthDate = new Date(this.employeeInfo.birthDate);
+      var tempMonth = 0;
+      var tempYears = currDate.getFullYear() - birthDate.getFullYear();
+      if (currDate.getUTCMonth() < birthDate.getUTCMonth()) {
+        tempYears -= 1;
+      }
+      tempMonth = currDate.getUTCMonth() - birthDate.getUTCMonth();
+      if (tempMonth < 0) {
+        tempMonth = tempMonth * -1;
+      }
+      if (tempMonth < 10) {
+        tempMonth = "0" + tempMonth;
+      }
+      return tempYears + "." + tempMonth;
+    },
   },
   methods: {
     getMossadot() {
@@ -134,26 +156,6 @@ export default {
         this.datesRange.min,
         this.datesRange.max
       );
-    },
-    getAge() {
-      if (this.isNotEmpty(this.employeeInfo)) {
-        return;
-      }
-      var currDate = new Date();
-      var birthDate = new Date(this.employeeInfo.birthDate);
-      var tempMonth = 0;
-      var tempYears = currDate.getFullYear() - birthDate.getFullYear();
-      if (currDate.getUTCMonth() < birthDate.getUTCMonth()) {
-        tempYears -= 1;
-      }
-      tempMonth = currDate.getUTCMonth() - birthDate.getUTCMonth();
-      if (tempMonth < 0) {
-        tempMonth = tempMonth * -1;
-      }
-      if (tempMonth < 10) {
-        tempMonth = "0" + tempMonth;
-      }
-      return tempYears + "." + tempMonth;
     },
     formatIsMother() {
       if (this.isNotEmpty(this.employeeInfo)) {
