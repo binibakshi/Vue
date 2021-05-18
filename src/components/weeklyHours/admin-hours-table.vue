@@ -30,7 +30,7 @@ export default {
           empId: this.empId,
           mossadId: this.$store.state.logginAs,
           changedBy: this.$store.state.username,
-          empCode: 111,
+          empCode: 71,
           begda: new Date(this.begda),
           endda: new Date(this.endda),
           hours: parseFloat(this.hours).toFixed(2),
