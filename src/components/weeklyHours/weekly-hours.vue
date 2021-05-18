@@ -25,6 +25,7 @@
         </div>
         <div id="left">
           <weeklyHoursTable
+            v-if="reformType != 8"
             :empId="empId"
             :reformType="reformType"
             :isMother="isMother"
@@ -36,6 +37,13 @@
             :codeDescription="codeDescription"
             :jobRewardTypes="jobRewardTypes"
             :rewardsHours="rewardsHours"
+          />
+          <adminHoursTable
+            v-if="reformType == 8"
+            :existTeacherHours="existTeacherHours"
+            :empId="empId"
+            :begda="table.begda"
+            :endda="table.endda"
           />
         </div>
       </div>
@@ -50,6 +58,7 @@
 <script>
 import axios from "axios";
 import weeklyHoursTable from "./weekly-hours-table";
+import adminHoursTable from "./admin-hours-table";
 
 export default {
   name: "weeklyHours",
@@ -65,7 +74,7 @@ export default {
     "jobRewardTypes",
     "rewardsHours",
   ],
-  components: { weeklyHoursTable },
+  components: { weeklyHoursTable, adminHoursTable },
   data() {
     return {
       datesRange: {
