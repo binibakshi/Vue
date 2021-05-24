@@ -122,6 +122,7 @@ import excelMixin from "../../mixins/excelMixin";
 const FRONTAL = 1;
 
 export default {
+  name: "reportWeeklyHours",
   data() {
     return {
       headers: [],
@@ -139,16 +140,19 @@ export default {
         code: [],
         status: [],
       },
+      adminHours: [],
       selectedYear: 0,
       circleProgress: false,
     };
   },
   async mounted() {
     this.initilize();
-    await this.getCodeDescription();
-    await this.getMossadot();
-    await this.getReformTypes();
-    await this.getEmployees();
+    let promises = [];
+    promises.push(this.getCodeDescription());
+    promises.push(this.getMossadot());
+    promises.push(this.getReformTypes());
+    promises.push(this.getEmployees());
+    await Promise.all(promises).then();
     await this.getSelectedData();
   },
   methods: {
@@ -259,6 +263,18 @@ export default {
           });
         }
       });
+      this.adminHours.forEach((el) => {
+        let currEmpId = this.dataToDisplay.find((e) => e.empId == el.empId);
+        if (!currEmpId) {
+          this.dataToDisplay.push({
+            empId: el.empId,
+            frontalHours: el.hours,
+            mossadId: el.mossadId,
+          });
+        } else {
+          currEmpId.hours += el.hours;
+        }
+      });
 
       // set personal details and .toFixed
       this.dataToDisplay.forEach((el) => {
@@ -281,6 +297,7 @@ export default {
     },
     async getSelectedData() {
       this.circleProgress = true;
+      let promises = [];
       var params = {
         begda: this.formatDate(new Date(this.selectedYear - 1, 7, 1)),
         endda: this.formatDate(new Date(this.selectedYear + 0, 6, 20)),
@@ -289,22 +306,46 @@ export default {
         empCode: this.addSpaceIfNeeded(this.selections.code),
         status: this.selections.status,
       };
-      await axios
-        .get("teacherEmploymentDetails/getReport", {
-          params: params,
-        })
-        .then((response) => {
-          this.existData = response.data.filter((el) =>
-            this.codeDescription.some((e) => e.code == el.empCode)
-          );
-          this.setDataToDispay();
-          setTimeout(() => (this.circleProgress = false), 1000);
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
+      promises.push(
+        axios
+          .get("teacherEmploymentDetails/getReport", {
+            params: params,
           })
+          .then((response) => {
+            this.existData = response.data.filter((el) =>
+              this.codeDescription.some((e) => e.code == el.empCode)
+            );
+          })
+          .catch((error) =>
+            this.$store.dispatch("displayErrorMessage", {
+              error,
+            })
+          )
+      );
+      if (this.selections.code == 0 || this.selections.code.includes(71)) {
+        promises.push(
+          await axios
+            .get("teacherHours/byMossadAndCode", {
+              params: {
+                mossadId: this.addSpaceIfNeeded(this.selections.mossadId),
+                empCode: "71",
+                begda: this.formatDate(new Date(this.selectedYear - 1, 7, 1)),
+                endda: this.formatDate(new Date(this.selectedYear + 0, 6, 20)),
+              },
+            })
+            .then((response) => {
+              this.adminHours = response.data;
+            })
+            .catch((error) =>
+              this.$store.dispatch("displayErrorMessage", {
+                error,
+              })
+            )
         );
+      }
+      await Promise.all(promises).then();
+      this.setDataToDispay();
+      setTimeout(() => (this.circleProgress = false), 1000);
     },
     onYearChange() {
       this.$store.dispatch("setSelectedYear", this.selectedYear);

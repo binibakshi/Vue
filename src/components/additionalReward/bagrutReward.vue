@@ -411,6 +411,9 @@ export default {
       this.dataByReform = this.rewards
         .filter((el) => el.reformId == this.selectedReformId)
         .slice();
+      if (this.dataByReform.length == 0) {
+        this.addNewRow();
+      }
     },
     onStudyNameChange(row) {
       row.questionnaire = row.units = row.actualUnits = "";

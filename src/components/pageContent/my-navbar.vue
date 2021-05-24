@@ -151,7 +151,7 @@ export default {
         { text: "דוח פערי אחוזי משרה", url: "/report/reportJobPercentGaps" },
         {
           text: "דוח פערי שעות שבועיות",
-          url: "/report/reporstTeacherHoursGaps",
+          url: "/report/reportTeacherHoursGaps",
         },
       ],
     };

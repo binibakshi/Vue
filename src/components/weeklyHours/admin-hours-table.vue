@@ -1,8 +1,14 @@
 <template>
   <div class="adminHours center">
-    <v-text-field v-model="hours" label="שעות" type="number" />
+    <v-text-field
+      v-model="hours"
+      label="שעות"
+      type="number"
+      min="0"
+      @change="handleHoursChanged()"
+    />
     <v-text-field disabled></v-text-field>
-    <v-btn dense @click="saveHours()">שמור</v-btn>
+    <v-btn color="primary" dense @click="saveHours()">שמור</v-btn>
   </div>
 </template>
 
@@ -51,6 +57,11 @@ export default {
             error,
           });
         });
+    },
+    handleHoursChanged() {
+      if (this.hours <= 0) {
+        this.hours = 0;
+      }
     },
   },
 };

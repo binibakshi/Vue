@@ -1,32 +1,5 @@
 <template>
   <div>
-    <v-row id="selections" class="center" style="align-items: initial">
-      <v-col cols="12" md="2">
-        <v-select
-          :items="$store.state.years"
-          v-model="selectedYear"
-          item-text="hebrewYear"
-          item-value="year"
-          label="שנה"
-          placeholder="בחר שנה"
-          @change="onYearChange()"
-        ></v-select>
-      </v-col>
-      <v-col cols="12" md="2" v-if="this.$store.state.mossadId == 999">
-        <v-autocomplete
-          v-model="selectedMossadId"
-          :items="mossadot"
-          item-text="mossadName"
-          item-value="mossadId"
-          label="מוסד"
-          placeholder="בחר מוסד"
-        ></v-autocomplete>
-      </v-col>
-      <v-col cols="12" md="1">
-        <v-btn color="primary" @click="getRewards()">חפש</v-btn>
-      </v-col>
-    </v-row>
-
     <div id="jobRewardsReport">
       <v-data-table
         dense
@@ -82,16 +55,14 @@
 import axios from "axios";
 import excelMixin from "../../mixins/excelMixin";
 export default {
+  props: ["selectedYear", "selectedMossadId"],
   data() {
     return {
       search: "",
       rewards: [],
       additionalReward: [],
-      mossadot: [],
       employees: [],
       dataToDisplay: [],
-      selectedYear: 0,
-      selectedMossadId: 0,
       headers: [
         {
           text: "תעודת זהות",
@@ -137,39 +108,11 @@ export default {
     };
   },
   async mounted() {
-    this.initilize();
     await this.getEmployees();
-    await this.getMossadot();
     await this.getJobRewards();
     await this.getRewards();
   },
   methods: {
-    initilize() {
-      if (this.$store.state.selectedYear != 0) {
-        this.selectedYear = this.$store.state.selectedYear;
-      } else {
-        let currDate = new Date();
-        this.selectedYear =
-          currDate.getMonth() >= 8
-            ? currDate.getFullYear() + 1
-            : currDate.getFullYear();
-      }
-      if (this.$store.state.logginAs == this.$store.state.logginAs) {
-        this.selectedMossadId = this.$store.state.logginAs;
-      }
-    },
-    async getMossadot() {
-      await axios
-        .get("mossadot/all")
-        .then((response) => {
-          this.mossadot = response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
-    },
     async getRewards() {
       this.rewards = [];
       await axios
@@ -269,10 +212,6 @@ export default {
       this.$store.dispatch("setLoggedAs", this.selectedMossadId);
       let routeData = this.$router.resolve({ name: "jobRewards" });
       window.open(routeData.href);
-    },
-    onYearChange() {
-      this.$store.dispatch("setSelectedYear", this.selectedYear);
-      this.getRewards();
     },
     expandExcel() {
       var excelHeaders = {

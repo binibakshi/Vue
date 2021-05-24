@@ -215,10 +215,11 @@ export default {
       }
     },
     getPauseAndPrivateHours() {
+      let currOptions;
       if (this.reformType != 2 && this.reformType != 5) {
         return;
       }
-      var totalFrontalHours = Math.round(
+      let totalFrontalHours = Math.round(
         this.newHours
           .filter((el) => el.type == FRONTAL)
           .reduce((sum, record) => sum + parseFloat(record.hours), 0)
@@ -226,15 +227,30 @@ export default {
       if (totalFrontalHours <= 0) {
         return;
       }
-      this.newHours.find((el) => el.type == PAUSE).hours = this.empOptions.find(
+      currOptions = this.empOptions.find(
         (el) => el.frontalHours == totalFrontalHours
-      ).pauseHours;
-
-      this.newHours.find(
-        (el) => el.type == PRIVATE
-      ).hours = this.empOptions.find(
-        (el) => el.frontalHours == totalFrontalHours
-      ).privateHours;
+      );
+      if (!currOptions) {
+        console.log("error currOption not found value");
+        return;
+      }
+      if (currOptions.pauseHours == 0) {
+        this.newHours.find((el) => el.type == PAUSE).week = [0, 0, 0, 0, 0, 0];
+      }
+      if (currOptions.privateHours == 0) {
+        this.newHours.find((el) => el.type == PRIVATE).week = [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+        ];
+      }
+      this.newHours.find((el) => el.type == PAUSE).hours =
+        currOptions.pauseHours;
+      this.newHours.find((el) => el.type == PRIVATE).hours =
+        currOptions.privateHours;
     },
     async getEmployeeOptions() {
       await axios
@@ -578,10 +594,9 @@ export default {
         .toFixed(2);
     },
     dayAmount(day) {
-      return this.newHours.reduce(
-        (acc, item) => parseFloat(acc) + parseFloat(item.week[day]),
-        0
-      );
+      return this.newHours
+        .reduce((acc, item) => parseFloat(acc) + parseFloat(item.week[day]), 0)
+        .toFixed(2);
     },
     cleanWeeklyData() {
       this.newHours.forEach((el) => {

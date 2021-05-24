@@ -282,7 +282,7 @@ th {
 }
 .excelMDI {
   color: green;
-  background-color: lightgray;
+  /* background-color: lightgray; */
 }
 .v-icon:hover {
   color: blue;

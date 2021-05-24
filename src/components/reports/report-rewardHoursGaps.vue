@@ -1,43 +1,5 @@
 <template>
   <div>
-    <v-row id="selections" class="center" style="align-items: initial">
-      <v-col cols="12" md="2">
-        <v-select
-          :items="$store.state.years"
-          v-model="selectedYear"
-          item-text="hebrewYear"
-          item-value="year"
-          label="שנה"
-          placeholder="בחר שנה"
-          @change="onYearChange()"
-        ></v-select>
-      </v-col>
-      <v-col cols="12" md="2" v-if="this.$store.state.mossadId == 999">
-        <v-autocomplete
-          v-model="selectedMossadId"
-          :items="mossadot"
-          item-text="mossadName"
-          item-value="mossadId"
-          label="מוסד"
-          placeholder="בחר מוסד"
-          @change="getGaps()"
-        ></v-autocomplete>
-      </v-col>
-      <!-- <v-col cols="12" md="2">
-        <v-select
-          class="myMaxWindth"
-          v-model="selectedReformType"
-          :items="reformTable"
-          hide-selected
-          label="רפורמה"
-          placeholder="בחר"
-          @change="getGaps()"
-        ></v-select>
-      </v-col> -->
-      <v-col cols="12" md="1">
-        <v-btn color="primary" @click="getGaps()">חפש</v-btn>
-      </v-col>
-    </v-row>
     <v-data-table
       dense
       fixed-header
@@ -97,6 +59,7 @@
 <script>
 import axios from "axios";
 export default {
+  props: ["selectedYear", "selectedMossadId"],
   data() {
     return {
       gapsTable: [],
@@ -133,37 +96,18 @@ export default {
           value: "rewardType",
         },
       ],
-      mossadot: [],
       tableData: [],
       reformTable: [
         { text: "עוז לתמורה", value: 5 },
         { text: "עולם ישן", value: 2 },
       ],
-      selectedYear: 0,
-      selectedMossadId: 0,
       selectedReformType: 5,
     };
   },
   async created() {
-    this.initilize();
     await this.getGaps();
-    await this.getMossadot();
   },
   methods: {
-    initilize() {
-      if (this.$store.state.selectedYear != 0) {
-        this.selectedYear = this.$store.state.selectedYear;
-      } else {
-        let currDate = new Date();
-        this.selectedYear =
-          currDate.getMonth() >= 8
-            ? currDate.getFullYear() + 1
-            : currDate.getFullYear();
-      }
-      if (this.$store.state.logginAs == this.$store.state.logginAs) {
-        this.selectedMossadId = this.$store.state.logginAs;
-      }
-    },
     async getGaps() {
       await axios
         .get("teachersRewards/findGaps", {
@@ -181,22 +125,6 @@ export default {
             error,
           })
         );
-    },
-    async getMossadot() {
-      await axios
-        .get("mossadot/all")
-        .then((response) => {
-          this.mossadot = response.data;
-        })
-        .catch((error) =>
-          this.$store.dispatch("displayErrorMessage", {
-            error,
-          })
-        );
-    },
-    onYearChange() {
-      this.$store.dispatch("setSelectedYear", this.selectedYear);
-      this.getGaps();
     },
     buttomText() {
       return !this.onlyGaps ? "רק חריגות" : "הצג הכל";
