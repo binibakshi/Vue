@@ -56,7 +56,6 @@
           <td>
             <router-link
               v-if="isBagrutReward(row.code)"
-              @click.native="beforeOpenRewards"
               title="מעבר לגמולי בגרות"
               :to="{ name: 'AdditionalRewards' }"
             >
@@ -64,7 +63,6 @@
             </router-link>
             <router-link
               v-if="isJobReward(row.code)"
-              @click.native="beforeOpenRewards"
               title="מעבר לגמולי תפקיד"
               :to="{ name: 'jobRewards' }"
             >
@@ -359,13 +357,6 @@ export default {
         this.getPauseAndPrivateHours();
       }
       this.setPrivateAndPauseCodes(row.code);
-    },
-    beforeOpenRewards() {
-      this.$store.dispatch("setEmpId", this.empId);
-      this.$store.dispatch(
-        "setSelectedYear",
-        new Date(this.endda).getFullYear()
-      );
     },
     setPrivateAndPauseCodes(code) {
       if ((this.reformType != 2 && this.reformType != 5) || code == "") {
