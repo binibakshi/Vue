@@ -5,7 +5,7 @@ import router from "../router/router";
 import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
-axios.defaults.baseURL = "https://10.3.10.101:9191";
+axios.defaults.baseURL = "https://10.3.10.101:8443";
 // axios.defaults.baseURL = "http://134.122.120.245:9191";
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
