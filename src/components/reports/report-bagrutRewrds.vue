@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="bagrutRewardsReport">
+    <div class="bagrutRewardsReport">
       <v-data-table
         dense
         :headers="headers"
@@ -289,7 +289,7 @@ export default {
 </script>
 
 <style scoped>
-#bagrutRewardsReport {
+.bagrutRewardsReport {
   max-width: 70%;
   margin: auto;
 }

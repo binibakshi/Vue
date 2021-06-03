@@ -1,11 +1,6 @@
 <template>
   <div>
-    <v-row
-      v-show="showDefalutHeader"
-      id="selections"
-      class="center"
-      style="align-items: initial"
-    >
+    <v-row v-if="showDefalutHeader" class="center" style="align-items: initial">
       <v-col cols="12" md="2">
         <v-select
           :items="$store.state.years"
@@ -28,12 +23,12 @@
         ></v-autocomplete>
       </v-col>
       <v-col cols="12" md="1">
-        <v-btn color="primary" @click="compId++">חפש</v-btn>
+        <v-btn color="primary" @click="changeReport()">חפש</v-btn>
       </v-col>
     </v-row>
     <component
-      :key="compId"
-      v-bind:is="comp"
+      :key="displayCompId"
+      :is="comp"
       :selectedYear="selectedYear"
       :selectedMossadId="selectedMossadId"
     ></component>
@@ -42,8 +37,23 @@
 
 <script>
 import axios from "axios";
+import reportBagrutRewards from "../components/reports/report-bagrutRewrds.vue";
+import reportJobRewards from "../components/reports/report-jobRewards.vue";
+import reportWeeklyHours from "../components/reports/report-weeklyHours.vue";
+import reportRewardGaps from "../components/reports/report-rewardHoursGaps.vue";
+import reportJobPercentGaps from "../components/reports/report-jobPercentGaps";
+import reportTeacherHoursGaps from "../components/reports/report-hoursGaps.vue";
+
 export default {
   name: "report",
+  components: {
+    reportBagrutRewards,
+    reportJobRewards,
+    reportWeeklyHours,
+    reportRewardGaps,
+    reportJobPercentGaps,
+    reportTeacherHoursGaps,
+  },
   data() {
     return {
       components: [
@@ -104,6 +114,7 @@ export default {
       if (this.$store.state.logginAs == this.$store.state.logginAs) {
         this.selectedMossadId = this.$store.state.logginAs;
       }
+      this.changeReport();
     },
     async getMossadot() {
       await axios
@@ -121,16 +132,27 @@ export default {
       this.$store.dispatch("setSelectedYear", this.selectedYear);
       this.compId++;
     },
+    changeReport() {
+      this.compId++;
+    },
   },
   computed: {
+    // comp() {
+    //   return defineAsyncComponent(() =>
+    //     import(
+    //       `../components/reports/${
+    //         this.components.find((el) => el.name == this.$route.params.id)
+    //           .location
+    //       }`
+    //     )
+    //   );
+    // },
     comp() {
-      return () =>
-        import(
-          `../components/reports/${
-            this.components.find((el) => el.name == this.$route.params.id)
-              .location
-          }`
-        );
+      return this.components.find((el) => el.name == this.$route.params.id)
+        .name;
+    },
+    displayCompId() {
+      return this.$route.params.id + this.compId;
     },
     componentInstance() {
       return this.$route.params.id;

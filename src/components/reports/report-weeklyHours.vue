@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row id="selections" class="center" style="align-items: initial">
+    <v-row class="center" style="align-items: initial">
       <v-col cols="12" md="2">
         <v-select
           :items="$store.state.years"
@@ -55,7 +55,7 @@
         v-show="circleProgress"
       ></v-progress-circular>
     </div>
-    <div id="weeklyHoursReport">
+    <div class="weeklyHoursReport">
       <v-data-table
         dense
         v-show="!circleProgress"
@@ -405,7 +405,7 @@ export default {
 </script>
 
 <style scoped>
-#weeklyHoursReport {
+.weeklyHoursReport {
   max-width: 60%;
   margin: auto;
 }

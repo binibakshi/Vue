@@ -22,8 +22,7 @@
           'items-per-page-text': 'מספר תוצאות  :',
         }"
         no-data-text="לא נמצאו נתונים עבור החיפוש המבוקש"
-        class="elevation-1 center"
-        id="gapsTable"
+        class="elevation-1 center gapsTable"
       >
         <template v-slot:top>
           <v-toolbar flat color="white">
@@ -68,8 +67,7 @@
 <script>
 import axios from "axios";
 export default {
-  
-  props:["selectedYear","selectedMossadId"],
+  props: ["selectedYear", "selectedMossadId"],
   data() {
     return {
       gapsTable: [],
@@ -166,7 +164,7 @@ export default {
 </script>
 
 <style scoped>
-#gapsTable {
+.gapsTable {
   width: 50%;
   margin-top: 50px;
 }

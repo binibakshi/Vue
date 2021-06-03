@@ -5,12 +5,13 @@ import router from "../router/router";
 import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
-axios.defaults.baseURL = "https://10.3.10.101:8443";
-// axios.defaults.baseURL = "http://134.122.120.245:9191";
+// axios.defaults.baseURL = "https://10.3.10.101:8443";
+axios.defaults.baseURL = "http://134.122.120.245:9191";
+// axios.defaults.baseURL = "http://localhost:9191";
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
 // if (process.env.NODE_ENV != 'development') {
-//     axios.defaults.baseURL = "http://134.122.120.245:9191";
+//     axios.defaults.baseURL = "http:teacherHours//134.122.120.245:9191";
 // }
 
 export const store = new Vuex.Store({
@@ -89,9 +90,22 @@ export const store = new Vuex.Store({
                     context.commit("retrieveToken", token);
                 })
                 .catch((error) => {
-                    context.dispatch("displayErrorMessage", {
-                        error,
-                    });
+                    if (!error.error || !error.error.response) {
+                        alert("  אירעה שגיאה במהלך נסיון התחברות ");
+                    } else if (
+                        error.error.response.status != undefined &&
+                        (error.error.response.status == 401 ||
+                            (error.error.response.status == 500 &&
+                                error.error.response.data.message != undefined &&
+                                error.error.response.data.message.startsWith("JWT")))
+                    ) {
+                        if (this.$store.state.token != null) {
+                            // alert("שגיאה בהתחברות");
+                            this.Store.dispatch("destroyToken");
+                        }
+                    } else {
+                        alert("  אירעה שגיאה במהלך נסיון התחברות ");
+                    }
                 });
         },
         destroyToken(context) {
@@ -111,22 +125,7 @@ export const store = new Vuex.Store({
         displayErrorMessage(context, error) {
             // eslint-disable-next-line no-debugger
             debugger;
-            if (
-                error.error.response.status != undefined &&
-                (error.error.response.status == 401 ||
-                    (error.error.response.status == 500 &&
-                        error.error.response.data.message != undefined &&
-                        error.error.response.data.message.startsWith("JWT")))
-            ) {
-                if (context.state.token != null) {
-                    alert("התחבר מחדש");
-                    context.dispatch("destroyToken");
-                }
-            } else if (
-                error.error == undefined ||
-                error.error.response == undefined ||
-                error.error.response.data.errorMessage == undefined
-            ) {
+            if (!error.error) {
                 console.log(error);
             } else {
                 alert(error.error.response.data.errorMessage);

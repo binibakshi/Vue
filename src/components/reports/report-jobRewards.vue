@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="jobRewardsReport">
+    <div class="jobRewardsReport">
       <v-data-table
         dense
         :headers="headers"
@@ -272,7 +272,7 @@ export default {
 </script>
 
 <style scoped>
-#jobRewardsReport {
+.jobRewardsReport {
   max-width: 70%;
   margin: auto;
 }

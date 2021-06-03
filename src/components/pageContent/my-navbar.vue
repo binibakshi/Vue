@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-tabs class="grey lighten-3 navBar">
+    <v-tabs v-if="_isLogged" class="grey lighten-3 navBar">
       <v-tab to="/empInfo"> איוש שעות </v-tab>
       <v-menu left offset-y>
         <template v-slot:activator="{ on, attrs }">

@@ -22,14 +22,14 @@
           <td>
             <div id="additionalActions">
               <v-icon
-                id="myPlusIcon"
+                class="myPlusIcon"
                 dense
                 @click="addNewRow(index)"
                 v-if="row.type == frontalConst"
                 >mdi-plus-circle-outline</v-icon
               >
               <v-icon
-                id="myMinusIcon"
+                class="myMinusIcon"
                 dense
                 @click="removeRow(index)"
                 v-if="row.type == frontalConst"
@@ -70,7 +70,6 @@
             </router-link>
             <input
               v-if="!isRewradHours(row.code)"
-              id="hours"
               type="number"
               min="0"
               step="0.1"
@@ -286,7 +285,7 @@ export default {
 
       // first insert teacher hours(only hours per empCode)
       await axios({
-        url: "/teacherHours/saveAll",
+        url: "/teacherHours/deleteInsertAll",
         method: "post",
         data: this.teacherHours,
       })
@@ -699,10 +698,10 @@ input[type="number"] {
 #additionalActions {
   display: flex;
 }
-#myPlusIcon {
+.myPlusIcon {
   color: rgb(26, 26, 107);
 }
-#myMinusIcon {
+.myMinusIcon {
   color: rgb(190, 30, 30);
 }
 </style>

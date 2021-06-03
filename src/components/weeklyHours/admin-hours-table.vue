@@ -14,6 +14,7 @@
 
 <script>
 import axios from "axios";
+import { bus } from "../../main";
 export default {
   props: ["empId", "begda", "endda", "existTeacherHours"],
   data() {
@@ -51,6 +52,7 @@ export default {
       })
         .then(() => {
           alert("הנתונים נשמרו בהצלחה");
+          bus.$emit("changeWeeklyHours");
         })
         .catch((error) => {
           this.$store.dispatch("displayErrorMessage", {
