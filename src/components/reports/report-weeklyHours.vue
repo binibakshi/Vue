@@ -263,6 +263,8 @@ export default {
           });
         }
       });
+      // eslint-disable-next-line no-debugger
+      debugger;
       this.adminHours.forEach((el) => {
         let currEmpId = this.dataToDisplay.find((e) => e.empId == el.empId);
         if (!currEmpId) {
@@ -272,7 +274,7 @@ export default {
             mossadId: el.mossadId,
           });
         } else {
-          currEmpId.hours += el.hours;
+          currEmpId.frontalHours += el.hours;
         }
       });
 
