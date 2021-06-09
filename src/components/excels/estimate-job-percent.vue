@@ -104,7 +104,7 @@ export default {
         empId: "תעודת זהות",
         mossadId: "קוד מוסד",
         year: "שנה",
-        jobPercent: "אחוז קביעות משרה",
+        estimateJobPercent: "אחוז קביעות משרה",
       };
       return headers;
     },
@@ -127,9 +127,9 @@ export default {
         workbook.Sheets[sheetName].C1.h = "year";
         workbook.Sheets[sheetName].C1.v = "year";
         workbook.Sheets[sheetName].C1.w = "year";
-        workbook.Sheets[sheetName].D1.h = "jobPercent";
-        workbook.Sheets[sheetName].D1.v = "jobPercent";
-        workbook.Sheets[sheetName].D1.w = "jobPercent";
+        workbook.Sheets[sheetName].D1.h = "estimateJobPercent";
+        workbook.Sheets[sheetName].D1.v = "estimateJobPercent";
+        workbook.Sheets[sheetName].D1.w = "estimateJobPercent";
 
         let worksheet = workbook.Sheets[sheetName];
         this.estimateJobPercentTable = XLSX.utils.sheet_to_json(worksheet);

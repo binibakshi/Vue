@@ -25,7 +25,11 @@
           :items="employeesTable"
           :items-per-page="50"
           class="elevation-1"
-        ></v-data-table>
+        >
+          <template v-slot:[`item.birthDate`]="{ item }">{{
+            formattedDate(item.birthDate)
+          }}</template></v-data-table
+        >
       </div>
     </div>
   </div>
@@ -148,12 +152,12 @@ export default {
         workbook.Sheets[sheetName].D1.h = "birthDate";
         workbook.Sheets[sheetName].D1.v = "birthDate";
         workbook.Sheets[sheetName].D1.w = "birthDate";
-        workbook.Sheets[sheetName].E1.h = "mother";
-        workbook.Sheets[sheetName].E1.v = "mother";
-        workbook.Sheets[sheetName].E1.w = "mother";
-        workbook.Sheets[sheetName].F1.h = "ageHours";
-        workbook.Sheets[sheetName].F1.v = "ageHours";
-        workbook.Sheets[sheetName].F1.w = "ageHours";
+        // workbook.Sheets[sheetName].E1.h = "mother";
+        // workbook.Sheets[sheetName].E1.v = "mother";
+        // workbook.Sheets[sheetName].E1.w = "mother";
+        workbook.Sheets[sheetName].E1.h = "ageHours";
+        workbook.Sheets[sheetName].E1.v = "ageHours";
+        workbook.Sheets[sheetName].E1.w = "ageHours";
 
         let worksheet = workbook.Sheets[sheetName];
         this.employeesTable = XLSX.utils.sheet_to_json(worksheet);
