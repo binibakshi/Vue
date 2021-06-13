@@ -494,6 +494,9 @@ export default {
       }
     },
     onPercentChange(row) {
+      if (row.teacherPercent > 100) {
+          row.teacherPercent = 100
+      }
       row.hoursReward = (
         (row.teacherPercent / 100) *
         this.getMaxHours(row)

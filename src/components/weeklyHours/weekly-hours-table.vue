@@ -236,12 +236,7 @@ export default {
       }
       if (currOptions.privateHours == 0) {
         this.newHours.find((el) => el.type == PRIVATE).week = [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
+          0, 0, 0, 0, 0, 0,
         ];
       }
       this.newHours.find((el) => el.type == PAUSE).hours =
@@ -378,8 +373,9 @@ export default {
       let currRow = {};
 
       this.existData.forEach((el) => {
-        tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
-          .hourType;
+        tempHourType = this.codeDescription.find(
+          (e) => e.code == el.empCode
+        ).hourType;
         // check if first insert and if need to create new row(for frontal only)
         if (
           tempHourType == FRONTAL &&
@@ -407,8 +403,9 @@ export default {
       });
       //Set teacher hours from table can be diffrences
       this.existTeacherHours.forEach((el) => {
-        tempHourType = this.codeDescription.find((e) => e.code == el.empCode)
-          .hourType;
+        tempHourType = this.codeDescription.find(
+          (e) => e.code == el.empCode
+        ).hourType;
         currRow = this.newHours.find((e) => e.code == el.empCode);
         if (currRow != undefined) {
           currRow.hours = el.hours;
