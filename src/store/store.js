@@ -5,8 +5,8 @@ import router from "../router/router";
 import createPersistedState from "vuex-persistedstate";
 
 Vue.use(Vuex);
-// axios.defaults.baseURL = "https://hr.ots.org.il:8443";
-axios.defaults.baseURL = "https://bennytest.club:9191";
+axios.defaults.baseURL = "https://hr.ots.org.il:8443";
+// axios.defaults.baseURL = "https://bennytest.club:9191";
 // axios.defaults.baseURL = "http://localhost:9191";
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
