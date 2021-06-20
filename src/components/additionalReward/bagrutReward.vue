@@ -408,12 +408,11 @@ export default {
         });
     },
     onReformChanged() {
-      this.dataByReform = this.rewards
-        .filter((el) => el.reformId == this.selectedReformId)
-        .slice();
-      if (this.dataByReform.length == 0) {
-        this.addNewRow();
+      if (!confirm("האם אתה בטוח שברצונך לשנות רפורמה")) {
+        return;
       }
+      this.dataByReform.map((el) => (el.reformId = this.selectedReformId));
+      this.saveAll();
     },
     onStudyNameChange(row) {
       row.questionnaire = row.units = row.actualUnits = "";
@@ -495,7 +494,7 @@ export default {
     },
     onPercentChange(row) {
       if (row.teacherPercent > 100) {
-          row.teacherPercent = 100
+        row.teacherPercent = 100;
       }
       row.hoursReward = (
         (row.teacherPercent / 100) *
