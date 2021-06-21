@@ -20,7 +20,7 @@
           <v-toolbar-title>
             <v-card-title>
               <v-row>
-                <v-col cols="12" md="8">
+                <v-col cols="12" md="4">
                   <v-text-field
                     v-model="search"
                     label="Search"
@@ -31,8 +31,12 @@
                     append-icon="mdi-magnify"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="4">
-                  <v-btn @click="handleFilterGaps()">{{ buttomText() }}</v-btn>
+                <v-col cols="12" md="8"
+                  ><v-btn @click="handleFilterGaps('All')">הצג הכל</v-btn>
+                  <v-btn @click="handleFilterGaps('GapsOnly')">רק חריגות</v-btn>
+                  <v-btn @click="handleFilterGaps('ZerosOnly')"
+                    >לא מאוייש</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-card-title>
@@ -61,7 +65,6 @@ export default {
     return {
       gapsTable: [],
       tableToDisplay: [],
-      onlyGaps: false,
       search: "",
       headers: [
         {
@@ -150,9 +153,6 @@ export default {
         });
       });
     },
-    buttomText() {
-      return !this.onlyGaps ? "רק חריגות" : "הצג הכל";
-    },
     onRowClicked(row) {
       this.$store.dispatch("setEmpId", row.empId);
       this.$store.dispatch("setLoggedAs", this.selectedMossadId);
@@ -165,16 +165,18 @@ export default {
       }
       return parseFloat(number).toFixed(2);
     },
-    handleFilterGaps() {
-      this.onlyGaps = !this.onlyGaps;
-      if (this.onlyGaps) {
+    handleFilterGaps(filter) {
+      this.setExistData();
+      if (filter == "GapsOnly") {
         this.tableToDisplay = this.tableToDisplay.filter(
           (el) =>
             this.getTwoDigits(el.jobPercent) !=
             this.getTwoDigits(el.estimateJobPercent)
         );
-      } else {
-        this.setExistData();
+      } else if (filter == "ZerosOnly") {
+        this.tableToDisplay = this.tableToDisplay.filter(
+          (el) => el.jobPercent == 0
+        );
       }
     },
   },
@@ -183,7 +185,7 @@ export default {
 
 <style scoped>
 .gapsTable {
-  width: 50%;
+  width: 70%;
   margin-top: 50px;
 }
 </style>

@@ -46,7 +46,7 @@
                         v-on="on"
                         @mouseover="changeText(row.type, index - 1)"
                       >
-                        {{ row.week[index - 1].hours }}</span
+                        {{ getTwoDigits(row.week[index - 1].hours) }}</span
                       >
                     </template>
                     <span>{{ hoverText }}</span>

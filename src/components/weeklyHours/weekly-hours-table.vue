@@ -566,7 +566,7 @@ export default {
         parseFloat(
           weekArray.reduce((acc, item) => parseFloat(acc) + parseFloat(item), 0)
         ) - row.hours
-      );
+      ).toFixed(2);
     },
     leftTableHours() {
       return this.newHours.reduce(
